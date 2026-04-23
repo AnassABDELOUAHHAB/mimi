@@ -50,5 +50,25 @@ if (board) {
         dragged.style.backgroundPosition = temp;
       }
     };
+
+let score = 0;
+const btn = document.getElementById("btn");
+
+if (btn) {
+  btn.onclick = () => {
+    score++;
+    document.getElementById("score").innerText = score;
+
+    // floating heart effect
+    let heart = document.createElement("div");
+    heart.innerHTML = "❤️";
+    heart.style.position = "absolute";
+    heart.style.left = Math.random() * window.innerWidth + "px";
+    heart.style.top = "80%";
+    document.body.appendChild(heart);
+
+    setTimeout(() => heart.remove(), 1000);
+  };
+}
   });
 }
