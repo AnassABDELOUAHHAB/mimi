@@ -7,13 +7,25 @@
 </head>
 <body>
 
-<h1>🧩 Memory Puzzle</h1>
-<p>Rebuild the image</p>
+<h1>🧩 Rebuild the Memory</h1>
+<p>Drag the pieces from the right to the board</p>
 
-<div id="board"></div>
+<div class="game">
 
-<br>
-<a class="btn" href="game.html">Next</a>
+  <!-- LEFT: BOARD -->
+  <div id="board"></div>
+
+  <!-- RIGHT: PIECES -->
+  <div id="pieces"></div>
+
+</div>
+
+<!-- WIN MESSAGE -->
+<div id="gift" class="hidden">
+  🎁 <br>
+  <h2>Surprise Unlocked!</h2>
+  <p>You completed it ❤️</p>
+</div>
 
 <script src="script.js"></script>
 </body>
