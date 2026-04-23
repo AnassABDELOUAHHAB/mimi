@@ -3,34 +3,56 @@ body {
   font-family: Arial;
   text-align: center;
   color: white;
+  background: #0b0b1a;
   overflow-x: hidden;
 }
 
-/* Animated gradient background */
+/* animated dreamy background */
 body::before {
   content: "";
   position: fixed;
   width: 200%;
   height: 200%;
-  background: linear-gradient(-45deg, #ff4d6d, #6a5cff, #00d4ff, #ffcc70);
-  background-size: 400% 400%;
-  animation: bg 10s ease infinite;
+  background: radial-gradient(circle at 20% 20%, #ff4d6d33, transparent 40%),
+              radial-gradient(circle at 80% 30%, #6a5cff33, transparent 40%),
+              radial-gradient(circle at 50% 80%, #00d4ff22, transparent 40%);
+  animation: move 12s ease-in-out infinite;
   z-index: -1;
 }
 
-@keyframes bg {
-  0% {transform: translate(0,0);}
-  50% {transform: translate(-25%, -25%);}
-  100% {transform: translate(0,0);}
+@keyframes move {
+  0% { transform: translate(0,0); }
+  50% { transform: translate(-5%, -5%); }
+  100% { transform: translate(0,0); }
 }
 
+/* buttons */
 .btn {
+  display: inline-block;
   padding: 12px 20px;
   margin: 10px;
-  display: inline-block;
-  background: rgba(255,255,255,0.2);
-  color: white;
   border-radius: 12px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: white;
   text-decoration: none;
-  backdrop-filter: blur(10px);
+  transition: 0.3s;
+}
+
+.btn:hover {
+  transform: scale(1.05);
+  background: rgba(255,255,255,0.2);
+}
+
+.center {
+  margin-top: 20vh;
+}
+
+/* puzzle board */
+#board {
+  width: 300px;
+  height: 300px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
 }
