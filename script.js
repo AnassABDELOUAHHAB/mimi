@@ -1,61 +1,96 @@
-
-// -------------------- PUZZLE --------------------
 const board = document.getElementById("board");
+const piecesBox = document.getElementById("pieces");
+const gift = document.getElementById("gift");
 
-if (board) {
-  let pieces = [];
+let correct = 0;
 
-  for (let i = 0; i < 9; i++) {
-    let p = document.createElement("div");
+// create pieces
+let pieces = [];
 
-    p.style.width = "100px";
-    p.style.height = "100px";
-    p.style.backgroundImage = "url(image.jpg)";
-    p.style.backgroundSize = "300px 300px";
-    p.style.backgroundPosition =
-      `${-(i % 3) * 100}px ${-Math.floor(i / 3) * 100}px`;
+for (let i = 0; i < 9; i++) {
+  let piece = document.createElement("div");
 
-    p.draggable = true;
-    pieces.push(p);
-    board.appendChild(p);
-  }
+  piece.classList.add("piece");
 
-  pieces.sort(() => Math.random() - 0.5);
-  pieces.forEach(p => board.appendChild(p));
+  piece.style.backgroundPosition =
+    `${-(i % 3) * 100}px ${-Math.floor(i / 3) * 100}px`;
 
-  let dragged = null;
+  piece.setAttribute("data-id", i);
+  piece.draggable = true;
 
-  pieces.forEach(p => {
-    p.ondragstart = () => dragged = p;
-
-    p.ondragover = e => e.preventDefault();
-
-    p.ondrop = function () {
-      if (dragged !== this) {
-        let temp = this.style.backgroundPosition;
-        this.style.backgroundPosition = dragged.style.backgroundPosition;
-        dragged.style.backgroundPosition = temp;
-      }
-    };
-  });
+  pieces.push(piece);
 }
 
-// -------------------- CLICK GAME --------------------
-let score = 0;
-const btn = document.getElementById("btn");
+// shuffle pieces in tray
+pieces.sort(() => Math.random() - 0.5);
+pieces.forEach(p => piecesBox.appendChild(p));
 
-if (btn) {
-  btn.onclick = () => {
-    score++;
-    document.getElementById("score").innerText = "Connection: " + score + "%";
+// drag start
+let dragged = null;
 
-    let heart = document.createElement("div");
-    heart.innerHTML = "💖";
-    heart.style.position = "absolute";
-    heart.style.left = Math.random() * window.innerWidth + "px";
-    heart.style.top = "80%";
-    document.body.appendChild(heart);
+pieces.forEach(p => {
+  p.addEventListener("dragstart", () => {
+    dragged = p;
+  });
+});
 
-    setTimeout(() => heart.remove(), 1000);
-  };
+// allow drop on board
+board.addEventListener("dragover", e => e.preventDefault());
+
+board.addEventListener("drop", function (e) {
+  if (!dragged) return;
+
+  board.appendChild(dragged);
+
+  checkWin();
+});
+
+// also allow moving back to tray
+piecesBox.addEventListener("dragover", e => e.preventDefault());
+
+piecesBox.addEventListener("drop", function () {
+  if (!dragged) return;
+
+  piecesBox.appendChild(dragged);
+
+  checkWin();
+});
+
+// WIN CHECK
+function checkWin() {
+  let current = board.querySelectorAll(".piece");
+
+  if (current.length !== 9) return;
+
+  let correctOrder = true;
+
+  current.forEach((p, index) => {
+    if (parseInt(p.dataset.id) !== index) {
+      correctOrder = false;
+    }
+  });
+
+  if (correctOrder) {
+    showGift();
+  }
+}
+
+// 🎁 GIFT EFFECT
+function showGift() {
+  gift.classList.remove("hidden");
+
+  document.body.style.background = "radial-gradient(circle, gold, black)";
+
+  let confetti = setInterval(() => {
+    let c = document.createElement("div");
+    c.innerHTML = "🎉";
+    c.style.position = "absolute";
+    c.style.left = Math.random() * window.innerWidth + "px";
+    c.style.top = "0px";
+    document.body.appendChild(c);
+
+    setTimeout(() => c.remove(), 2000);
+  }, 200);
+
+  setTimeout(() => clearInterval(confetti), 3000);
 }
