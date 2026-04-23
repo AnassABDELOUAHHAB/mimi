@@ -1,47 +1,53 @@
-// 🎯 CLICK GAME
-let score = 0;
+const board = document.getElementById("board");
 
-const btn = document.getElementById("btn");
-if (btn) {
-  btn.onclick = () => {
-    score++;
-    document.getElementById("score").innerText = "Score : " + score;
-  };
-}
+const img = "image.jpg";
 
-// 🧩 PUZZLE
-const puzzle = document.getElementById("puzzle");
+// 9 puzzle pieces
+let pieces = [];
 
-if (puzzle) {
-  let pieces = [];
+if (board) {
+  board.style.width = "300px";
+  board.style.height = "300px";
+  board.style.margin = "auto";
+  board.style.display = "grid";
+  board.style.gridTemplateColumns = "repeat(3, 1fr)";
 
   for (let i = 0; i < 9; i++) {
-    let div = document.createElement("div");
-    div.className = "tile";
-    div.draggable = true;
-    div.dataset.index = i;
-    div.style.backgroundPosition =
+    let piece = document.createElement("div");
+
+    piece.style.width = "100px";
+    piece.style.height = "100px";
+    piece.style.backgroundImage = `url(${img})`;
+    piece.style.backgroundSize = "300px 300px";
+    piece.style.backgroundPosition =
       `${-(i % 3) * 100}px ${-Math.floor(i / 3) * 100}px`;
 
-    pieces.push(div);
+    /* 🧩 JIGSAW FEEL (fake irregular shape) */
+    piece.style.clipPath =
+      "polygon(10% 0%, 90% 0%, 100% 20%, 100% 80%, 90% 100%, 10% 100%, 0% 80%, 0% 20%)";
+
+    piece.draggable = true;
+
+    pieces.push(piece);
+    board.appendChild(piece);
   }
 
+  // shuffle
   pieces.sort(() => Math.random() - 0.5);
-  pieces.forEach(p => puzzle.appendChild(p));
+  pieces.forEach(p => board.appendChild(p));
 
   let dragged;
 
-  pieces.forEach(tile => {
-    tile.ondragstart = () => dragged = tile;
+  pieces.forEach(p => {
+    p.ondragstart = () => dragged = p;
 
-    tile.ondragover = e => e.preventDefault();
+    p.ondragover = e => e.preventDefault();
 
-    tile.ondrop = function () {
+    p.ondrop = function () {
       if (dragged !== this) {
-        let temp = document.createElement("div");
-        puzzle.replaceChild(temp, this);
-        puzzle.replaceChild(this, dragged);
-        puzzle.replaceChild(dragged, temp);
+        let temp = this.style.backgroundPosition;
+        this.style.backgroundPosition = dragged.style.backgroundPosition;
+        dragged.style.backgroundPosition = temp;
       }
     };
   });
