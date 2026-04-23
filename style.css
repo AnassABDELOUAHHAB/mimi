@@ -1,58 +1,49 @@
-body {
-  margin: 0;
-  font-family: Arial;
-  text-align: center;
-  color: white;
-  background: #0b0b1a;
-  overflow-x: hidden;
+.game {
+  display: flex;
+  justify-content: center;
+  gap: 50px;
+  margin-top: 20px;
 }
 
-/* animated dreamy background */
-body::before {
-  content: "";
-  position: fixed;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle at 20% 20%, #ff4d6d33, transparent 40%),
-              radial-gradient(circle at 80% 30%, #6a5cff33, transparent 40%),
-              radial-gradient(circle at 50% 80%, #00d4ff22, transparent 40%);
-  animation: move 12s ease-in-out infinite;
-  z-index: -1;
-}
-
-@keyframes move {
-  0% { transform: translate(0,0); }
-  50% { transform: translate(-5%, -5%); }
-  100% { transform: translate(0,0); }
-}
-
-/* buttons */
-.btn {
-  display: inline-block;
-  padding: 12px 20px;
-  margin: 10px;
-  border-radius: 12px;
-  background: rgba(255,255,255,0.1);
-  border: 1px solid rgba(255,255,255,0.2);
-  color: white;
-  text-decoration: none;
-  transition: 0.3s;
-}
-
-.btn:hover {
-  transform: scale(1.05);
-  background: rgba(255,255,255,0.2);
-}
-
-.center {
-  margin-top: 20vh;
-}
-
-/* puzzle board */
+/* BOARD (left) */
 #board {
   width: 300px;
   height: 300px;
-  margin: auto;
+  border: 2px solid white;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
+}
+
+/* PIECES (right tray) */
+#pieces {
+  width: 150px;
+  min-height: 300px;
+  border: 2px dashed white;
+  padding: 5px;
+}
+
+/* puzzle pieces */
+.piece {
+  width: 100px;
+  height: 100px;
+  background-image: url("image.jpg");
+  background-size: 300px 300px;
+  margin: 2px;
+  cursor: grab;
+}
+
+/* gift effect */
+#gift {
+  position: fixed;
+  top: 30%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0,0,0,0.8);
+  padding: 40px;
+  border-radius: 20px;
+  text-align: center;
+}
+
+.hidden {
+  display: none;
 }
