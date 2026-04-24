@@ -1,6 +1,7 @@
 body {
+  margin: 0;
   text-align: center;
-  background: #0b0b1a;
+  background: radial-gradient(circle, #1a1a3a, #000);
   color: white;
   font-family: Arial;
 }
@@ -9,6 +10,7 @@ canvas {
   border: 2px solid white;
   margin-top: 20px;
   background: #111;
+  cursor: grab;
 }
 
 #gift {
@@ -18,7 +20,7 @@ canvas {
   transform: translate(-50%, -50%);
   background: black;
   padding: 30px;
-  border-radius: 15px;
+  border-radius: 20px;
   font-size: 24px;
 }
 
