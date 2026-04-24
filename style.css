@@ -1,47 +1,23 @@
-.game {
-  display: flex;
-  justify-content: center;
-  gap: 50px;
+body {
+  text-align: center;
+  background: #0b0b1a;
+  color: white;
+  font-family: Arial;
+}
+
+canvas {
+  border: 2px solid white;
   margin-top: 20px;
 }
 
-/* BOARD (left) */
-#board {
-  width: 300px;
-  height: 300px;
-  border: 2px solid white;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-}
-
-/* PIECES (right tray) */
-#pieces {
-  width: 150px;
-  min-height: 300px;
-  border: 2px dashed white;
-  padding: 5px;
-}
-
-/* puzzle pieces */
-.piece {
-  width: 100px;
-  height: 100px;
-  background-image: url("image.jpg");
-  background-size: 300px 300px;
-  margin: 2px;
-  cursor: grab;
-}
-
-/* gift effect */
 #gift {
   position: fixed;
-  top: 30%;
+  top: 40%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: rgba(0,0,0,0.8);
-  padding: 40px;
-  border-radius: 20px;
-  text-align: center;
+  background: black;
+  padding: 30px;
+  border-radius: 15px;
 }
 
 .hidden {
