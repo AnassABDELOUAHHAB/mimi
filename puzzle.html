@@ -2,20 +2,131 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Puzzle</title>
-<link rel="stylesheet" href="style.css">
+<title>CSS Puzzle</title>
+
+<style>
+
+/* ===== GLOBAL ===== */
+body {
+  margin: 0;
+  background: #0b0b1a;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-family: Arial;
+  color: white;
+}
+
+/* ===== GRID ===== */
+.puzzle {
+  --size: 300px;
+  --n: 3;
+
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  width: var(--size);
+  border: 2px solid white;
+}
+
+/* ===== CELL ===== */
+.cell {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+}
+
+/* invisible trigger */
+.cell .drop {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}
+
+/* ===== PIECE ===== */
+.piece {
+  position: absolute;
+  inset: 0;
+  background-image: url("image.jpg");
+  background-size: 300px 300px;
+
+  transform: translate(200%);
+  transition: 999s 999s;
+
+  border-radius: 20px; /* curved look */
+}
+
+/* SNAP EFFECT */
+.drop:hover + .piece {
+  transform: translate(0);
+  transition: 0s;
+}
+
+/* ===== RANDOM START POSITIONS ===== */
+.cell:nth-child(1) .piece { transform: translate(250%, 150%) rotate(20deg); }
+.cell:nth-child(2) .piece { transform: translate(200%, -120%) rotate(-15deg); }
+.cell:nth-child(3) .piece { transform: translate(300%, 80%) rotate(10deg); }
+
+.cell:nth-child(4) .piece { transform: translate(220%, 200%) rotate(-10deg); }
+.cell:nth-child(5) .piece { transform: translate(260%, -200%) rotate(15deg); }
+.cell:nth-child(6) .piece { transform: translate(240%, 120%) rotate(-20deg); }
+
+.cell:nth-child(7) .piece { transform: translate(300%, -150%) rotate(10deg); }
+.cell:nth-child(8) .piece { transform: translate(230%, 160%) rotate(-10deg); }
+.cell:nth-child(9) .piece { transform: translate(260%, -100%) rotate(5deg); }
+
+/* ===== BACKGROUND POSITIONS ===== */
+.cell:nth-child(1) .piece { background-position: 0 0; }
+.cell:nth-child(2) .piece { background-position: 50% 0; }
+.cell:nth-child(3) .piece { background-position: 100% 0; }
+
+.cell:nth-child(4) .piece { background-position: 0 50%; }
+.cell:nth-child(5) .piece { background-position: 50% 50%; }
+.cell:nth-child(6) .piece { background-position: 100% 50%; }
+
+.cell:nth-child(7) .piece { background-position: 0 100%; }
+.cell:nth-child(8) .piece { background-position: 50% 100%; }
+.cell:nth-child(9) .piece { background-position: 100% 100%; }
+
+/* ===== GIFT EFFECT ===== */
+.gift {
+  position: fixed;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 30px;
+  opacity: 0;
+  transition: 1s;
+}
+
+/* when all pieces are hovered (approx trick) */
+.puzzle:hover ~ .gift {
+  opacity: 1;
+}
+
+</style>
+
 </head>
 <body>
 
-<h1>🧩 Rebuild the Image</h1>
+<div class="puzzle">
 
-<canvas id="canvas"></canvas>
+  <!-- 9 pieces -->
+  <div class="cell"><div class="drop"></div><div class="piece"></div></div>
+  <div class="cell"><div class="drop"></div><div class="piece"></div></div>
+  <div class="cell"><div class="drop"></div><div class="piece"></div></div>
 
-<div id="gift" class="hidden">
-  <h2>🎁 You did it!</h2>
+  <div class="cell"><div class="drop"></div><div class="piece"></div></div>
+  <div class="cell"><div class="drop"></div><div class="piece"></div></div>
+  <div class="cell"><div class="drop"></div><div class="piece"></div></div>
+
+  <div class="cell"><div class="drop"></div><div class="piece"></div></div>
+  <div class="cell"><div class="drop"></div><div class="piece"></div></div>
+  <div class="cell"><div class="drop"></div><div class="piece"></div></div>
+
 </div>
 
-<script src="script.js"></script>
+<div class="gift">🎁 You unlocked it ❤️</div>
 
 </body>
 </html>
