@@ -1,85 +1,138 @@
-const board = document.getElementById("board");
-const piecesBox = document.getElementById("pieces");
-const gift = document.getElementById("gift");
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
 
-let correct = 0;
+const img = new Image();
+img.src = "image.jpg";
 
-// create pieces
+const rows = 3;
+const cols = 3;
+
 let pieces = [];
+let selected = null;
+let offsetX, offsetY;
 
-for (let i = 0; i < 9; i++) {
-  let piece = document.createElement("div");
+canvas.width = 600;
+canvas.height = 400;
 
-  piece.classList.add("piece");
+class Piece {
+  constructor(x, y, correctX, correctY) {
+    this.x = x;
+    this.y = y;
+    this.correctX = correctX;
+    this.correctY = correctY;
+    this.width = 100;
+    this.height = 100;
+    this.placed = false;
+  }
 
-  piece.style.backgroundPosition =
-    `${-(i % 3) * 100}px ${-Math.floor(i / 3) * 100}px`;
+  draw() {
+    ctx.save();
 
-  piece.setAttribute("data-id", i);
-  piece.draggable = true;
+    // 🧩 fake curved shape
+    ctx.beginPath();
+    ctx.moveTo(this.x, this.y);
+    ctx.lineTo(this.x + this.width, this.y);
+    ctx.quadraticCurveTo(this.x + this.width + 10, this.y + this.height / 2,
+                         this.x + this.width, this.y + this.height);
+    ctx.lineTo(this.x, this.y + this.height);
+    ctx.quadraticCurveTo(this.x - 10, this.y + this.height / 2,
+                         this.x, this.y);
+    ctx.clip();
 
-  pieces.push(piece);
+    ctx.drawImage(
+      img,
+      this.correctX, this.correctY,
+      this.width, this.height,
+      this.x, this.y,
+      this.width, this.height
+    );
+
+    ctx.restore();
+  }
+
+  isClose() {
+    return Math.abs(this.x - this.correctX) < 20 &&
+           Math.abs(this.y - this.correctY) < 20;
+  }
 }
 
-// shuffle pieces in tray
-pieces.sort(() => Math.random() - 0.5);
-pieces.forEach(p => piecesBox.appendChild(p));
+img.onload = () => {
+  // create pieces
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < cols; x++) {
 
-// drag start
-let dragged = null;
+      let piece = new Piece(
+        Math.random() * 400 + 200, // start on right
+        Math.random() * 300,
+        x * 100,
+        y * 100
+      );
 
-pieces.forEach(p => {
-  p.addEventListener("dragstart", () => {
-    dragged = p;
-  });
-});
+      pieces.push(piece);
+    }
+  }
 
-// allow drop on board
-board.addEventListener("dragover", e => e.preventDefault());
+  draw();
+};
 
-board.addEventListener("drop", function (e) {
-  if (!dragged) return;
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  board.appendChild(dragged);
+  pieces.forEach(p => p.draw());
 
-  checkWin();
-});
+  requestAnimationFrame(draw);
+}
 
-// also allow moving back to tray
-piecesBox.addEventListener("dragover", e => e.preventDefault());
+// mouse events
+canvas.addEventListener("mousedown", e => {
+  const rect = canvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left;
+  const my = e.clientY - rect.top;
 
-piecesBox.addEventListener("drop", function () {
-  if (!dragged) return;
-
-  piecesBox.appendChild(dragged);
-
-  checkWin();
-});
-
-// WIN CHECK
-function checkWin() {
-  let current = board.querySelectorAll(".piece");
-
-  if (current.length !== 9) return;
-
-  let correctOrder = true;
-
-  current.forEach((p, index) => {
-    if (parseInt(p.dataset.id) !== index) {
-      correctOrder = false;
+  pieces.forEach(p => {
+    if (
+      mx > p.x && mx < p.x + p.width &&
+      my > p.y && my < p.y + p.height
+    ) {
+      selected = p;
+      offsetX = mx - p.x;
+      offsetY = my - p.y;
     }
   });
+});
 
-  if (correctOrder) {
+canvas.addEventListener("mousemove", e => {
+  if (!selected) return;
+
+  const rect = canvas.getBoundingClientRect();
+  selected.x = e.clientX - rect.left - offsetX;
+  selected.y = e.clientY - rect.top - offsetY;
+});
+
+canvas.addEventListener("mouseup", () => {
+  if (!selected) return;
+
+  // snap into place
+  if (selected.isClose()) {
+    selected.x = selected.correctX;
+    selected.y = selected.correctY;
+    selected.placed = true;
+  }
+
+  selected = null;
+
+  checkWin();
+});
+
+function checkWin() {
+  if (pieces.every(p => p.placed)) {
     showGift();
   }
 }
 
-// 🎁 GIFT EFFECT
+// 🎁 gift effect
 function showGift() {
-  gift.classList.remove("hidden");
-
-  document.body.style.background = "radial-gradient(circle, gold, black)";
+  document.getElementById("gift").classList.remove("hidden");
 
   let confetti = setInterval(() => {
     let c = document.createElement("div");
