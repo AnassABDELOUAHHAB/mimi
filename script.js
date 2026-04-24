@@ -6,10 +6,10 @@ img.src = "image.jpg";
 
 const rows = 3;
 const cols = 3;
-const size = 100;
+const size = 120;
 
-canvas.width = 600;
-canvas.height = 400;
+canvas.width = 700;
+canvas.height = 450;
 
 let pieces = [];
 let selected = null;
@@ -21,8 +21,7 @@ class Piece {
     this.correctX = cx;
     this.correctY = cy;
 
-    // start on right side
-    this.x = Math.random() * 200 + 350;
+    this.x = Math.random() * 250 + 400;
     this.y = Math.random() * 300;
 
     this.placed = false;
@@ -31,17 +30,21 @@ class Piece {
   draw() {
     ctx.save();
 
-    // rounded / curved style
+    // 🧩 REAL jigsaw-like shape
     ctx.beginPath();
-    ctx.moveTo(this.x + 10, this.y);
-    ctx.lineTo(this.x + size - 10, this.y);
-    ctx.quadraticCurveTo(this.x + size, this.y, this.x + size, this.y + 10);
-    ctx.lineTo(this.x + size, this.y + size - 10);
-    ctx.quadraticCurveTo(this.x + size, this.y + size, this.x + size - 10, this.y + size);
-    ctx.lineTo(this.x + 10, this.y + size);
-    ctx.quadraticCurveTo(this.x, this.y + size, this.x, this.y + size - 10);
-    ctx.lineTo(this.x, this.y + 10);
-    ctx.quadraticCurveTo(this.x, this.y, this.x + 10, this.y);
+    ctx.moveTo(this.x, this.y);
+
+    ctx.lineTo(this.x + size * 0.3, this.y);
+    ctx.bezierCurveTo(
+      this.x + size * 0.4, this.y - 20,
+      this.x + size * 0.6, this.y - 20,
+      this.x + size * 0.7, this.y
+    );
+
+    ctx.lineTo(this.x + size, this.y);
+    ctx.lineTo(this.x + size, this.y + size);
+
+    ctx.lineTo(this.x, this.y + size);
     ctx.closePath();
 
     ctx.clip();
@@ -61,15 +64,15 @@ class Piece {
     ctx.restore();
   }
 
-  isClicked(mx, my) {
+  isInside(mx, my) {
     return mx > this.x && mx < this.x + size &&
            my > this.y && my < this.y + size;
   }
 
   snap() {
     if (
-      Math.abs(this.x - this.correctX) < 20 &&
-      Math.abs(this.y - this.correctY) < 20
+      Math.abs(this.x - this.correctX) < 25 &&
+      Math.abs(this.y - this.correctY) < 25
     ) {
       this.x = this.correctX;
       this.y = this.correctY;
@@ -78,41 +81,43 @@ class Piece {
   }
 }
 
-// create pieces
+// init
 img.onload = () => {
   for (let y = 0; y < rows; y++) {
     for (let x = 0; x < cols; x++) {
       pieces.push(new Piece(x * size, y * size));
     }
   }
-  draw();
+  loop();
 };
 
-function draw() {
+function loop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   pieces.forEach(p => p.draw());
 
-  requestAnimationFrame(draw);
+  requestAnimationFrame(loop);
 }
 
-// mouse down
+// mouse events
 canvas.addEventListener("mousedown", e => {
   const rect = canvas.getBoundingClientRect();
   const mx = e.clientX - rect.left;
   const my = e.clientY - rect.top;
 
-  for (let p of pieces) {
-    if (p.isClicked(mx, my)) {
-      selected = p;
-      offsetX = mx - p.x;
-      offsetY = my - p.y;
+  for (let i = pieces.length - 1; i >= 0; i--) {
+    if (pieces[i].isInside(mx, my)) {
+      selected = pieces[i];
+      offsetX = mx - selected.x;
+      offsetY = my - selected.y;
+
+      // bring to front
+      pieces.push(pieces.splice(i, 1)[0]);
       break;
     }
   }
 });
 
-// move
 canvas.addEventListener("mousemove", e => {
   if (!selected) return;
 
@@ -121,7 +126,6 @@ canvas.addEventListener("mousemove", e => {
   selected.y = e.clientY - rect.top - offsetY;
 });
 
-// release
 canvas.addEventListener("mouseup", () => {
   if (!selected) return;
 
@@ -131,14 +135,13 @@ canvas.addEventListener("mouseup", () => {
   checkWin();
 });
 
-// win check
 function checkWin() {
   if (pieces.every(p => p.placed)) {
     showGift();
   }
 }
 
-// 🎁 gift animation
+// 🎁 celebration
 function showGift() {
   document.getElementById("gift").classList.remove("hidden");
 
@@ -151,7 +154,7 @@ function showGift() {
     document.body.appendChild(c);
 
     setTimeout(() => c.remove(), 2000);
-  }, 150);
+  }, 120);
 
   setTimeout(() => clearInterval(confetti), 3000);
 }
