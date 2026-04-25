@@ -1,186 +1,735 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <title>Puzzles</title>
-    <!--[if lt IE 9]>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.6.2/html5shiv.js"></script>
-    <script>
-        // <template> is added to html5shiv post-3.6.2...
-        window.html5.elements += ' template';
-        html5.shivDocument(document);
-    </script>
-    <![endif]-->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="css/puzzles.css" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>For You ✿</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --pink-light: #fce8ee;
+    --pink-mid: #f0a8be;
+    --pink-deep: #c96a89;
+    --pink-text: #7a2e47;
+    --green-light: #e8f4ee;
+    --green-mid: #8ec4a4;
+    --green-deep: #4a9070;
+    --cream: #fdf8f2;
+    --petal: #f9dde6;
+    --leaf: #d4ead9;
+    --ink: #3a2535;
+    --muted: #8a7080;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Jost', sans-serif; background: var(--cream); color: var(--ink); min-height: 100vh; overflow-x: hidden; }
+
+  .petal-bg { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+  .petal-bg svg { width: 100%; height: 100%; }
+
+  header { position: relative; z-index: 10; text-align: center; padding: 60px 20px 40px; background: linear-gradient(180deg,#fce8ee 0%,transparent 100%); }
+  .site-title { font-family:'Cormorant Garamond',serif; font-size:clamp(2.8rem,7vw,5rem); font-weight:300; font-style:italic; color:var(--pink-deep); line-height:1.1; letter-spacing:0.02em; }
+  .site-sub { font-size:0.82rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--muted); margin-top:12px; }
+  .flower-divider { display:flex; align-items:center; justify-content:center; gap:16px; margin:28px auto 0; }
+  .flower-divider::before,.flower-divider::after { content:''; display:block; width:80px; height:0.5px; background:var(--pink-mid); }
+  .flower-divider svg { width:22px; height:22px; }
+
+  nav { position:relative; z-index:10; display:flex; justify-content:center; gap:8px; padding:0 20px 32px; flex-wrap:wrap; }
+  .tab-btn { font-family:'Jost',sans-serif; font-size:0.8rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--muted); background:white; border:1px solid var(--pink-mid); border-radius:40px; padding:10px 24px; cursor:pointer; transition:all 0.25s ease; }
+  .tab-btn:hover { color:var(--pink-deep); border-color:var(--pink-deep); }
+  .tab-btn.active { background:var(--pink-deep); color:white; border-color:var(--pink-deep); }
+
+  .game-panel { display:none; }
+  .game-panel.active { display:block; }
+  .panel-wrap { position:relative; z-index:10; max-width:900px; margin:0 auto; padding:0 20px 80px; }
+  .panel-title { font-family:'Cormorant Garamond',serif; font-size:1.8rem; font-weight:300; font-style:italic; color:var(--pink-deep); text-align:center; margin-bottom:8px; }
+  .panel-desc { text-align:center; color:var(--muted); font-size:0.85rem; letter-spacing:0.05em; margin-bottom:28px; }
+
+  .btn-primary { font-family:'Jost',sans-serif; font-size:0.8rem; letter-spacing:0.15em; text-transform:uppercase; background:var(--pink-deep); color:white; border:none; border-radius:40px; padding:12px 32px; cursor:pointer; transition:all 0.2s; }
+  .btn-primary:hover { background:var(--pink-text); transform:translateY(-1px); }
+  .btn-outline { font-family:'Jost',sans-serif; font-size:0.8rem; letter-spacing:0.15em; text-transform:uppercase; background:white; color:var(--pink-deep); border:1px solid var(--pink-deep); border-radius:40px; padding:12px 32px; cursor:pointer; transition:all 0.2s; }
+  .btn-outline:hover { background:var(--petal); }
+
+  /* PUZZLE */
+  #puzzle-setup { text-align:center; padding:20px 0; }
+  .upload-zone { border:1.5px dashed var(--pink-mid); border-radius:20px; padding:40px 30px; cursor:pointer; transition:all 0.2s; background:white; margin-bottom:20px; }
+  .upload-zone:hover { border-color:var(--pink-deep); background:var(--petal); }
+  .upload-zone svg { width:40px; height:40px; color:var(--pink-mid); margin-bottom:12px; }
+  .upload-zone p { color:var(--muted); font-size:0.9rem; }
+  .upload-zone input { display:none; }
+  .puzzle-controls { display:flex; align-items:center; justify-content:center; gap:16px; margin-bottom:24px; flex-wrap:wrap; }
+  .puzzle-controls label { color:var(--muted); font-size:0.82rem; letter-spacing:0.08em; }
+  .puzzle-controls select { font-family:'Jost',sans-serif; border:1px solid var(--pink-mid); border-radius:40px; padding:6px 16px; font-size:0.85rem; color:var(--ink); background:white; cursor:pointer; }
+
+  #puzzle-game-wrap { display:none; }
+  #puzzle-stats { text-align:center; color:var(--muted); font-size:0.82rem; letter-spacing:0.08em; margin-bottom:14px; display:flex; justify-content:center; gap:28px; }
+  #puzzle-stats span { color:var(--pink-deep); font-weight:500; }
+
+  #puzzle-area {
+    position:relative; width:100%;
+    background: repeating-linear-gradient(45deg,#f8eff5 0px,#f8eff5 10px,#f5eaf2 10px,#f5eaf2 20px);
+    border:1px solid var(--pink-mid); border-radius:20px;
+    overflow:hidden; touch-action:none; user-select:none;
+  }
+  #puzzle-board-target {
+    position:absolute; border:1.5px dashed rgba(201,106,137,0.35);
+    border-radius:6px; background:rgba(255,255,255,0.5);
+  }
+  .jpiece { position:absolute; cursor:grab; touch-action:none; }
+  .jpiece canvas { display:block; }
+  .jpiece.dragging { cursor:grabbing; z-index:1000; }
+  .jpiece.snapped { cursor:default; pointer-events:none; }
+
+  #puzzle-actions { display:flex; gap:12px; justify-content:center; margin-top:18px; flex-wrap:wrap; }
+
+  /* WIN OVERLAY */
+  #puzzle-win-overlay {
+    display:none; position:fixed; inset:0; z-index:9999;
+    background:rgba(252,232,238,0.94);
+    align-items:center; justify-content:center; flex-direction:column; text-align:center;
+  }
+  #puzzle-win-overlay.show { display:flex; animation:fadeIn 0.5s ease; }
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+  .win-box { background:white; border:1px solid var(--pink-mid); border-radius:28px; padding:50px 60px; max-width:480px; width:90%; }
+  .win-title { font-family:'Cormorant Garamond',serif; font-size:2.6rem; font-style:italic; color:var(--pink-deep); margin-bottom:10px; }
+  .win-sub { color:var(--muted); font-size:0.88rem; margin-bottom:24px; line-height:1.6; }
+  .win-img { max-width:220px; border-radius:14px; margin:0 auto 24px; display:block; border:1px solid var(--pink-mid); }
+  .win-actions { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+
+  .anim-petal { position:fixed; pointer-events:none; z-index:9998; border-radius:50% 50% 50% 0; animation:petalFall linear forwards; }
+  @keyframes petalFall { 0%{transform:translateY(-40px) rotate(0deg);opacity:1} 100%{transform:translateY(110vh) rotate(540deg);opacity:0} }
+
+  /* MEMORY */
+  .memory-meta { display:flex; justify-content:center; gap:32px; margin-bottom:24px; }
+  .memory-stat { text-align:center; }
+  .memory-stat span { display:block; }
+  .memory-stat .val { font-family:'Cormorant Garamond',serif; font-size:2rem; font-weight:300; color:var(--pink-deep); }
+  .memory-stat .lbl { font-size:0.72rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--muted); }
+  #memory-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; max-width:540px; margin:0 auto; }
+  .memory-card { aspect-ratio:1; cursor:pointer; border-radius:14px; position:relative; perspective:600px; }
+  .memory-card-inner { width:100%; height:100%; position:relative; transform-style:preserve-3d; transition:transform 0.45s cubic-bezier(.4,0,.2,1); border-radius:14px; }
+  .memory-card.flipped .memory-card-inner,.memory-card.matched .memory-card-inner { transform:rotateY(180deg); }
+  .card-front,.card-back { position:absolute; inset:0; border-radius:14px; backface-visibility:hidden; display:flex; align-items:center; justify-content:center; }
+  .card-front { background:white; border:1px solid var(--pink-mid); }
+  .card-front svg { width:36px; height:36px; opacity:0.35; }
+  .card-back { transform:rotateY(180deg); background:var(--petal); border:1px solid var(--pink-mid); font-size:2.4rem; }
+  .memory-card.matched .card-back { background:var(--leaf); border-color:var(--green-mid); }
+  #memory-win { display:none; text-align:center; background:white; border:1px solid var(--pink-mid); border-radius:20px; padding:32px; margin-top:24px; }
+  #memory-win .win-title { font-family:'Cormorant Garamond',serif; font-size:2rem; font-style:italic; color:var(--pink-deep); }
+
+  /* COLORING */
+  .color-layout { display:flex; gap:24px; align-items:flex-start; flex-wrap:wrap; }
+  .color-sidebar { min-width:140px; flex:0 0 140px; background:white; border:1px solid var(--pink-mid); border-radius:18px; padding:16px; position:sticky; top:20px; }
+  .sidebar-label { font-size:0.72rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--muted); margin-bottom:10px; display:block; }
+  .crayon-row { display:flex; flex-wrap:wrap; gap:7px; margin-bottom:14px; }
+  .crayon-swatch { width:28px; height:28px; border-radius:50%; cursor:pointer; border:2px solid transparent; transition:transform 0.15s,border-color 0.15s; }
+  .crayon-swatch:hover { transform:scale(1.15); }
+  .crayon-swatch.active { border-color:var(--ink); transform:scale(1.15); }
+  .brush-row { display:flex; flex-direction:column; gap:6px; margin-bottom:14px; }
+  .brush-opt { display:flex; align-items:center; gap:8px; cursor:pointer; padding:5px 8px; border-radius:8px; font-size:0.8rem; color:var(--muted); transition:background 0.15s; }
+  .brush-opt:hover,.brush-opt.active { background:var(--petal); color:var(--pink-deep); }
+  .brush-dot { border-radius:50%; background:currentColor; flex-shrink:0; }
+  .color-canvas-wrap { flex:1; min-width:280px; }
+  #color-canvas { border-radius:16px; border:1px solid var(--pink-mid); background:white; cursor:crosshair; touch-action:none; max-width:100%; }
+
+  footer { position:relative; z-index:10; text-align:center; padding:30px 20px; color:var(--muted); font-size:0.78rem; letter-spacing:0.1em; }
+
+  @media (max-width:600px) {
+    #memory-grid { gap:7px; }
+    .color-layout { flex-direction:column; }
+    .color-sidebar { position:static; min-width:unset; flex:unset; width:100%; }
+    .win-box { padding:36px 24px; }
+  }
+</style>
 </head>
-<body class="index">
-<div class="container">
+<body>
 
-    <header>
-        <h1>Puzzles</h1>
-        <span class="subtitle">from Simon Tatham's portable puzzle collection</span>
-    </header>
-
-    <section>
-        <p>Play in any <abbr title="IE8+, iOS 5+, Android 2.3+, Chrome, Firefox, Safari, others?">(semi-)modern</abbr>
-            web browser (even tablets and phones&mdash;no plugins required)</p>
-    </section>
-
-    <!--[if lt IE 9]>
-    <div class="alert alert-block alert-warning">
-        <h4>Note:</h4>
-        The puzzles may be quite slow to load in this version of Internet Explorer.
-        For a more enjoyable game, please consider upgrading to IE9 or later,
-        or switching to a browser like Chrome or Firefox.
-    </div>
-    <![endif]-->
-    <noscript>These puzzles are interactive games implemented in JavaScript.
-        To play them, you will need to enable JavaScript in your browser.</noscript>
-
-    <div id="puzzle_list"></div>
-
-    <section>
-        <h3>About this collection</h3>
-        <p>This is Mike Edmunds' HTML5 adaptation of Simon Tatham's
-            <a href="http://www.chiark.greenend.org.uk/~sgtatham/puzzles/">portable puzzles
-            collection</a>. The original collection includes
-            <a href="http://www.chiark.greenend.org.uk/~sgtatham/puzzles/doc/">full rules</a>
-            and documentation for playing the puzzles.</p>
-        <p>My intent with this adaptation is to make the puzzles playable on tablets, phones,
-            and anywhere else you find a reasonable web browser.
-            (Though on slower devices, some puzzles may take a very long time to generate
-            new games at the more-complex levels.)
-            You can report any problems in this project's
-            <a href="https://github.com/medmunds/puzzles/issues">issue tracker</a>.</p>
-        <p>The <a href="https://github.com/medmunds/puzzles">source code</a> for this project
-            is on GitHub. Both the original puzzles and this HTML5 adaptation are released
-            under the MIT License. See the LICENSE file in the source for more details.</p>
-    </section>
-
+<div class="petal-bg">
+  <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <g opacity="0.13">
+      <g transform="translate(80,120)"><ellipse cx="0" cy="-22" rx="10" ry="20" fill="#f0a8be" transform="rotate(0)"/><ellipse cx="0" cy="-22" rx="10" ry="20" fill="#f0a8be" transform="rotate(72)"/><ellipse cx="0" cy="-22" rx="10" ry="20" fill="#f0a8be" transform="rotate(144)"/><ellipse cx="0" cy="-22" rx="10" ry="20" fill="#f0a8be" transform="rotate(216)"/><ellipse cx="0" cy="-22" rx="10" ry="20" fill="#f0a8be" transform="rotate(288)"/><circle cx="0" cy="0" r="9" fill="#fce8ee"/></g>
+      <g transform="translate(1360,200) scale(1.4)"><ellipse cx="0" cy="-22" rx="10" ry="20" fill="#8ec4a4" transform="rotate(0)"/><ellipse cx="0" cy="-22" rx="10" ry="20" fill="#8ec4a4" transform="rotate(60)"/><ellipse cx="0" cy="-22" rx="10" ry="20" fill="#8ec4a4" transform="rotate(120)"/><ellipse cx="0" cy="-22" rx="10" ry="20" fill="#8ec4a4" transform="rotate(180)"/><ellipse cx="0" cy="-22" rx="10" ry="20" fill="#8ec4a4" transform="rotate(240)"/><ellipse cx="0" cy="-22" rx="10" ry="20" fill="#8ec4a4" transform="rotate(300)"/><circle cx="0" cy="0" r="9" fill="#e8f4ee"/></g>
+      <g transform="translate(720,60) scale(0.8)"><ellipse cx="0" cy="-22" rx="10" ry="20" fill="#f0a8be" transform="rotate(0)"/><ellipse cx="0" cy="-22" rx="10" ry="20" fill="#f0a8be" transform="rotate(72)"/><ellipse cx="0" cy="-22" rx="10" ry="20" fill="#f0a8be" transform="rotate(144)"/><ellipse cx="0" cy="-22" rx="10" ry="20" fill="#f0a8be" transform="rotate(216)"/><ellipse cx="0" cy="-22" rx="10" ry="20" fill="#f0a8be" transform="rotate(288)"/><circle cx="0" cy="0" r="9" fill="#fce8ee"/></g>
+      <path d="M200 800 Q240 760 280 800 Q240 840 200 800" fill="#8ec4a4"/>
+      <path d="M1200 700 Q1240 660 1280 700 Q1240 740 1200 700" fill="#f0a8be"/>
+      <g transform="translate(1400,800) scale(1.1)"><ellipse cx="0" cy="-22" rx="10" ry="20" fill="#f0a8be" transform="rotate(0)"/><ellipse cx="0" cy="-22" rx="10" ry="20" fill="#f0a8be" transform="rotate(72)"/><ellipse cx="0" cy="-22" rx="10" ry="20" fill="#f0a8be" transform="rotate(144)"/><ellipse cx="0" cy="-22" rx="10" ry="20" fill="#f0a8be" transform="rotate(216)"/><ellipse cx="0" cy="-22" rx="10" ry="20" fill="#f0a8be" transform="rotate(288)"/><circle cx="0" cy="0" r="9" fill="#fce8ee"/></g>
+      <g transform="translate(30,860) scale(0.7)"><ellipse cx="0" cy="-22" rx="10" ry="20" fill="#8ec4a4" transform="rotate(0)"/><ellipse cx="0" cy="-22" rx="10" ry="20" fill="#8ec4a4" transform="rotate(60)"/><ellipse cx="0" cy="-22" rx="10" ry="20" fill="#8ec4a4" transform="rotate(120)"/><ellipse cx="0" cy="-22" rx="10" ry="20" fill="#8ec4a4" transform="rotate(180)"/><ellipse cx="0" cy="-22" rx="10" ry="20" fill="#8ec4a4" transform="rotate(240)"/><ellipse cx="0" cy="-22" rx="10" ry="20" fill="#8ec4a4" transform="rotate(300)"/><circle cx="0" cy="0" r="9" fill="#e8f4ee"/></g>
+    </g>
+  </svg>
 </div>
 
-<template id="category_template">
-    <section>
-        <h2>{{NAME}}&hellip;</h2>
-        <!-- <p>{{DESCRIPTION}}</p> -->
-        <ul>
-            {{PUZZLES}}
-        </ul>
-    </section>
-</template>
+<header>
+  <div class="site-title">a little garden<br><em>just for you</em></div>
+  <p class="site-sub">three games, made with love</p>
+  <div class="flower-divider">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="12" cy="5" rx="3.5" ry="5" fill="#f0a8be"/>
+      <ellipse cx="12" cy="5" rx="3.5" ry="5" fill="#f0a8be" transform="rotate(72 12 12)"/>
+      <ellipse cx="12" cy="5" rx="3.5" ry="5" fill="#f0a8be" transform="rotate(144 12 12)"/>
+      <ellipse cx="12" cy="5" rx="3.5" ry="5" fill="#f0a8be" transform="rotate(216 12 12)"/>
+      <ellipse cx="12" cy="5" rx="3.5" ry="5" fill="#f0a8be" transform="rotate(288 12 12)"/>
+      <circle cx="12" cy="12" r="3.5" fill="#fce8ee"/>
+    </svg>
+  </div>
+</header>
 
-<template id="all_template">
-    <section>
-        <ul>
-            {{PUZZLES}}
-        </ul>
-    </section>
-</template>
+<nav>
+  <button class="tab-btn active" onclick="showPanel('puzzle',this)">✦ Puzzle</button>
+  <button class="tab-btn" onclick="showPanel('memory',this)">✦ Memory</button>
+  <button class="tab-btn" onclick="showPanel('coloring',this)">✦ Coloring book</button>
+</nav>
 
-<template id="puzzle_template">
-    <li><a href="{{SLUG}}.html"><img alt="{{NAME}} screenshot" src="img/{{SLUG}}-ibase.png">
-        <h4>{{NAME}}</h4>
-        <p>{{DESCRIPTION}}</p>
-    </a></li>
-</template>
+<!-- PUZZLE PANEL -->
+<div id="panel-puzzle" class="game-panel active">
+  <div class="panel-wrap">
+    <div class="panel-title">Reconstruct the drawing</div>
+    <p class="panel-desc">Upload a drawing — it will be cut into real puzzle pieces for you to drag and place</p>
 
-<script src="js/lib/future.js"></script>
-<!--[if lt IE 9]>
-<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-<![endif]-->
-<!--[if gte IE 9]><!-->
-<script src="http://code.jquery.com/jquery-2.0.0b2.min.js"></script>
-<!--<![endif]-->
+    <div id="puzzle-setup">
+      <div class="upload-zone" onclick="document.getElementById('img-input').click()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 16V4m0 0L8 8m4-4l4 4M4 20h16" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <p id="upload-label">Click to upload a drawing</p>
+        <p style="font-size:0.75rem;margin-top:6px;color:var(--muted)">PNG, JPG or WEBP</p>
+        <input type="file" id="img-input" accept="image/*" onchange="onImageUpload(event)">
+      </div>
+      <div class="puzzle-controls">
+        <label>Difficulty</label>
+        <select id="grid-size">
+          <option value="3">Easy — 9 pieces</option>
+          <option value="4" selected>Medium — 16 pieces</option>
+          <option value="5">Hard — 25 pieces</option>
+          <option value="6">Expert — 36 pieces</option>
+        </select>
+      </div>
+      <button class="btn-primary" id="start-puzzle-btn" onclick="startPuzzle()" disabled style="opacity:0.5">Scatter the pieces</button>
+    </div>
+
+    <div id="puzzle-game-wrap">
+      <div id="puzzle-stats">
+        <div>Placed: <span id="stat-placed">0</span> / <span id="stat-total">0</span></div>
+        <div>Moves: <span id="stat-moves">0</span></div>
+      </div>
+      <div id="puzzle-area">
+        <div id="puzzle-board-target"></div>
+      </div>
+      <div id="puzzle-actions">
+        <button class="btn-outline" onclick="closePuzzleAndReset()">New game</button>
+        <button class="btn-outline" onclick="scatterAll()">Scatter pieces</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- WIN OVERLAY -->
+<div id="puzzle-win-overlay">
+  <div class="win-box">
+    <div class="win-title">You did it ✿</div>
+    <p class="win-sub">The drawing is whole again.<br>Every piece in its place, just like you.</p>
+    <img id="win-preview-img" class="win-img" src="" alt="Completed">
+    <div class="win-actions">
+      <button class="btn-primary" onclick="downloadDrawing()">Download drawing</button>
+      <button class="btn-outline" onclick="closePuzzleAndReset()">Play again</button>
+    </div>
+  </div>
+</div>
+
+<!-- MEMORY PANEL -->
+<div id="panel-memory" class="game-panel">
+  <div class="panel-wrap">
+    <div class="panel-title">Memory garden</div>
+    <p class="panel-desc">Find all the matching pairs hidden among the flowers</p>
+    <div class="memory-meta">
+      <div class="memory-stat"><span class="val" id="mem-moves">0</span><span class="lbl">Moves</span></div>
+      <div class="memory-stat"><span class="val" id="mem-pairs">0</span><span class="lbl">Pairs found</span></div>
+      <div class="memory-stat"><span class="val" id="mem-time">0:00</span><span class="lbl">Time</span></div>
+    </div>
+    <div id="memory-grid"></div>
+    <div id="memory-win">
+      <div class="win-title">Beautiful ✿</div>
+      <p style="color:var(--muted);margin:8px 0 20px;font-size:0.88rem">All pairs found in <span id="win-moves">0</span> moves!</p>
+      <button class="btn-primary" onclick="initMemory()">Play again</button>
+    </div>
+    <div style="text-align:center;margin-top:20px">
+      <button class="btn-outline" onclick="initMemory()">Shuffle</button>
+    </div>
+  </div>
+</div>
+
+<!-- COLORING PANEL -->
+<div id="panel-coloring" class="game-panel">
+  <div class="panel-wrap">
+    <div class="panel-title">Crayon garden</div>
+    <p class="panel-desc">Pick a crayon and paint the flowers — your little masterpiece</p>
+    <div class="color-layout">
+      <div class="color-sidebar">
+        <span class="sidebar-label">Crayons</span>
+        <div class="crayon-row" id="crayon-palette"></div>
+        <span class="sidebar-label">Brush size</span>
+        <div class="brush-row">
+          <div class="brush-opt active" onclick="setBrush(12,this)"><div class="brush-dot" style="width:10px;height:10px"></div> Fine</div>
+          <div class="brush-opt" onclick="setBrush(22,this)"><div class="brush-dot" style="width:16px;height:16px"></div> Medium</div>
+          <div class="brush-opt" onclick="setBrush(38,this)"><div class="brush-dot" style="width:24px;height:24px"></div> Bold</div>
+        </div>
+        <button class="btn-outline" style="width:100%;font-size:0.75rem;padding:8px 0;margin-top:6px" onclick="clearCanvas()">Clear all</button>
+        <button class="btn-outline" style="width:100%;font-size:0.75rem;padding:8px 0;margin-top:6px" onclick="saveCanvas()">Save image</button>
+      </div>
+      <div class="color-canvas-wrap">
+        <div style="margin-bottom:10px">
+          <select id="page-select" onchange="loadColorPage()" style="font-family:'Jost',sans-serif;border:1px solid var(--pink-mid);border-radius:40px;padding:8px 16px;font-size:0.82rem;color:var(--ink);background:white;cursor:pointer">
+            <option value="roses">Roses in bloom</option>
+            <option value="daisy">Daisy meadow</option>
+            <option value="wreath">Flower wreath</option>
+          </select>
+        </div>
+        <canvas id="color-canvas" width="560" height="480"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>made with love ✿ just for you</footer>
 
 <script>
-    jQuery('noscript').hide(); // IE8
-    jQuery(function($) {
-        var puzzles = [
-            { slug: 'blackbox', name: 'Blackbox', category: 'Find the hidden', description: 'Find the hidden balls in the box by bouncing laser beams off them.' },
-            { slug: 'bridges', name: 'Bridges', category: 'Connect', description: 'Connect all the islands with a network of bridges.' },
-            { slug: 'cube', name: 'Cube', category: 'Clear the board', description: 'Pick up all the blue squares by rolling the cube over them.' },
-            { slug: 'dominosa', name: 'Dominosa', category: 'Fill the grid', description: 'Tile the rectangle with a full set of dominoes.' },
-            { slug: 'fifteen', name: 'Fifteen', category: 'Sort', description: 'Slide the tiles around to arrange them into order.' },
-            { slug: 'filling', name: 'Filling', category: 'Fill the grid', description: 'Mark every square with the area of its containing region.' },
-            { slug: 'flip', name: 'Flip', category: 'Clear the board', description: 'Flip groups of squares to light them all up at once.' },
-            { slug: 'galaxies', name: 'Galaxies', category: 'Fill the grid', description: 'Divide the grid into rotationally symmetric regions each centered on a dot.' },
-            { slug: 'guess', name: 'Guess', category: 'Find the hidden', description: 'Guess the hidden combination of colors.' },
-            { slug: 'inertia', name: 'Inertia', category: 'Find the path', description: 'Collect all the gems without running into any of the mines.' },
-            { slug: 'keen', name: 'Keen', category: 'Latin square', description: 'Complete the latin square in accordance with the arithmetic clues.' },
-            { slug: 'lightup', name: 'Light Up', category: 'Place', description: 'Place bulbs to light up all the squares.' },
-            { slug: 'loopy', name: 'Loopy', category: 'Find the path', description: 'Draw a single closed loop, given clues about number of adjacent edges.' },
-            { slug: 'magnets', name: 'Magnets', category: 'Fill the grid', description: 'Place magnets to satisfy the clues and avoid like poles touching.' },
-            { slug: 'map', name: 'Map', category: 'Place', description: 'Color the map so that adjacent regions are never the same color.' },
-            { slug: 'mines', name: 'Mines', category: 'Find the hidden', description: 'Find all the mines without treading on any of them.' },
-            { slug: 'net', name: 'Net', category: 'Connect', description: 'Rotate each tile to reassemble the network.' },
-            { slug: 'netslide', name: 'Netslide', category: 'Connect', description: 'Slide a row at a time to reassemble the network.' },
-            { slug: 'pattern', name: 'Pattern', category: 'Fill the grid', description: 'Fill in the pattern in the grid, given only the lengths of runs of black squares.' },
-            { slug: 'pearl', name: 'Pearl', category: 'Find the path', description: 'Draw a single closed loop, given clues about corner and straight squares.' },
-            { slug: 'pegs', name: 'Pegs', category: 'Clear the board', description: 'Jump pegs over each other to remove all but one.' },
-            { slug: 'range', name: 'Range', category: 'Place', description: 'Place black squares to limit the visible distance from each numbered cell.' },
-            { slug: 'rect', name: 'Rect', category: 'Fill the grid', description: 'Divide the grid into rectangles with areas equal to the numbers.' },
-            { slug: 'samegame', name: 'Same Game', category: 'Clear the board', description: 'Clear the grid by removing touching groups of the same color squares.' },
-            { slug: 'signpost', name: 'Signpost', category: 'Find the path', description: 'Connect the squares into a path following the arrows.' },
-            { slug: 'singles', name: 'Singles', category: 'Place', description: 'Black out the right set of duplicate numbers.' },
-            { slug: 'sixteen', name: 'Sixteen', category: 'Sort', description: 'Slide a row at a time to arrange the tiles into order.' },
-            { slug: 'slant', name: 'Slant', category: 'Place', description: 'Draw a maze of slanting lines that matches the clues.' },
-            { slug: 'solo', name: 'Solo', category: 'Latin square', description: 'Fill in the grid so that each row, column and square block contains one of every digit.' },
-            { slug: 'tents', name: 'Tents', category: 'Place', description: 'Place a tent next to each tree.' },
-            { slug: 'towers', name: 'Towers', category: 'Latin square', description: 'Complete the latin square of towers in accordance with the clues.' },
-            { slug: 'twiddle', name: 'Twiddle', category: 'Sort', description: 'Rotate the tiles around themselves to arrange them into order.' },
-            { slug: 'undead', name: 'Undead', category: 'Place', description: 'Place ghosts, vampires and zombies so that the right numbers of them can be seen in mirrors.' },
-            { slug: 'unequal', name: 'Unequal', category: 'Latin square', description: 'Complete the latin square in accordance with the &gt; signs.' },
-            { slug: 'unruly', name: 'Unruly', category: 'Fill the grid', description: 'Fill in the black and white grid to avoid runs of three.' },
-            { slug: 'untangle', name: 'Untangle', category: 'Sort', description: 'Reposition the points so that the lines do not cross.' }
-        ];
+// ================================================================
+//  PANEL SWITCHING
+// ================================================================
+function showPanel(name,btn){
+  document.querySelectorAll('.game-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  btn.classList.add('active');
+}
 
-        function substitute(str, substitutions) {
-            // Simple {{VARIABLE}} substitution.
-            // We control the input, so not worried about escaping, etc.
-            return str.replace(/{{(\w+)}}/g, function(match, p1) {
-                return substitutions[p1.toLowerCase()] || match;
-            });
+// ================================================================
+//  JIGSAW PUZZLE ENGINE
+// ================================================================
+const SNAP=30, TAB=0.18;
+let pzImg=null, pzN=4, pzPW=0, pzPH=0, pzBX=0, pzBY=0;
+let pzAreaW=0, pzAreaH=0, pzPieces=[], pzEdges={};
+let pzDrag=null, pzDragOX=0, pzDragOY=0;
+let pzMoves=0, pzPlaced=0;
+
+function onImageUpload(e){
+  const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    pzImg=ev.target.result;
+    document.getElementById('start-puzzle-btn').disabled=false;
+    document.getElementById('start-puzzle-btn').style.opacity='1';
+    document.getElementById('upload-label').textContent='✓ '+f.name;
+  };
+  r.readAsDataURL(f);
+}
+
+function startPuzzle(){
+  pzN=parseInt(document.getElementById('grid-size').value);
+  document.getElementById('puzzle-setup').style.display='none';
+  document.getElementById('puzzle-game-wrap').style.display='block';
+  document.getElementById('stat-total').textContent=pzN*pzN;
+  buildPuzzle();
+}
+
+function buildPuzzle(){
+  pzMoves=0; pzPlaced=0; pzPieces=[]; pzEdges={};
+  document.getElementById('stat-placed').textContent='0';
+  document.getElementById('stat-moves').textContent='0';
+  const area=document.getElementById('puzzle-area');
+  area.querySelectorAll('.jpiece').forEach(p=>p.remove());
+
+  const aW=area.clientWidth||820;
+  const imgEl=new Image();
+  imgEl.onload=()=>{
+    const asp=imgEl.naturalHeight/imgEl.naturalWidth;
+    const bW=Math.min(aW*0.5,400);
+    const bH=bW*asp;
+    const aH=bH+Math.max(bW*1.2,300);
+    pzAreaW=aW; pzAreaH=aH;
+    area.style.height=aH+'px';
+    pzBX=(aW-bW)/2; pzBY=bH*0.15;
+    pzPW=bW/pzN; pzPH=bH/pzN;
+
+    const t=document.getElementById('puzzle-board-target');
+    t.style.left=pzBX+'px'; t.style.top=pzBY+'px';
+    t.style.width=bW+'px'; t.style.height=bH+'px';
+
+    // Generate shared edge tab directions
+    for(let r=0;r<pzN;r++){
+      for(let c=0;c<pzN;c++){
+        const k=r+','+c;
+        pzEdges[k]={};
+        // top
+        if(r===0) pzEdges[k].t=0;
+        else pzEdges[k].t=-pzEdges[(r-1)+','+c].b;
+        // right
+        pzEdges[k].r=(c===pzN-1)?0:(Math.random()>0.5?1:-1);
+        // bottom
+        pzEdges[k].b=(r===pzN-1)?0:(Math.random()>0.5?1:-1);
+        // left
+        if(c===0) pzEdges[k].l=0;
+        else pzEdges[k].l=-pzEdges[r+','+(c-1)].r;
+      }
+    }
+
+    // Draw source image into canvas
+    const src=document.createElement('canvas');
+    src.width=Math.round(bW); src.height=Math.round(bH);
+    src.getContext('2d').drawImage(imgEl,0,0,src.width,src.height);
+
+    const margin=Math.max(pzPW,pzPH)*TAB*2.2;
+
+    for(let r=0;r<pzN;r++){
+      for(let c=0;c<pzN;c++){
+        const tabs=pzEdges[r+','+c];
+        const cW=Math.ceil(pzPW+margin*2);
+        const cH=Math.ceil(pzPH+margin*2);
+        const pc=document.createElement('canvas');
+        pc.width=cW; pc.height=cH;
+        const ctx=pc.getContext('2d');
+
+        // Build piece path
+        const path=makePath(pzPW,pzPH,tabs,margin);
+        const p2d=new Path2D(path);
+
+        // Clip & draw image region
+        ctx.save();
+        ctx.clip(p2d);
+        ctx.drawImage(src, c*pzPW-margin, r*pzPH-margin, cW, cH, 0, 0, cW, cH);
+        ctx.restore();
+
+        // Stroke the edge
+        ctx.save();
+        ctx.strokeStyle='rgba(160,100,130,0.4)';
+        ctx.lineWidth=1.8;
+        ctx.stroke(p2d);
+        ctx.restore();
+
+        // Scatter position (below board area)
+        const sy=pzBY+bH+20;
+        const maxY=aH-cH-8;
+        const rx=Math.random()*(aW-cW-20)+10;
+        const ry=sy+Math.random()*Math.max(0,maxY-sy);
+
+        const div=document.createElement('div');
+        div.className='jpiece';
+        div.style.cssText=`left:${rx}px;top:${ry}px;width:${cW}px;height:${cH}px;z-index:100`;
+        div.appendChild(pc);
+        area.appendChild(div);
+
+        const ps={
+          el:div, row:r, col:c,
+          x:rx, y:ry, w:cW, h:cH, margin,
+          snapped:false,
+          tx:pzBX+c*pzPW-margin,
+          ty:pzBY+r*pzPH-margin
+        };
+        pzPieces.push(ps);
+
+        div.addEventListener('mousedown',e=>dragStart(e,ps));
+        div.addEventListener('touchstart',e=>dragStart(e,ps),{passive:false});
+      }
+    }
+
+    const area2=document.getElementById('puzzle-area');
+    area2.addEventListener('mousemove',dragMove);
+    area2.addEventListener('mouseup',dragEnd);
+    area2.addEventListener('touchmove',dragMove,{passive:false});
+    area2.addEventListener('touchend',dragEnd);
+  };
+  imgEl.src=pzImg;
+}
+
+function makePath(pw,ph,tabs,m){
+  const r=Math.min(pw,ph)*TAB;
+  const x0=m, y0=m, x1=m+pw, y1=m+ph;
+  const mx=m+pw/2, my=m+ph/2;
+
+  function segTop(d){
+    if(!d) return `L${x1} ${y0}`;
+    const s=d>0?-1:1;
+    return `L${mx-r} ${y0} C${mx-r} ${y0+s*r*1.5},${mx-r*.4} ${y0+s*r*2},${mx} ${y0+s*r*2} C${mx+r*.4} ${y0+s*r*2},${mx+r} ${y0+s*r*1.5},${mx+r} ${y0} L${x1} ${y0}`;
+  }
+  function segRight(d){
+    if(!d) return `L${x1} ${y1}`;
+    const s=d>0?1:-1;
+    return `L${x1} ${my-r} C${x1-s*r*1.5} ${my-r},${x1-s*r*2} ${my-r*.4},${x1-s*r*2} ${my} C${x1-s*r*2} ${my+r*.4},${x1-s*r*1.5} ${my+r},${x1} ${my+r} L${x1} ${y1}`;
+  }
+  function segBottom(d){
+    if(!d) return `L${x0} ${y1}`;
+    const s=d>0?1:-1;
+    return `L${mx+r} ${y1} C${mx+r} ${y1-s*r*1.5},${mx+r*.4} ${y1-s*r*2},${mx} ${y1-s*r*2} C${mx-r*.4} ${y1-s*r*2},${mx-r} ${y1-s*r*1.5},${mx-r} ${y1} L${x0} ${y1}`;
+  }
+  function segLeft(d){
+    if(!d) return `L${x0} ${y0}`;
+    const s=d>0?-1:1;
+    return `L${x0} ${my+r} C${x0+s*r*1.5} ${my+r},${x0+s*r*2} ${my+r*.4},${x0+s*r*2} ${my} C${x0+s*r*2} ${my-r*.4},${x0+s*r*1.5} ${my-r},${x0} ${my-r} L${x0} ${y0}`;
+  }
+  return `M${x0} ${y0} ${segTop(tabs.t)} ${segRight(tabs.r)} ${segBottom(tabs.b)} ${segLeft(tabs.l)} Z`;
+}
+
+function dragStart(e,ps){
+  if(ps.snapped) return;
+  e.preventDefault();
+  pzDrag=ps;
+  const area=document.getElementById('puzzle-area');
+  const ar=area.getBoundingClientRect();
+  const pt=e.touches?e.touches[0]:e;
+  pzDragOX=(pt.clientX-ar.left)-ps.x;
+  pzDragOY=(pt.clientY-ar.top)-ps.y;
+  ps.el.style.zIndex=9999;
+  ps.el.classList.add('dragging');
+}
+
+function dragMove(e){
+  if(!pzDrag) return;
+  e.preventDefault();
+  const area=document.getElementById('puzzle-area');
+  const ar=area.getBoundingClientRect();
+  const pt=e.touches?e.touches[0]:e;
+  let nx=(pt.clientX-ar.left)-pzDragOX;
+  let ny=(pt.clientY-ar.top)-pzDragOY;
+  nx=Math.max(-pzDrag.margin,Math.min(pzAreaW-pzDrag.w+pzDrag.margin,nx));
+  ny=Math.max(-pzDrag.margin,Math.min(pzAreaH-pzDrag.h+pzDrag.margin,ny));
+  pzDrag.x=nx; pzDrag.y=ny;
+  pzDrag.el.style.left=nx+'px';
+  pzDrag.el.style.top=ny+'px';
+}
+
+function dragEnd(){
+  if(!pzDrag) return;
+  const ps=pzDrag; pzDrag=null;
+  ps.el.classList.remove('dragging');
+  const dx=ps.x-ps.tx, dy=ps.y-ps.ty;
+  if(Math.sqrt(dx*dx+dy*dy)<SNAP){
+    ps.x=ps.tx; ps.y=ps.ty;
+    ps.el.style.left=ps.tx+'px';
+    ps.el.style.top=ps.ty+'px';
+    ps.el.style.zIndex=2;
+    ps.snapped=true;
+    ps.el.classList.add('snapped');
+    // Green glow snap feedback
+    ps.el.style.filter='drop-shadow(0 0 10px rgba(78,160,120,0.7))';
+    setTimeout(()=>{ if(ps.el) ps.el.style.filter='none'; },800);
+    pzPlaced++;
+    document.getElementById('stat-placed').textContent=pzPlaced;
+    if(pzPlaced===pzN*pzN) setTimeout(pzWin,700);
+  } else {
+    ps.el.style.zIndex=100;
+  }
+  pzMoves++;
+  document.getElementById('stat-moves').textContent=pzMoves;
+}
+
+function scatterAll(){
+  const area=document.getElementById('puzzle-area');
+  const aH=parseFloat(area.style.height)||pzAreaH;
+  pzPieces.forEach(ps=>{
+    if(ps.snapped) return;
+    const sy=pzBY+(pzAreaH-pzBY)*0.55;
+    const rx=Math.random()*(pzAreaW-ps.w-20)+10;
+    const ry=sy+Math.random()*Math.max(0,aH-sy-ps.h-10);
+    ps.x=rx; ps.y=ry;
+    ps.el.style.left=rx+'px';
+    ps.el.style.top=ry+'px';
+  });
+}
+
+function pzWin(){
+  spawnPetals();
+  document.getElementById('win-preview-img').src=pzImg;
+  document.getElementById('puzzle-win-overlay').classList.add('show');
+}
+
+function closePuzzleAndReset(){
+  document.getElementById('puzzle-win-overlay').classList.remove('show');
+  document.getElementById('puzzle-setup').style.display='block';
+  document.getElementById('puzzle-game-wrap').style.display='none';
+  document.getElementById('puzzle-area').querySelectorAll('.jpiece').forEach(p=>p.remove());
+  document.getElementById('puzzle-area').style.height='';
+  pzPieces=[]; pzPlaced=0; pzMoves=0;
+}
+
+function downloadDrawing(){
+  const a=document.createElement('a');
+  a.href=pzImg; a.download='your-drawing.png'; a.click();
+}
+
+function spawnPetals(){
+  const cols=['#f0a8be','#fce8ee','#8ec4a4','#d4ead9','#c96a89','#e8f4ee','#f9dde6'];
+  for(let i=0;i<50;i++){
+    setTimeout(()=>{
+      const el=document.createElement('div');
+      el.className='anim-petal';
+      const sz=12+Math.random()*20;
+      const col=cols[Math.floor(Math.random()*cols.length)];
+      const dur=2+Math.random()*3;
+      el.style.cssText=`left:${Math.random()*100}vw;top:-40px;width:${sz}px;height:${sz*.65}px;background:${col};animation-duration:${dur}s;animation-delay:${Math.random()*1.5}s;opacity:0.9`;
+      document.body.appendChild(el);
+      setTimeout(()=>el.remove(),(dur+2)*1000);
+    },i*55);
+  }
+}
+
+// ================================================================
+//  MEMORY GAME
+// ================================================================
+const EMOJI_POOL=['🌸','🌺','🌼','🌻','🌹','🌷','🌿','🍀','🦋','🐝','🌙','⭐','🌈','🍓','🎀','💖'];
+let memFlipped=[],memMatched=0,memMoves=0,memTimer=null,memSeconds=0,memLocked=false;
+
+function initMemory(){
+  clearInterval(memTimer);
+  memSeconds=0;memMoves=0;memMatched=0;memLocked=false;memFlipped=[];
+  document.getElementById('mem-moves').textContent='0';
+  document.getElementById('mem-pairs').textContent='0';
+  document.getElementById('mem-time').textContent='0:00';
+  document.getElementById('memory-win').style.display='none';
+  const chosen=shuffle([...EMOJI_POOL]).slice(0,8);
+  const cards=shuffle([...chosen,...chosen]);
+  const grid=document.getElementById('memory-grid');
+  grid.innerHTML='';
+  cards.forEach(emoji=>{
+    const c=document.createElement('div');
+    c.className='memory-card';
+    c.dataset.emoji=emoji;
+    c.innerHTML=`<div class="memory-card-inner"><div class="card-front"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><ellipse cx="12" cy="5" rx="3" ry="5" fill="#f4c0d1" transform="rotate(0 12 12) translate(0 -7)"/><ellipse cx="12" cy="5" rx="3" ry="5" fill="#f4c0d1" transform="rotate(72 12 12) translate(0 -7)"/><ellipse cx="12" cy="5" rx="3" ry="5" fill="#f4c0d1" transform="rotate(144 12 12) translate(0 -7)"/><ellipse cx="12" cy="5" rx="3" ry="5" fill="#f4c0d1" transform="rotate(216 12 12) translate(0 -7)"/><ellipse cx="12" cy="5" rx="3" ry="5" fill="#f4c0d1" transform="rotate(288 12 12) translate(0 -7)"/><circle cx="12" cy="12" r="3.5" fill="#fce8ee"/></svg></div><div class="card-back">${emoji}</div></div>`;
+    c.addEventListener('click',()=>memFlip(c));
+    grid.appendChild(c);
+  });
+}
+
+function memFlip(card){
+  if(memLocked||card.classList.contains('flipped')||card.classList.contains('matched')) return;
+  if(memFlipped.length===0&&memMatched===0&&memMoves===0){
+    memTimer=setInterval(()=>{
+      memSeconds++;
+      document.getElementById('mem-time').textContent=Math.floor(memSeconds/60)+':'+String(memSeconds%60).padStart(2,'0');
+    },1000);
+  }
+  card.classList.add('flipped');
+  memFlipped.push(card);
+  if(memFlipped.length===2){
+    memMoves++;
+    document.getElementById('mem-moves').textContent=memMoves;
+    memLocked=true;
+    setTimeout(()=>{
+      const[a,b]=memFlipped;
+      if(a.dataset.emoji===b.dataset.emoji){
+        a.classList.add('matched');b.classList.add('matched');
+        memMatched++;
+        document.getElementById('mem-pairs').textContent=memMatched;
+        if(memMatched===8){
+          clearInterval(memTimer);
+          document.getElementById('win-moves').textContent=memMoves;
+          setTimeout(()=>{document.getElementById('memory-win').style.display='block';},500);
         }
+      } else {
+        a.classList.remove('flipped');b.classList.remove('flipped');
+      }
+      memFlipped=[];memLocked=false;
+    },700);
+  }
+}
 
-        var categorized = false,
-            puzzleTmpl = $('#puzzle_template').html(),
-            html = "";
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}
+  return arr;
+}
 
-        if (categorized) {
-            var categoryTmpl = $('#category_template').html(),
-                categories = {};
-            puzzles.forEach(function(puzzle) {
-                var cat = puzzle.category;
-                categories[cat] = categories[cat] || [];
-                categories[cat].push(puzzle);
-            });
+// ================================================================
+//  COLORING BOOK
+// ================================================================
+const CRAYONS=['#e8437a','#f0a8be','#fce8ee','#ff7043','#ffa726','#ffee58','#66bb6a','#4a9070','#8ec4a4','#29b6f6','#5c6bc0','#ab47bc','#8d5524','#ffffff','#b0bec5','#37474f'];
+let drawColor='#e8437a',brushSize=12,isDrawing=false,colorCtx,colorCanvas;
 
-            var categoryNames = Object.keys(categories).sort();
-            categoryNames.forEach(function(categoryName) {
-                var categoryPuzzles = categories[categoryName],
-                    puzzlesHtml = "";
-                categoryPuzzles.forEach(function(puzzle) {
-                    puzzlesHtml += substitute(puzzleTmpl, puzzle);
-                });
-                html += substitute(categoryTmpl, {
-                    'name': categoryName,
-                    'puzzles': puzzlesHtml
-                });
-            });
-        } else {
-            var allTmpl = $('#all_template').html(),
-                puzzlesHtml = "";
-            puzzles.forEach(function(puzzle) {
-                puzzlesHtml += substitute(puzzleTmpl, puzzle);
-            });
-            html += substitute(allTmpl, {
-                'puzzles': puzzlesHtml
-            });
-        }
+function initColoring(){
+  colorCanvas=document.getElementById('color-canvas');
+  colorCtx=colorCanvas.getContext('2d');
+  const pal=document.getElementById('crayon-palette');
+  pal.innerHTML='';
+  CRAYONS.forEach(c=>{
+    const sw=document.createElement('div');
+    sw.className='crayon-swatch'+(c===drawColor?' active':'');
+    sw.style.background=c;
+    if(c==='#ffffff') sw.style.border='2px solid #ccc';
+    sw.onclick=()=>{document.querySelectorAll('.crayon-swatch').forEach(s=>s.classList.remove('active'));sw.classList.add('active');drawColor=c;};
+    pal.appendChild(sw);
+  });
+  colorCanvas.addEventListener('mousedown',e=>{isDrawing=true;const p=getPos(e);colorCtx.beginPath();colorCtx.arc(p.x,p.y,brushSize/2,0,Math.PI*2);colorCtx.fillStyle=drawColor;colorCtx.fill();colorCtx.beginPath();colorCtx.moveTo(p.x,p.y);});
+  colorCanvas.addEventListener('mousemove',e=>{if(!isDrawing)return;const p=getPos(e);colorCtx.lineTo(p.x,p.y);colorCtx.strokeStyle=drawColor;colorCtx.lineWidth=brushSize;colorCtx.lineCap='round';colorCtx.lineJoin='round';colorCtx.stroke();colorCtx.beginPath();colorCtx.moveTo(p.x,p.y);});
+  colorCanvas.addEventListener('mouseup',()=>isDrawing=false);
+  colorCanvas.addEventListener('mouseleave',()=>isDrawing=false);
+  colorCanvas.addEventListener('touchstart',e=>{e.preventDefault();isDrawing=true;const p=getPos(e.touches[0]);colorCtx.beginPath();colorCtx.arc(p.x,p.y,brushSize/2,0,Math.PI*2);colorCtx.fillStyle=drawColor;colorCtx.fill();},{passive:false});
+  colorCanvas.addEventListener('touchmove',e=>{e.preventDefault();if(!isDrawing)return;const p=getPos(e.touches[0]);colorCtx.lineTo(p.x,p.y);colorCtx.strokeStyle=drawColor;colorCtx.lineWidth=brushSize;colorCtx.lineCap='round';colorCtx.stroke();colorCtx.beginPath();colorCtx.moveTo(p.x,p.y);},{passive:false});
+  colorCanvas.addEventListener('touchend',()=>isDrawing=false);
+  loadColorPage();
+}
 
-        $('#puzzle_list').html(html);
+function setBrush(sz,el){brushSize=sz;document.querySelectorAll('.brush-opt').forEach(b=>b.classList.remove('active'));el.classList.add('active');}
+function getPos(e){const r=colorCanvas.getBoundingClientRect();return{x:(e.clientX-r.left)*colorCanvas.width/r.width,y:(e.clientY-r.top)*colorCanvas.height/r.height};}
+function clearCanvas(){colorCtx.clearRect(0,0,colorCanvas.width,colorCanvas.height);loadColorPage();}
+function saveCanvas(){const a=document.createElement('a');a.download='my-garden.png';a.href=colorCanvas.toDataURL();a.click();}
 
-    });
+function loadColorPage(){
+  const p=document.getElementById('page-select').value;
+  colorCtx.clearRect(0,0,colorCanvas.width,colorCanvas.height);
+  colorCtx.fillStyle='#ffffff';colorCtx.fillRect(0,0,colorCanvas.width,colorCanvas.height);
+  if(p==='roses') drawRosePage();
+  else if(p==='daisy') drawDaisyPage();
+  else drawWreathPage();
+}
+
+function drawRosePage(){
+  const c=colorCtx;c.strokeStyle='#8a7080';c.lineWidth=1.8;c.lineCap='round';
+  c.font='italic 20px "Cormorant Garamond",serif';c.fillStyle='#c8a0b0';c.textAlign='center';c.fillText('roses in bloom',280,38);
+  drawRose(c,140,180,65);drawRose(c,280,200,75);drawRose(c,420,175,60);
+  drawLeaf(c,90,260,-30);drawLeaf(c,190,290,20);drawLeaf(c,320,310,-15);drawLeaf(c,470,270,35);
+  c.beginPath();c.moveTo(140,240);c.bezierCurveTo(130,330,120,390,140,460);c.stroke();
+  c.beginPath();c.moveTo(280,270);c.bezierCurveTo(270,360,275,400,280,460);c.stroke();
+  c.beginPath();c.moveTo(420,235);c.bezierCurveTo(430,320,440,390,420,460);c.stroke();
+  c.strokeStyle='#f0a8be';c.lineWidth=1;c.strokeRect(20,55,520,405);
+  c.strokeStyle='#8ec4a4';c.lineWidth=0.5;c.strokeRect(26,61,508,393);
+}
+
+function drawRose(c,cx,cy,r){
+  const s=r/65;c.save();c.translate(cx,cy);c.scale(s,s);c.strokeStyle='#8a7080';c.lineWidth=1.8/s;
+  for(let i=0;i<5;i++){c.save();c.rotate(i*72*Math.PI/180);c.beginPath();c.ellipse(0,-28,16,28,0,0,Math.PI*2);c.stroke();c.restore();}
+  for(let i=0;i<5;i++){c.save();c.rotate((i*72+36)*Math.PI/180);c.beginPath();c.ellipse(0,-18,11,19,0,0,Math.PI*2);c.stroke();c.restore();}
+  c.beginPath();c.arc(0,0,9,0,Math.PI*2);c.stroke();c.beginPath();c.arc(0,0,5,0,Math.PI*2);c.stroke();c.restore();
+}
+
+function drawLeaf(c,x,y,angle){
+  c.save();c.translate(x,y);c.rotate(angle*Math.PI/180);
+  c.beginPath();c.moveTo(0,0);c.bezierCurveTo(-18,-12,-20,-38,0,-46);c.bezierCurveTo(20,-38,18,-12,0,0);
+  c.strokeStyle='#8a7080';c.lineWidth=1.5;c.stroke();
+  c.beginPath();c.moveTo(0,0);c.lineTo(0,-46);c.lineWidth=0.8;c.stroke();c.restore();
+}
+
+function drawDaisyPage(){
+  const c=colorCtx;c.strokeStyle='#8a7080';c.lineWidth=1.8;c.lineCap='round';
+  c.font='italic 20px "Cormorant Garamond",serif';c.fillStyle='#c8a0b0';c.textAlign='center';c.fillText('daisy meadow',280,38);
+  [[140,150],[300,140],[440,160],[100,300],[240,290],[380,310],[490,280],[160,430],[310,420],[450,440]].forEach(([x,y])=>drawDaisy(c,x,y,36+Math.random()*20));
+  for(let i=0;i<18;i++){const gx=30+i*30,gy=460;c.beginPath();c.moveTo(gx,gy);c.quadraticCurveTo(gx+(Math.random()-.5)*20,gy-28,gx+(Math.random()-.5)*12,gy-45);c.lineWidth=1.2;c.strokeStyle='#8a7080';c.stroke();}
+  c.strokeStyle='#f0a8be';c.lineWidth=1;c.strokeRect(20,55,520,405);
+}
+
+function drawDaisy(c,cx,cy,r){
+  c.save();c.translate(cx,cy);c.strokeStyle='#8a7080';c.lineWidth=1.5;
+  for(let i=0;i<10;i++){c.save();c.rotate(i*36*Math.PI/180);c.beginPath();c.ellipse(0,-(r*.6),r*.18,r*.52,0,0,Math.PI*2);c.stroke();c.restore();}
+  c.beginPath();c.arc(0,0,r*.22,0,Math.PI*2);c.lineWidth=1.8;c.stroke();c.restore();
+}
+
+function drawWreathPage(){
+  const c=colorCtx;
+  c.font='italic 20px "Cormorant Garamond",serif';c.fillStyle='#c8a0b0';c.textAlign='center';c.fillText('flower wreath',280,38);
+  const cx=280,cy=265,R=150;
+  c.beginPath();c.arc(cx,cy,R,0,Math.PI*2);c.strokeStyle='#8a7080';c.lineWidth=1.2;c.stroke();
+  c.beginPath();c.arc(cx,cy,R-22,0,Math.PI*2);c.lineWidth=0.8;c.stroke();
+  for(let i=0;i<10;i++){const a=i*36*Math.PI/180;const fx=cx+Math.cos(a)*R;const fy=cy+Math.sin(a)*R;if(i%3===0)drawDaisy(c,fx,fy,24);else drawRose(c,fx,fy,26);}
+  for(let i=0;i<10;i++){const a=(i*36+18)*Math.PI/180;drawLeaf(c,cx+Math.cos(a)*(R-4),cy+Math.sin(a)*(R-4),(i*36+18)-90+(i%2===0?30:-30));}
+  c.font='italic 15px "Cormorant Garamond",serif';c.fillStyle='#c8a0b0';c.textAlign='center';c.fillText('with love',280,270);
+  c.strokeStyle='#f0a8be';c.lineWidth=1;c.strokeRect(20,55,520,405);
+}
+
+initMemory();
+initColoring();
 </script>
 </body>
+</html>
