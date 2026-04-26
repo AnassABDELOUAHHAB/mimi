@@ -151,6 +151,57 @@ body{font-family:'Jost',sans-serif;background:var(--cream);color:var(--ink);min-
 .enter-btn:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--pink-dk)}
 .enter-btn:active{transform:translate(1px,1px);box-shadow:2px 2px 0 var(--pink-dk)}
 
+/* Garden Yes/No question */
+.garden-question{
+  display:flex;flex-direction:column;align-items:center;gap:14px;
+  opacity:0;animation:fadeIn 0.8s ease 3.2s forwards;
+}
+.garden-ask{
+  font-family:'Caveat',cursive;font-size:1.5rem;font-weight:700;
+  color:var(--pink-d);text-align:center;
+  text-shadow:1px 1px 0 rgba(201,106,137,0.15);
+}
+.garden-btns{display:flex;gap:16px;align-items:center;justify-content:center;flex-wrap:wrap}
+
+.yes-garden-btn{
+  font-family:'Caveat',cursive;font-weight:700;
+  background:linear-gradient(135deg,var(--pink),var(--pink-d));
+  color:white;border:none;border-radius:50px;
+  padding:14px 44px;cursor:pointer;
+  box-shadow:4px 4px 0 var(--pink-dk);
+  transition:all 0.25s cubic-bezier(.34,1.6,.64,1);
+  letter-spacing:0.02em;
+  font-size:1.3rem; /* grows via JS */
+}
+.yes-garden-btn:hover{transform:translate(-2px,-2px) scale(1.04);box-shadow:6px 6px 0 var(--pink-dk)}
+.yes-garden-btn:active{transform:translate(1px,1px);box-shadow:2px 2px 0 var(--pink-dk)}
+
+.no-garden-btn{
+  font-family:'Caveat',cursive;font-size:1.1rem;font-weight:600;
+  background:white;color:var(--muted);
+  border:2.5px solid var(--pink-l);border-radius:50px;
+  padding:10px 28px;cursor:pointer;
+  box-shadow:3px 3px 0 var(--pink-l);
+  transition:all 0.2s;
+}
+.no-garden-btn:hover{border-color:var(--pink-d);color:var(--pink-d);transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--pink-l)}
+/* Cat GIF animation */
+.cat-gif-wrap{
+  opacity:0;animation:fadeIn 0.7s ease 3.6s forwards;
+  display:flex;justify-content:center;
+}
+.cat-gif{
+  width:140px;height:140px;border-radius:50%;
+  border:3px solid var(--pink-l);
+  box-shadow:4px 4px 0 var(--pink-l);
+  object-fit:cover;
+  transition:transform 0.3s cubic-bezier(.34,1.6,.64,1);
+}
+.cat-gif:hover{transform:scale(1.08) rotate(-3deg)}
+/* When no is clicked, cat gif swaps to a sadder one */
+.cat-gif.sad{animation:catShake 0.4s ease}
+@keyframes catShake{0%{transform:rotate(0)}25%{transform:rotate(-6deg)}50%{transform:rotate(6deg)}75%{transform:rotate(-4deg)}100%{transform:rotate(0)}}
+
 /* Floating petals on overlay */
 .fp{position:absolute;pointer-events:none;animation:fpRise linear infinite}
 @keyframes fpRise{from{transform:translateY(110vh) rotate(0)}to{transform:translateY(-20vh) rotate(720deg)}}
@@ -563,9 +614,18 @@ footer{position:relative;z-index:10;text-align:center;padding:26px 20px;color:va
       </div>
     </div>
 
-    <button class="enter-btn" onclick="enterSite()">
-      Enter my garden ✿ →
-    </button>
+    <div class="garden-question" id="garden-question">
+      <div class="cat-gif-wrap" id="cat-gif-wrap">
+        <img class="cat-gif" id="cat-gif"
+          src="https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExbW5lenZyZHI5OXM2eW95b3pmMG40cWVrMDhtNjVuM3A4dGNxa2g2dSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/VM1fcpu2bKs1e2Kdbj/giphy.gif"
+          alt="Cute cat">
+      </div>
+      <div class="garden-ask" id="garden-ask">Do you want to see your garden? 🌸</div>
+      <div class="garden-btns" id="garden-btns">
+        <button class="yes-garden-btn" id="yes-garden-btn" onclick="gardenYes()">Yes! ✿</button>
+        <button class="no-garden-btn" id="no-garden-btn" onclick="gardenNo()">No 🙈</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -908,29 +968,13 @@ let ovRunning=true;
 const MSG_LINES=[
   '🌸 Hey you!',
   '',
-  'It\'s your birthday — and I couldn\'t let it pass',
-  'without doing something special for you. ✨',
+  "It's your birthday — I built you",
+  'a little garden, just for you. ✨',
   '',
-  'So I built you this little garden on the internet,',
-  'filled with things I know you love:',
+  'Cats, flowers, puzzles & sudoku —',
+  'all the things you love. 🐱🌷',
   '',
-  '🐱 cats (Mimi & Dodo say hi!)',
-  '🎨 crayon colors',
-  '🌸 flowers',
-  '🧩 puzzles to reconstruct',
-  '✦ sudoku (your favourite!)',
-  '',
-  'You\'ve been such a beautiful presence in my life.',
-  'Your drawings, your personality, your warmth —',
-  'they make every conversation feel like something',
-  'worth keeping forever. 🌹',
-  '',
-  'The puzzle game has a special surprise inside —',
-  'drawings made just for you.',
-  'Piece by piece, like you put things together. 🌷',
-  '',
-  'Happy Birthday, my dear friend.',
-  'With so much love ✿',
+  'Happy Birthday, my dear. With so much love ✿',
 ];
 
 let lineIdx=0,charIdx=0,typingActive=true;
@@ -963,6 +1007,53 @@ function enterSite(){
   setTimeout(()=>{ov.style.display='none'},1400);
 }
 
+/* ── Garden Yes / No mechanic ── */
+const NO_MESSAGES=[
+  'Are you sure? 🥺','Really sure??','But… it has cats! 🐱','Pookie please…','Just think about it!',
+  'I made it just for you 🌸','It has lilies!! 🌷','I will be very sad…','I will be VERY very sad…',
+  'Ok fine… just kidding, say YES! ❤️'
+];
+let noIdx=0, yesFontSize=1.3; // rem
+
+// Sad cat GIFs for when she clicks No (rotating)
+const SAD_CAT_GIFS=[
+  'https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExbW5lenZyZHI5OXM2eW95b3pmMG40cWVrMDhtNjVuM3A4dGNxa2g2dSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/VM1fcpu2bKs1e2Kdbj/giphy.gif',
+  'https://media.giphy.com/media/3o7TKSjRrfIPjeiVyM/giphy.gif',
+  'https://media.giphy.com/media/jA9TqCBYgGxVQRBzX1/giphy.gif',
+  'https://media.giphy.com/media/ihvwnO5pHRzQpTMpqq/giphy.gif',
+];
+
+function gardenNo(){
+  const noBtn=document.getElementById('no-garden-btn');
+  const yesBtn=document.getElementById('yes-garden-btn');
+  const ask=document.getElementById('garden-ask');
+  const catImg=document.getElementById('cat-gif');
+  // Shake the cat
+  catImg.classList.remove('sad');
+  void catImg.offsetWidth; // reflow to restart animation
+  catImg.classList.add('sad');
+  // Swap to a different sad/cute cat gif
+  catImg.src=SAD_CAT_GIFS[noIdx % SAD_CAT_GIFS.length];
+  // Update no-button text with rotating messages
+  noBtn.textContent=NO_MESSAGES[noIdx % NO_MESSAGES.length];
+  noIdx++;
+  // Grow the yes button each time
+  yesFontSize*=1.45;
+  yesBtn.style.fontSize=Math.min(yesFontSize,5)+'rem';
+  yesBtn.style.padding=`${14+noIdx*3}px ${44+noIdx*6}px`;
+  // After many clicks, update the question text too
+  if(noIdx===3) ask.textContent='The cats are waiting for you… 🐱';
+  if(noIdx===6) ask.textContent='They drew flowers for you!! 🌸🌷🌺';
+  if(noIdx===9) ask.textContent='PLEASE 🥺🥺🥺';
+  // Extra sparkle burst on the yes button position
+  const r=yesBtn.getBoundingClientRect();
+  addSparkBurst(r.left+r.width/2, r.top+r.height/2);
+}
+
+function gardenYes(){
+  enterSite();
+}
+
 /* ══════════════════════════════════════════
    BACKGROUND — CATS & FLOWERS
 ══════════════════════════════════════════ */
@@ -971,83 +1062,399 @@ const bgX=bgC.getContext('2d');
 function resizeBg(){bgC.width=window.innerWidth;bgC.height=window.innerHeight}
 resizeBg();window.addEventListener('resize',resizeBg);
 
-// Background objects: mini drawn cats and flowers
-const BGCOLS=['#f0a8be','#8ec4a4','#fce8ee','#f9d94e','#f4855a','#c96a89','#d4ead9','#e8f4ee','#fce8ee','#b0d8c0'];
+// Background objects: beautiful detailed cats and flowers
+const BGCOLS=[
+  // pinks & roses
+  '#f0a8be','#e8437a','#ff85aa','#ffd6e8','#c96a89','#ff4488',
+  // purples & lilacs
+  '#d4a0f0','#9b59b6','#c084fc','#e9d5ff',
+  // yellows & golds
+  '#f9d94e','#fbbf24','#fde68a','#f59e0b',
+  // oranges & corals
+  '#f4855a','#fb923c','#fed7aa',
+  // greens
+  '#8ec4a4','#4a9070','#bbf7d0','#6ee7b7',
+  // whites & creams
+  '#fce8ee','#fff7ed','#f1f5f9',
+  // reds
+  '#ff6b6b','#e53e3e','#fc8181',
+];
 const bgObjs=[];
 
+// 7 flower types: lily, rose, cherry blossom, sunflower, tulip, daisy, hibiscus
+// 3 cat variants: sleepy, curious, playful
+const N_FLOWER_TYPES=7;
+const N_CAT_TYPES=3;
+
 function makeBgObj(){
-  const type=Math.random()<0.5?'cat':'flower';
+  const rnd=Math.random();
+  const type=rnd<0.38?'cat':''+'flower';
   return {
     x:Math.random()*window.innerWidth,
     y:Math.random()*window.innerHeight,
-    vx:(Math.random()-.5)*0.35,vy:-0.15-Math.random()*0.4,
-    r:Math.random()*Math.PI*2,vr:(Math.random()-.5)*0.005,
-    s:0.28+Math.random()*0.45,
+    vx:(Math.random()-.5)*0.32,vy:-0.12-Math.random()*0.38,
+    r:Math.random()*Math.PI*2,vr:(Math.random()-.5)*0.004,
+    s:0.26+Math.random()*0.48,
     col:BGCOLS[Math.floor(Math.random()*BGCOLS.length)],
     col2:BGCOLS[Math.floor(Math.random()*BGCOLS.length)],
-    alpha:0.06+Math.random()*0.11,
+    alpha:0.07+Math.random()*0.13,
     type,
-    ftype:Math.floor(Math.random()*3)
+    ftype:Math.floor(Math.random()*N_FLOWER_TYPES),
+    ctype:Math.floor(Math.random()*N_CAT_TYPES),
+    phase:Math.random()*Math.PI*2 // for animated tail / petals
   };
 }
-for(let i=0;i<38;i++)bgObjs.push(makeBgObj());
+for(let i=0;i<44;i++)bgObjs.push(makeBgObj());
 
-function drawBgCat(ctx,col,col2){
-  // Tiny cute cat icon
-  ctx.strokeStyle=col;ctx.fillStyle=col;ctx.lineWidth=2;ctx.lineCap='round';
-  // body
-  ctx.beginPath();ctx.ellipse(0,12,14,18,0,0,Math.PI*2);ctx.fill();
-  // head
-  ctx.beginPath();ctx.ellipse(0,-8,13,11,0,0,Math.PI*2);ctx.fill();
-  // ears
-  ctx.beginPath();ctx.moveTo(-10,-16);ctx.lineTo(-18,-30);ctx.lineTo(-4,-19);ctx.closePath();ctx.fill();
-  ctx.beginPath();ctx.moveTo(10,-16);ctx.lineTo(18,-30);ctx.lineTo(4,-19);ctx.closePath();ctx.fill();
-  // eyes
-  ctx.fillStyle='rgba(255,255,255,0.6)';
-  ctx.beginPath();ctx.ellipse(-5,-9,4,4,0,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.ellipse(5,-9,4,4,0,0,Math.PI*2);ctx.fill();
-  // tail
-  ctx.strokeStyle=col;ctx.lineWidth=3;
-  ctx.beginPath();ctx.moveTo(12,20);ctx.quadraticCurveTo(26,14,22,28);ctx.stroke();
-}
+/* ─── DETAILED CAT DRAWING ─── */
+function drawBgCat(ctx,col,col2,variant,phase){
+  ctx.lineCap='round';ctx.lineJoin='round';
 
-function drawBgFlower(ctx,col,col2,type){
-  if(type===0){
-    // 5-petal flower
-    for(let i=0;i<5;i++){
-      ctx.save();ctx.rotate(i*72*Math.PI/180);
-      ctx.fillStyle=col;ctx.beginPath();ctx.ellipse(0,-16,7,13,0,0,Math.PI*2);ctx.fill();
-      ctx.restore();
-    }
-    ctx.fillStyle=col2;ctx.beginPath();ctx.arc(0,0,7,0,Math.PI*2);ctx.fill();
-  }else if(type===1){
-    // Daisy
-    for(let i=0;i<8;i++){
-      ctx.save();ctx.rotate(i*45*Math.PI/180);
-      ctx.fillStyle=col;ctx.beginPath();ctx.ellipse(0,-14,5,12,0,0,Math.PI*2);ctx.fill();
-      ctx.restore();
-    }
-    ctx.fillStyle=col2;ctx.beginPath();ctx.arc(0,0,6,0,Math.PI*2);ctx.fill();
+  if(variant===0){
+    // ── Sleepy curl cat ──
+    // body — round curled shape
+    ctx.fillStyle=col;
+    ctx.beginPath();ctx.ellipse(0,10,20,14,0.3,0,Math.PI*2);ctx.fill();
+    // head
+    ctx.beginPath();ctx.ellipse(-8,-4,14,12,-.25,0,Math.PI*2);ctx.fill();
+    // inner ear
+    ctx.fillStyle=col2;
+    ctx.beginPath();ctx.moveTo(-18,-10);ctx.lineTo(-24,-24);ctx.lineTo(-12,-14);ctx.closePath();ctx.fill();
+    ctx.fillStyle='rgba(255,180,200,0.7)';
+    ctx.beginPath();ctx.moveTo(-18,-11);ctx.lineTo(-22,-21);ctx.lineTo(-13,-15);ctx.closePath();ctx.fill();
+    ctx.fillStyle=col;
+    ctx.beginPath();ctx.moveTo(-4,-10);ctx.lineTo(-2,-22);ctx.lineTo(5,-13);ctx.closePath();ctx.fill();
+    ctx.fillStyle='rgba(255,180,200,0.7)';
+    ctx.beginPath();ctx.moveTo(-4,-11);ctx.lineTo(-2,-19);ctx.lineTo(4,-14);ctx.closePath();ctx.fill();
+    // closed sleepy eyes (curved lines)
+    ctx.strokeStyle='rgba(80,30,50,0.8)';ctx.lineWidth=1.8;
+    ctx.beginPath();ctx.moveTo(-13,-5);ctx.quadraticCurveTo(-10,-2,-7,-5);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(-4,-5);ctx.quadraticCurveTo(-1,-2,2,-5);ctx.stroke();
+    // tiny nose
+    ctx.fillStyle='rgba(232,67,122,0.7)';
+    ctx.beginPath();ctx.arc(-5,0,2,0,Math.PI*2);ctx.fill();
+    // whiskers
+    ctx.strokeStyle='rgba(255,255,255,0.5)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(-5,1);ctx.lineTo(-18,0);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(-5,1);ctx.lineTo(-18,3);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(-5,1);ctx.lineTo(6,0);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(-5,1);ctx.lineTo(6,3);ctx.stroke();
+    // curled tail
+    ctx.strokeStyle=col;ctx.lineWidth=4;
+    ctx.beginPath();ctx.moveTo(18,14);ctx.bezierCurveTo(30,4,34,20,22,26);ctx.stroke();
+    // tail tip
+    ctx.fillStyle=col2;ctx.beginPath();ctx.arc(22,26,4,0,Math.PI*2);ctx.fill();
+    // Zzzz
+    ctx.fillStyle='rgba(255,255,255,0.45)';ctx.font='bold 8px sans-serif';ctx.textAlign='center';
+    ctx.fillText('z',3,-14);ctx.font='bold 6px sans-serif';ctx.fillText('z',7,-20);
+
+  }else if(variant===1){
+    // ── Curious sitting cat ──
+    // body
+    ctx.fillStyle=col;
+    ctx.beginPath();ctx.ellipse(0,14,13,17,0,0,Math.PI*2);ctx.fill();
+    // head (tilted slightly)
+    ctx.save();ctx.rotate(-0.18);
+    ctx.beginPath();ctx.ellipse(0,-10,13,11,0,0,Math.PI*2);ctx.fill();
+    // pointy ears with inner color
+    ctx.fillStyle=col;
+    ctx.beginPath();ctx.moveTo(-10,-17);ctx.lineTo(-17,-32);ctx.lineTo(-3,-20);ctx.closePath();ctx.fill();
+    ctx.beginPath();ctx.moveTo(10,-17);ctx.lineTo(17,-32);ctx.lineTo(3,-20);ctx.closePath();ctx.fill();
+    ctx.fillStyle='rgba(255,180,200,0.75)';
+    ctx.beginPath();ctx.moveTo(-9,-18);ctx.lineTo(-14,-28);ctx.lineTo(-4,-20);ctx.closePath();ctx.fill();
+    ctx.beginPath();ctx.moveTo(9,-18);ctx.lineTo(14,-28);ctx.lineTo(4,-20);ctx.closePath();ctx.fill();
+    // big round curious eyes
+    ctx.fillStyle='rgba(40,20,30,0.85)';
+    ctx.beginPath();ctx.ellipse(-5,-11,5.5,6,0,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(5,-11,5.5,6,0,0,Math.PI*2);ctx.fill();
+    // iris glow
+    ctx.fillStyle='rgba(100,200,255,0.5)';
+    ctx.beginPath();ctx.ellipse(-5,-11,4,5,0,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(5,-11,4,5,0,0,Math.PI*2);ctx.fill();
+    // pupils
+    ctx.fillStyle='rgba(15,5,15,0.9)';
+    ctx.beginPath();ctx.ellipse(-5,-11,2,4,0,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(5,-11,2,4,0,0,Math.PI*2);ctx.fill();
+    // shine
+    ctx.fillStyle='rgba(255,255,255,0.8)';
+    ctx.beginPath();ctx.arc(-7,-13,1.5,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(3,-13,1.5,0,Math.PI*2);ctx.fill();
+    // nose + mouth
+    ctx.fillStyle='rgba(232,67,122,0.8)';
+    ctx.beginPath();ctx.moveTo(0,-5);ctx.lineTo(-2,-3);ctx.lineTo(2,-3);ctx.closePath();ctx.fill();
+    ctx.strokeStyle='rgba(80,30,50,0.5)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(0,-3);ctx.quadraticCurveTo(-3,1,-5,0);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(0,-3);ctx.quadraticCurveTo(3,1,5,0);ctx.stroke();
+    // whiskers
+    ctx.strokeStyle='rgba(255,255,255,0.45)';ctx.lineWidth=1.2;
+    [-1,1].forEach(s=>{
+      ctx.beginPath();ctx.moveTo(2*s,-4);ctx.lineTo(16*s,-3);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(2*s,-4);ctx.lineTo(16*s,-6);ctx.stroke();
+    });
+    ctx.restore();
+    // paws
+    ctx.fillStyle=col;
+    ctx.beginPath();ctx.ellipse(-7,26,5,4,-.2,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(7,26,5,4,.2,0,Math.PI*2);ctx.fill();
+    // tail wrapping around
+    const tw=Math.sin(phase)*5;
+    ctx.strokeStyle=col;ctx.lineWidth=4;
+    ctx.beginPath();ctx.moveTo(-12,20);ctx.bezierCurveTo(-26,28+tw,-28,16+tw,-16,10);ctx.stroke();
+
   }else{
-    // Simple blossom
-    for(let i=0;i<6;i++){
-      ctx.save();ctx.rotate(i*60*Math.PI/180);
-      ctx.fillStyle=col;ctx.beginPath();ctx.ellipse(0,-12,6,10,0,0,Math.PI*2);ctx.fill();
-      ctx.restore();
-    }
-    ctx.fillStyle=col2;ctx.beginPath();ctx.arc(0,0,5,0,Math.PI*2);ctx.fill();
+    // ── Playful stretching cat ──
+    // stretched body
+    ctx.fillStyle=col;
+    ctx.beginPath();ctx.ellipse(0,8,22,12,0,0,Math.PI*2);ctx.fill();
+    // head raised up
+    ctx.beginPath();ctx.ellipse(-4,-12,13,11,0.2,0,Math.PI*2);ctx.fill();
+    // neck
+    ctx.beginPath();ctx.moveTo(-4,0);ctx.bezierCurveTo(-8,-4,-8,-8,-4,-12);ctx.lineWidth=8;ctx.strokeStyle=col;ctx.stroke();
+    // ears
+    ctx.fillStyle=col;
+    ctx.beginPath();ctx.moveTo(-13,-20);ctx.lineTo(-20,-34);ctx.lineTo(-6,-22);ctx.closePath();ctx.fill();
+    ctx.beginPath();ctx.moveTo(3,-20);ctx.lineTo(8,-34);ctx.lineTo(10,-22);ctx.closePath();ctx.fill();
+    ctx.fillStyle='rgba(255,160,190,0.7)';
+    ctx.beginPath();ctx.moveTo(-13,-21);ctx.lineTo(-17,-30);ctx.lineTo(-7,-23);ctx.closePath();ctx.fill();
+    ctx.beginPath();ctx.moveTo(3,-21);ctx.lineTo(7,-30);ctx.lineTo(9,-23);ctx.closePath();ctx.fill();
+    // happy squint eyes
+    ctx.strokeStyle='rgba(60,20,40,0.85)';ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(-9,-14);ctx.quadraticCurveTo(-6,-10,-3,-14);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(2,-14);ctx.quadraticCurveTo(5,-10,8,-14);ctx.stroke();
+    // rosy cheeks
+    ctx.fillStyle='rgba(240,140,180,0.25)';
+    ctx.beginPath();ctx.arc(-8,-9,5,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(8,-9,5,0,Math.PI*2);ctx.fill();
+    // nose
+    ctx.fillStyle='rgba(230,80,130,0.8)';
+    ctx.beginPath();ctx.arc(-1,-8,2,0,Math.PI*2);ctx.fill();
+    // front paws stretched out
+    ctx.fillStyle=col;
+    ctx.beginPath();ctx.ellipse(20,16,10,5,0.3,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(24,20,10,5,0.3,0,Math.PI*2);ctx.fill();
+    // paw toe lines
+    ctx.strokeStyle='rgba(200,150,170,0.5)';ctx.lineWidth=1;
+    [18,22,26].forEach(px=>{
+      ctx.beginPath();ctx.moveTo(px,14);ctx.lineTo(px,22);ctx.stroke();
+    });
+    // wagging tail
+    const tw2=Math.sin(phase*1.3)*14;
+    ctx.strokeStyle=col;ctx.lineWidth=5;
+    ctx.beginPath();ctx.moveTo(-20,12);ctx.bezierCurveTo(-30,20+tw2,-36,8+tw2,-30,0);ctx.stroke();
+    ctx.fillStyle=col2;ctx.beginPath();ctx.arc(-30,0,5,0,Math.PI*2);ctx.fill();
+    // whiskers
+    ctx.strokeStyle='rgba(255,255,255,0.4)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(-1,-6);ctx.lineTo(-14,-5);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(-1,-6);ctx.lineTo(-14,-8);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(-1,-6);ctx.lineTo(10,-5);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(-1,-6);ctx.lineTo(10,-8);ctx.stroke();
   }
 }
 
+/* ─── DETAILED FLOWER DRAWING ─── */
+function drawBgFlower(ctx,col,col2,type){
+  ctx.lineCap='round';ctx.lineJoin='round';
+
+  if(type===0){
+    // ── LILY — elegant trumpet petals ──
+    const lilyPink='rgba(255,160,190,0.9)';
+    const lilyCenter='rgba(255,220,60,0.9)';
+    // 6 wide curved petals radiating out
+    for(let i=0;i<6;i++){
+      ctx.save();ctx.rotate(i*60*Math.PI/180);
+      // outer petal with veins — use col tinted
+      ctx.fillStyle=col;
+      ctx.beginPath();
+      ctx.moveTo(0,0);
+      ctx.bezierCurveTo(-10,-8,-12,-22,-8,-32);
+      ctx.quadraticCurveTo(0,-38,8,-32);
+      ctx.bezierCurveTo(12,-22,10,-8,0,0);
+      ctx.fill();
+      // vein line down each petal
+      ctx.strokeStyle='rgba(255,255,255,0.35)';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(0,-2);ctx.lineTo(0,-28);ctx.stroke();
+      // petal tip highlight
+      ctx.fillStyle='rgba(255,255,255,0.18)';
+      ctx.beginPath();ctx.ellipse(0,-26,3,5,0,0,Math.PI*2);ctx.fill();
+      ctx.restore();
+    }
+    // stamens — tiny lines with dots
+    for(let i=0;i<6;i++){
+      const a=i*60*Math.PI/180;
+      ctx.strokeStyle='rgba(180,140,20,0.7)';ctx.lineWidth=1.2;
+      ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(Math.cos(a)*14,Math.sin(a)*14);ctx.stroke();
+      ctx.fillStyle=lilyCenter;
+      ctx.beginPath();ctx.arc(Math.cos(a)*14,Math.sin(a)*14,2.5,0,Math.PI*2);ctx.fill();
+    }
+    // center
+    ctx.fillStyle=lilyCenter;ctx.beginPath();ctx.arc(0,0,5,0,Math.PI*2);ctx.fill();
+
+  }else if(type===1){
+    // ── ROSE — layered spiral petals ──
+    const layers=[[28,5],[20,5],[13,5],[8,4]];
+    layers.forEach(([r,n])=>{
+      for(let i=0;i<n;i++){
+        ctx.save();
+        ctx.rotate((i/n)*Math.PI*2+(r*.1));
+        ctx.fillStyle=col;ctx.globalAlpha*=0.9;
+        ctx.beginPath();
+        ctx.moveTo(0,0);
+        ctx.bezierCurveTo(-r*.5,-r*.3,-r*.6,-r*1.1,-r*.1,-r);
+        ctx.bezierCurveTo(r*.4,-r*1.2,r*.8,-r*.5,r*.4,-r*.1);
+        ctx.bezierCurveTo(r*.2,r*.1,r*.05,.04,0,0);
+        ctx.fill();
+        ctx.restore();
+      }
+    });
+    // heart center
+    ctx.fillStyle=col2;ctx.beginPath();ctx.arc(0,0,5,0,Math.PI*2);ctx.fill();
+    // leaf detail
+    ctx.fillStyle='rgba(80,160,100,0.4)';
+    ctx.save();ctx.rotate(.5);
+    ctx.beginPath();ctx.moveTo(0,30);ctx.bezierCurveTo(-12,22,-10,12,0,18);ctx.bezierCurveTo(10,12,12,22,0,30);ctx.fill();
+    ctx.restore();
+
+  }else if(type===2){
+    // ── CHERRY BLOSSOM ──
+    for(let i=0;i<5;i++){
+      ctx.save();ctx.rotate(i*72*Math.PI/180);
+      ctx.fillStyle=col;
+      // heart-shaped petal (two bumps at top)
+      ctx.beginPath();
+      ctx.moveTo(0,0);
+      ctx.bezierCurveTo(-8,-6,-14,-20,-8,-28);
+      ctx.bezierCurveTo(-4,-34,0,-30,0,-26);
+      ctx.bezierCurveTo(0,-30,4,-34,8,-28);
+      ctx.bezierCurveTo(14,-20,8,-6,0,0);
+      ctx.fill();
+      // vein
+      ctx.strokeStyle='rgba(255,255,255,0.3)';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(0,-2);ctx.lineTo(0,-22);ctx.stroke();
+      ctx.restore();
+    }
+    // stamens
+    for(let i=0;i<10;i++){
+      const a=i*36*Math.PI/180;
+      ctx.strokeStyle='rgba(255,130,160,0.5)';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(Math.cos(a)*11,Math.sin(a)*11);ctx.stroke();
+      ctx.fillStyle='rgba(255,200,80,0.8)';
+      ctx.beginPath();ctx.arc(Math.cos(a)*11,Math.sin(a)*11,1.8,0,Math.PI*2);ctx.fill();
+    }
+    ctx.fillStyle='rgba(255,230,230,0.9)';ctx.beginPath();ctx.arc(0,0,4,0,Math.PI*2);ctx.fill();
+
+  }else if(type===3){
+    // ── SUNFLOWER ──
+    // outer ray petals
+    for(let i=0;i<16;i++){
+      ctx.save();ctx.rotate(i*22.5*Math.PI/180);
+      ctx.fillStyle=col;
+      ctx.beginPath();ctx.moveTo(0,0);ctx.bezierCurveTo(-5,-14,-5,-30,0,-36);ctx.bezierCurveTo(5,-30,5,-14,0,0);ctx.fill();
+      ctx.restore();
+    }
+    // inner petal ring
+    for(let i=0;i<12;i++){
+      ctx.save();ctx.rotate((i+.5)*30*Math.PI/180);
+      ctx.fillStyle='rgba(220,160,10,0.6)';
+      ctx.beginPath();ctx.ellipse(0,-16,4,10,0,0,Math.PI*2);ctx.fill();
+      ctx.restore();
+    }
+    // seed disk — brown circle with tiny dots
+    ctx.fillStyle='rgba(100,55,15,0.85)';ctx.beginPath();ctx.arc(0,0,12,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='rgba(70,30,5,0.7)';
+    for(let i=0;i<3;i++)for(let j=0;j<3;j++){
+      if(i===1&&j===1)continue;
+      ctx.beginPath();ctx.arc(-6+i*6,-6+j*6,2,0,Math.PI*2);ctx.fill();
+    }
+    ctx.fillStyle='rgba(200,140,20,0.6)';ctx.beginPath();ctx.arc(0,0,4,0,Math.PI*2);ctx.fill();
+
+  }else if(type===4){
+    // ── TULIP ──
+    // stem
+    ctx.strokeStyle='rgba(60,140,80,0.6)';ctx.lineWidth=3;
+    ctx.beginPath();ctx.moveTo(0,40);ctx.bezierCurveTo(4,28,2,18,0,10);ctx.stroke();
+    // leaf
+    ctx.fillStyle='rgba(70,160,90,0.45)';
+    ctx.beginPath();ctx.moveTo(0,30);ctx.bezierCurveTo(14,20,18,8,10,0);ctx.bezierCurveTo(8,14,2,22,0,30);ctx.fill();
+    // cup-shaped petals
+    const tColors=[col,col2,'rgba(255,200,200,0.7)'];
+    [-20,-8,4].forEach((ox,i)=>{
+      ctx.fillStyle=tColors[i%tColors.length];
+      ctx.beginPath();
+      ctx.moveTo(ox-6,10);
+      ctx.bezierCurveTo(ox-12,-4,ox-10,-22,ox,-28);
+      ctx.bezierCurveTo(ox+2,-24,ox+2,-4,ox+6,10);
+      ctx.closePath();ctx.fill();
+    });
+    // highlight on petals
+    ctx.fillStyle='rgba(255,255,255,0.15)';
+    ctx.beginPath();ctx.ellipse(-8,-14,4,10,-.2,0,Math.PI*2);ctx.fill();
+
+  }else if(type===5){
+    // ── DAISY — classic with many thin petals ──
+    // 14 petals
+    for(let i=0;i<14;i++){
+      ctx.save();ctx.rotate(i*(360/14)*Math.PI/180);
+      ctx.fillStyle=col;
+      ctx.beginPath();ctx.ellipse(0,-16,4,13,0,0,Math.PI*2);ctx.fill();
+      // thin vein
+      ctx.strokeStyle='rgba(255,255,255,0.28)';ctx.lineWidth=0.8;
+      ctx.beginPath();ctx.moveTo(0,-5);ctx.lineTo(0,-24);ctx.stroke();
+      ctx.restore();
+    }
+    // yellow dome center with texture
+    const gr=ctx.createRadialGradient(0,0,0,0,0,9);
+    gr.addColorStop(0,'rgba(255,240,80,0.95)');
+    gr.addColorStop(1,'rgba(200,150,20,0.85)');
+    ctx.fillStyle=gr;ctx.beginPath();ctx.arc(0,0,9,0,Math.PI*2);ctx.fill();
+    // tiny dots on center
+    ctx.fillStyle='rgba(160,100,10,0.5)';
+    for(let i=0;i<6;i++){
+      const a=i*60*Math.PI/180;
+      ctx.beginPath();ctx.arc(Math.cos(a)*4,Math.sin(a)*4,1.5,0,Math.PI*2);ctx.fill();
+    }
+
+  }else{
+    // ── HIBISCUS — 5 petals with prominent stamen tube ──
+    for(let i=0;i<5;i++){
+      ctx.save();ctx.rotate(i*72*Math.PI/180);
+      ctx.fillStyle=col;
+      ctx.beginPath();
+      ctx.moveTo(0,0);
+      ctx.bezierCurveTo(-12,-8,-18,-24,-10,-34);
+      ctx.quadraticCurveTo(0,-42,10,-34);
+      ctx.bezierCurveTo(18,-24,12,-8,0,0);
+      ctx.fill();
+      // petal veins
+      ctx.strokeStyle='rgba(255,255,255,0.2)';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(0,-2);ctx.lineTo(-5,-22);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(0,-2);ctx.lineTo(0,-30);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(0,-2);ctx.lineTo(5,-22);ctx.stroke();
+      ctx.restore();
+    }
+    // stamen column
+    ctx.strokeStyle='rgba(220,80,120,0.8)';ctx.lineWidth=3;
+    ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(0,-20);ctx.stroke();
+    // stamen tips
+    for(let i=0;i<8;i++){
+      const a=i*45*Math.PI/180;
+      ctx.fillStyle='rgba(255,220,60,0.9)';
+      ctx.beginPath();ctx.arc(Math.cos(a)*6-0,Math.sin(a)*6-20,2.5,0,Math.PI*2);ctx.fill();
+    }
+    ctx.fillStyle=col2;ctx.beginPath();ctx.arc(0,0,6,0,Math.PI*2);ctx.fill();
+  }
+}
+
+let bgFrame=0;
 (function animBg(){
+  bgFrame++;
   bgX.clearRect(0,0,bgC.width,bgC.height);
   bgObjs.forEach(o=>{
-    o.x+=o.vx;o.y+=o.vy;o.r+=o.vr;
-    if(o.y<-80){o.y=bgC.height+80;o.x=Math.random()*bgC.width}
-    if(o.x<-80)o.x=bgC.width+80;
-    if(o.x>bgC.width+80)o.x=-80;
+    o.x+=o.vx;o.y+=o.vy;o.r+=o.vr;o.phase+=0.02;
+    if(o.y<-90){o.y=bgC.height+90;o.x=Math.random()*bgC.width}
+    if(o.x<-90)o.x=bgC.width+90;
+    if(o.x>bgC.width+90)o.x=-90;
     bgX.save();bgX.translate(o.x,o.y);bgX.rotate(o.r);bgX.scale(o.s,o.s);bgX.globalAlpha=o.alpha;
-    if(o.type==='cat')drawBgCat(bgX,o.col,o.col2);
+    if(o.type==='cat')drawBgCat(bgX,o.col,o.col2,o.ctype,o.phase);
     else drawBgFlower(bgX,o.col,o.col2,o.ftype);
     bgX.restore();
   });
