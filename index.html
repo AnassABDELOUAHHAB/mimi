@@ -50,18 +50,16 @@ body{font-family:'Jost',sans-serif;background:var(--cream);color:var(--ink);min-
 #birthday-overlay{
   position:fixed;inset:0;z-index:99999;
   background:var(--cream);
-  overflow-y:auto; /* FIX: Allows overlay scrolling on small monitors */
+  overflow-y:auto; 
   overflow-x:hidden;
   display:block; 
 }
 #birthday-overlay.out{animation:ovOut 1.4s cubic-bezier(.7,0,1,1) forwards}
 @keyframes ovOut{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.04);pointer-events:none}}
 
-/* FIX: Changed to fixed so they follow you if you scroll down the overlay */
 #confetti-canvas{position:fixed;inset:0;pointer-events:none;z-index:1}
 #sparkle-canvas{position:fixed;inset:0;pointer-events:none;z-index:2}
 
-/* FIX: Added min-height and auto margins to center content correctly */
 .ov-content{
   position:relative;z-index:10;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
@@ -838,123 +836,92 @@ footer{position:relative;z-index:10;text-align:center;padding:26px 20px;color:va
 
 <script>
 /* ══════════════════════════════════════════
-   BIRTHDAY MUSIC (Web Audio API)
+   BIRTHDAY MUSIC (FIXED FOR IMMEDIATE AUTOPLAY)
 ══════════════════════════════════════════ */
-let audioCtx=null,musicPlaying=false,musicNodes=[];
-// Custom song element — place your song file as "song.mp3" next to this HTML
-let songEl=null;
-function initSongEl(){
-  if(songEl)return;
-  songEl=document.createElement('audio');
-  songEl.src='song.mp3';
-  songEl.loop=true;
-  songEl.volume=0.55;
+let songEl = null;
+let musicPlaying = false;
+let autoPlayTriggered = false;
+
+function initSongEl() {
+  if (songEl) return;
+  songEl = document.createElement('audio');
+  songEl.src = 'song.mp3';
+  songEl.loop = true;
+  songEl.volume = 0.55;
 }
 
-// Auto-play on first user interaction (required by browser policy)
-let autoPlayTriggered=false;
-function tryAutoPlay(){
-  if(autoPlayTriggered)return;
-  autoPlayTriggered=true;
+// Function that fires on the very first click/tap ANYWHERE
+function tryAutoPlay() {
+  if (autoPlayTriggered) return;
   initSongEl();
-  songEl.play().then(()=>{
-    musicPlaying=true;
-    document.getElementById('music-icon').textContent='🎶';
-    document.getElementById('music-label').textContent='Pause music';
-  }).catch(()=>{
-    // fallback: play synthesized melody
-    if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();
-    musicPlaying=true;
-    document.getElementById('music-icon').textContent='🎶';
-    document.getElementById('music-label').textContent='Pause music';
-    playHappyBirthday();
+  songEl.play().then(() => {
+    autoPlayTriggered = true;
+    musicPlaying = true;
+    const icon = document.getElementById('music-icon');
+    const label = document.getElementById('music-label');
+    if (icon) icon.textContent = '🎶';
+    if (label) label.textContent = 'Pause music';
+  }).catch((e) => {
+    console.log("Browser still blocked playback", e);
   });
 }
-// Try autoplay immediately (works on some browsers/contexts)
-window.addEventListener('load',()=>{
+
+// Try autoplay immediately as soon as the page loads
+window.addEventListener('load', () => {
   initSongEl();
-  songEl.play().then(()=>{
-    autoPlayTriggered=true;
-    musicPlaying=true;
-    document.getElementById('music-icon').textContent='🎶';
-    document.getElementById('music-label').textContent='Pause music';
-  }).catch(()=>{
-    // Will trigger on first click/touch
-    document.addEventListener('click',tryAutoPlay,{once:true});
-    document.addEventListener('touchstart',tryAutoPlay,{once:true});
+  songEl.play().then(() => {
+    // If browser allows it without a click, great!
+    autoPlayTriggered = true;
+    musicPlaying = true;
+    const icon = document.getElementById('music-icon');
+    const label = document.getElementById('music-label');
+    if (icon) icon.textContent = '🎶';
+    if (label) label.textContent = 'Pause music';
+  }).catch(() => {
+    // If the browser blocks it (very common), we bind it to the very first click anywhere.
+    document.addEventListener('click', tryAutoPlay, {once: true});
+    document.addEventListener('touchstart', tryAutoPlay, {once: true});
   });
 });
-const HAPPY_BDAY_NOTES=[
-  // Happy Birthday melody — frequencies in Hz, durations in beats
-  [392,0.4],[392,0.2],[440,0.6],[392,0.6],[523,0.6],[494,1.2],
-  [392,0.4],[392,0.2],[440,0.6],[392,0.6],[587,0.6],[523,1.2],
-  [392,0.4],[392,0.2],[784,0.6],[659,0.6],[523,0.6],[494,0.6],[440,1.2],
-  [698,0.4],[698,0.2],[659,0.6],[523,0.6],[587,0.6],[523,1.4]
-];
 
-function toggleMusic(){
+function toggleMusic() {
   initSongEl();
-  if(musicPlaying){
+  if (musicPlaying) {
     // Pause
     songEl.pause();
-    if(audioCtx)musicNodes.forEach(n=>{try{n.stop()}catch(e){}});
-    musicNodes=[];
-    musicPlaying=false;
-    document.getElementById('music-icon').textContent='🎵';
-    document.getElementById('music-label').textContent='Play birthday music';
-    return;
+    musicPlaying = false;
+    document.getElementById('music-icon').textContent = '🎵';
+    document.getElementById('music-label').textContent = 'Play birthday music';
+  } else {
+    // Play manually
+    autoPlayTriggered = true; // Prevents the click listener from firing twice
+    songEl.play().then(() => {
+      musicPlaying = true;
+      document.getElementById('music-icon').textContent = '🎶';
+      document.getElementById('music-label').textContent = 'Pause music';
+    }).catch(e => console.log("Blocked by browser", e));
   }
-  // Try playing the song file first
-  musicPlaying=true;
-  document.getElementById('music-icon').textContent='🎶';
-  document.getElementById('music-label').textContent='Pause music';
-  songEl.play().catch(()=>{
-    // Fallback to synthesized melody
-    if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();
-    playHappyBirthday();
-  });
 }
 
-function playHappyBirthday(){
-  if(!audioCtx||!musicPlaying)return;
-  const tempo=0.38; // seconds per beat
-  let time=audioCtx.currentTime+0.05;
-  musicNodes=[];
-  function playNote(freq,dur,t){
-    const osc=audioCtx.createOscillator();
-    const gain=audioCtx.createGain();
-    osc.connect(gain);gain.connect(audioCtx.destination);
-    osc.frequency.value=freq;
-    osc.type='triangle';
-    gain.gain.setValueAtTime(0,t);
-    gain.gain.linearRampToValueAtTime(0.22,t+0.02);
-    gain.gain.exponentialRampToValueAtTime(0.001,t+dur*tempo-0.01);
-    osc.start(t);osc.stop(t+dur*tempo);
-    musicNodes.push(osc);
-    // Bell overtone
-    const osc2=audioCtx.createOscillator();
-    const g2=audioCtx.createGain();
-    osc2.connect(g2);g2.connect(audioCtx.destination);
-    osc2.frequency.value=freq*2;osc2.type='sine';
-    g2.gain.setValueAtTime(0,t);g2.gain.linearRampToValueAtTime(0.06,t+0.01);
-    g2.gain.exponentialRampToValueAtTime(0.001,t+dur*tempo*0.5);
-    osc2.start(t);osc2.stop(t+dur*tempo);
-    musicNodes.push(osc2);
+// Function to safely stop music completely when entering garden
+function stopMusic() {
+  if (songEl) {
+    songEl.pause();
+    songEl.currentTime = 0; // Rewinds the track
   }
-  let totalDur=0;
-  HAPPY_BDAY_NOTES.forEach(([f,d])=>{playNote(f,d,time+totalDur*tempo);totalDur+=d});
-  // Loop
-  const totalTime=(totalDur+4)*tempo*1000;
-  setTimeout(()=>{if(musicPlaying)playHappyBirthday()},totalTime);
+  musicPlaying = false;
+  autoPlayTriggered = true; // Stop it from trying to play again later
+
+  // Remove the listeners just in case she entered without clicking anywhere else first
+  document.removeEventListener('click', tryAutoPlay);
+  document.removeEventListener('touchstart', tryAutoPlay);
+
+  const icon = document.getElementById('music-icon');
+  const label = document.getElementById('music-label');
+  if (icon) icon.textContent = '🎵';
+  if (label) label.textContent = 'Play birthday music';
 }
 
-function stopMusic(){
-  musicPlaying=false;
-  if(songEl){songEl.pause();}
-  musicNodes.forEach(n=>{try{n.stop()}catch(e){}});musicNodes=[];
-  document.getElementById('music-icon').textContent='🎵';
-  document.getElementById('music-label').textContent='Play birthday music';
-}
 
 /* ══════════════════════════════════════════
    BIRTHDAY OVERLAY — CONFETTI + SPARKLES
@@ -1063,20 +1030,24 @@ function typeNextChar(){
 }
 setTimeout(typeNextChar,2600);
 
-// FIX: This function completely unlocks the scrollbar 
-// and removes the overlay when the user enters the site
+// Enter the site and stop the music
 function enterSite(){
   ovRunning=false;
-  stopMusic(); 
-  const ov=document.getElementById('birthday-overlay');
-  ov.classList.add('out');
   
-  // FIX: Unlocks computer scrolling
+  // FIX: This strictly stops the music when the button is clicked.
+  stopMusic(); 
+  
+  const ov=document.getElementById('birthday-overlay');
+  if (ov) ov.classList.add('out');
+  
+  // Unlocks computer scrolling
   document.body.style.overflowY = 'auto'; 
   
   setTimeout(()=>{
-    ov.style.display='none';
-    ov.remove(); // Safely remove it from the DOM completely
+    if (ov) {
+      ov.style.display='none';
+      ov.remove(); // Safely remove it from the DOM completely
+    }
   },1400);
 }
 
