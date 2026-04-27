@@ -581,6 +581,23 @@ footer{position:relative;z-index:10;text-align:center;padding:26px 20px;color:va
   .win-box{padding:32px 20px}
   .sudoku-wrap{flex-direction:column;align-items:center}
   .sdk-sidebar{min-width:unset;flex:unset;width:100%;max-width:420px}
+  /* Overlay mobile fixes */
+  .ov-content{gap:12px;padding:16px}
+  .hb-title{font-size:clamp(2.8rem,14vw,5rem)}
+  .msg-card{padding:18px 20px;width:min(640px,96vw)}
+  .msg-inner{max-height:32vh}
+  .msg-text{font-size:1.05rem}
+  .cat-gif{width:100px;height:100px}
+  .garden-ask{font-size:1.2rem}
+  .yes-garden-btn{padding:12px 28px;font-size:1.1rem}
+  .no-garden-btn{padding:8px 18px;font-size:0.95rem}
+  .garden-btns{gap:10px}
+  .music-btn{padding:8px 16px;font-size:1rem}
+  nav{gap:6px;padding:0 10px 20px}
+  .tab-btn{font-size:0.88rem;padding:7px 12px}
+  .panel-title{font-size:1.8rem}
+  .color-layout{gap:12px}
+  #col-canvas{width:100%!important;height:auto!important}
 }
 </style>
 </head>
@@ -832,6 +849,49 @@ footer{position:relative;z-index:10;text-align:center;padding:26px 20px;color:va
    BIRTHDAY MUSIC (Web Audio API)
 ══════════════════════════════════════════ */
 let audioCtx=null,musicPlaying=false,musicNodes=[];
+// Custom song element — place your song file as "song.mp3" next to this HTML
+let songEl=null;
+function initSongEl(){
+  if(songEl)return;
+  songEl=document.createElement('audio');
+  songEl.src='song.mp3';
+  songEl.loop=true;
+  songEl.volume=0.55;
+}
+
+// Auto-play on first user interaction (required by browser policy)
+let autoPlayTriggered=false;
+function tryAutoPlay(){
+  if(autoPlayTriggered)return;
+  autoPlayTriggered=true;
+  initSongEl();
+  songEl.play().then(()=>{
+    musicPlaying=true;
+    document.getElementById('music-icon').textContent='🎶';
+    document.getElementById('music-label').textContent='Pause music';
+  }).catch(()=>{
+    // fallback: play synthesized melody
+    if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+    musicPlaying=true;
+    document.getElementById('music-icon').textContent='🎶';
+    document.getElementById('music-label').textContent='Pause music';
+    playHappyBirthday();
+  });
+}
+// Try autoplay immediately (works on some browsers/contexts)
+window.addEventListener('load',()=>{
+  initSongEl();
+  songEl.play().then(()=>{
+    autoPlayTriggered=true;
+    musicPlaying=true;
+    document.getElementById('music-icon').textContent='🎶';
+    document.getElementById('music-label').textContent='Pause music';
+  }).catch(()=>{
+    // Will trigger on first click/touch
+    document.addEventListener('click',tryAutoPlay,{once:true});
+    document.addEventListener('touchstart',tryAutoPlay,{once:true});
+  });
+});
 const HAPPY_BDAY_NOTES=[
   // Happy Birthday melody — frequencies in Hz, durations in beats
   [392,0.4],[392,0.2],[440,0.6],[392,0.6],[523,0.6],[494,1.2],
@@ -841,12 +901,26 @@ const HAPPY_BDAY_NOTES=[
 ];
 
 function toggleMusic(){
-  if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();
-  if(musicPlaying){stopMusic();return}
+  initSongEl();
+  if(musicPlaying){
+    // Pause
+    songEl.pause();
+    if(audioCtx)musicNodes.forEach(n=>{try{n.stop()}catch(e){}});
+    musicNodes=[];
+    musicPlaying=false;
+    document.getElementById('music-icon').textContent='🎵';
+    document.getElementById('music-label').textContent='Play birthday music';
+    return;
+  }
+  // Try playing the song file first
   musicPlaying=true;
   document.getElementById('music-icon').textContent='🎶';
   document.getElementById('music-label').textContent='Pause music';
-  playHappyBirthday();
+  songEl.play().catch(()=>{
+    // Fallback to synthesized melody
+    if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+    playHappyBirthday();
+  });
 }
 
 function playHappyBirthday(){
@@ -884,6 +958,7 @@ function playHappyBirthday(){
 
 function stopMusic(){
   musicPlaying=false;
+  if(songEl){songEl.pause();}
   musicNodes.forEach(n=>{try{n.stop()}catch(e){}});musicNodes=[];
   document.getElementById('music-icon').textContent='🎵';
   document.getElementById('music-label').textContent='Play birthday music';
@@ -1012,13 +1087,8 @@ const NO_MESSAGES=[
 ];
 let noIdx=0, yesFontSize=1.3; // rem
 
-// Sad cat GIFs for when she clicks No (rotating)
-const SAD_CAT_GIFS=[
-  'https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExbW5lenZyZHI5OXM2eW95b3pmMG40cWVrMDhtNjVuM3A4dGNxa2g2dSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/VM1fcpu2bKs1e2Kdbj/giphy.gif',
-  'https://media.giphy.com/media/3o7TKSjRrfIPjeiVyM/giphy.gif',
-  'https://media.giphy.com/media/jA9TqCBYgGxVQRBzX1/giphy.gif',
-  'https://media.giphy.com/media/ihvwnO5pHRzQpTMpqq/giphy.gif',
-];
+// Only the crying cat GIF — always shown
+const CRYING_CAT_GIF='https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExbW5lenZyZHI5OXM2eW95b3pmMG40cWVrMDhtNjVuM3A4dGNxa2g2dSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/VM1fcpu2bKs1e2Kdbj/giphy.gif';
 
 function gardenNo(){
   const noBtn=document.getElementById('no-garden-btn');
@@ -1029,8 +1099,6 @@ function gardenNo(){
   catImg.classList.remove('sad');
   void catImg.offsetWidth; // reflow to restart animation
   catImg.classList.add('sad');
-  // Swap to a different sad/cute cat gif
-  catImg.src=SAD_CAT_GIFS[noIdx % SAD_CAT_GIFS.length];
   // Update no-button text with rotating messages
   noBtn.textContent=NO_MESSAGES[noIdx % NO_MESSAGES.length];
   noIdx++;
@@ -1080,12 +1148,14 @@ const bgObjs=[];
 
 // 7 flower types: lily, rose, cherry blossom, sunflower, tulip, daisy, hibiscus
 // 3 cat variants: sleepy, curious, playful
+// 3 dog variants: floppy-eared, corgi, happy pup
 const N_FLOWER_TYPES=7;
 const N_CAT_TYPES=3;
+const N_DOG_TYPES=3;
 
 function makeBgObj(){
   const rnd=Math.random();
-  const type=rnd<0.38?'cat':''+'flower';
+  const type=rnd<0.28?'cat':rnd<0.46?'dog':'flower';
   return {
     x:Math.random()*window.innerWidth,
     y:Math.random()*window.innerHeight,
@@ -1098,6 +1168,7 @@ function makeBgObj(){
     type,
     ftype:Math.floor(Math.random()*N_FLOWER_TYPES),
     ctype:Math.floor(Math.random()*N_CAT_TYPES),
+    dtype:Math.floor(Math.random()*N_DOG_TYPES),
     phase:Math.random()*Math.PI*2 // for animated tail / petals
   };
 }
@@ -1245,6 +1316,169 @@ function drawBgCat(ctx,col,col2,variant,phase){
     ctx.beginPath();ctx.moveTo(-1,-6);ctx.lineTo(-14,-8);ctx.stroke();
     ctx.beginPath();ctx.moveTo(-1,-6);ctx.lineTo(10,-5);ctx.stroke();
     ctx.beginPath();ctx.moveTo(-1,-6);ctx.lineTo(10,-8);ctx.stroke();
+  }
+}
+
+/* ─── DETAILED DOG DRAWING ─── */
+function drawBgDog(ctx,col,col2,variant,phase){
+  ctx.lineCap='round';ctx.lineJoin='round';
+
+  if(variant===0){
+    // ── Floppy-eared sitting dog ──
+    // body
+    ctx.fillStyle=col;
+    ctx.beginPath();ctx.ellipse(0,12,15,18,0,0,Math.PI*2);ctx.fill();
+    // head
+    ctx.beginPath();ctx.ellipse(0,-10,14,13,0,0,Math.PI*2);ctx.fill();
+    // floppy ears (long droopy)
+    ctx.fillStyle=col2;
+    ctx.beginPath();ctx.moveTo(-11,-6);ctx.bezierCurveTo(-22,-2,-24,18,-18,24);ctx.bezierCurveTo(-14,28,-10,20,-10,-2);ctx.closePath();ctx.fill();
+    ctx.beginPath();ctx.moveTo(11,-6);ctx.bezierCurveTo(22,-2,24,18,18,24);ctx.bezierCurveTo(14,28,10,20,10,-2);ctx.closePath();ctx.fill();
+    // snout
+    ctx.fillStyle=col;
+    ctx.beginPath();ctx.ellipse(0,-2,8,6,0,0,Math.PI*2);ctx.fill();
+    // nose
+    ctx.fillStyle='rgba(60,20,30,0.85)';
+    ctx.beginPath();ctx.ellipse(0,-4,4,3,0,0,Math.PI*2);ctx.fill();
+    // nostrils
+    ctx.fillStyle='rgba(40,10,20,0.6)';
+    ctx.beginPath();ctx.arc(-2,-4,1.2,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(2,-4,1.2,0,Math.PI*2);ctx.fill();
+    // eyes
+    ctx.fillStyle='rgba(40,20,10,0.9)';
+    ctx.beginPath();ctx.arc(-6,-13,4,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(6,-13,4,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,0.8)';
+    ctx.beginPath();ctx.arc(-8,-15,1.5,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(4,-15,1.5,0,Math.PI*2);ctx.fill();
+    // happy mouth
+    ctx.strokeStyle='rgba(80,30,20,0.5)';ctx.lineWidth=1.2;
+    ctx.beginPath();ctx.moveTo(-4,1);ctx.quadraticCurveTo(0,5,4,1);ctx.stroke();
+    // tongue
+    ctx.fillStyle='rgba(232,100,120,0.7)';
+    ctx.beginPath();ctx.ellipse(0,4,3,4,0,0,Math.PI*2);ctx.fill();
+    // tail (wagging)
+    const tw=Math.sin(phase*1.5)*16;
+    ctx.strokeStyle=col;ctx.lineWidth=4;
+    ctx.beginPath();ctx.moveTo(14,14);ctx.bezierCurveTo(26,10+tw,30,0+tw,26,-8);ctx.stroke();
+    ctx.fillStyle=col2;ctx.beginPath();ctx.arc(26,-8,4,0,Math.PI*2);ctx.fill();
+    // paws
+    ctx.fillStyle=col;
+    ctx.beginPath();ctx.ellipse(-8,26,5,4,-.1,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(8,26,5,4,.1,0,Math.PI*2);ctx.fill();
+
+  }else if(variant===1){
+    // ── Corgi (low to ground, big ears, happy) ──
+    // body — wide and low
+    ctx.fillStyle=col;
+    ctx.beginPath();ctx.ellipse(0,16,22,12,0,0,Math.PI*2);ctx.fill();
+    // head (slightly tilted)
+    ctx.save();ctx.rotate(0.12);
+    ctx.beginPath();ctx.ellipse(0,-8,14,12,0,0,Math.PI*2);ctx.fill();
+    // big triangle ears
+    ctx.fillStyle=col2;
+    ctx.beginPath();ctx.moveTo(-10,-14);ctx.lineTo(-20,-32);ctx.lineTo(-2,-16);ctx.closePath();ctx.fill();
+    ctx.beginPath();ctx.moveTo(10,-14);ctx.lineTo(20,-32);ctx.lineTo(2,-16);ctx.closePath();ctx.fill();
+    // inner ear pink
+    ctx.fillStyle='rgba(255,170,190,0.65)';
+    ctx.beginPath();ctx.moveTo(-9,-15);ctx.lineTo(-17,-28);ctx.lineTo(-3,-17);ctx.closePath();ctx.fill();
+    ctx.beginPath();ctx.moveTo(9,-15);ctx.lineTo(17,-28);ctx.lineTo(3,-17);ctx.closePath();ctx.fill();
+    // snout
+    ctx.fillStyle='rgba(255,240,220,0.85)';
+    ctx.beginPath();ctx.ellipse(0,-1,9,7,0,0,Math.PI*2);ctx.fill();
+    // nose
+    ctx.fillStyle='rgba(50,20,20,0.9)';
+    ctx.beginPath();ctx.ellipse(0,-3,4,3,0,0,Math.PI*2);ctx.fill();
+    // eyes — shiny
+    ctx.fillStyle='rgba(30,10,10,0.9)';
+    ctx.beginPath();ctx.arc(-5,-11,4.5,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(5,-11,4.5,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='rgba(100,180,255,0.45)';
+    ctx.beginPath();ctx.arc(-5,-11,3,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(5,-11,3,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,0.85)';
+    ctx.beginPath();ctx.arc(-7,-13,1.5,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(3,-13,1.5,0,Math.PI*2);ctx.fill();
+    // smile
+    ctx.strokeStyle='rgba(80,30,20,0.5)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(-5,3);ctx.quadraticCurveTo(0,7,5,3);ctx.stroke();
+    ctx.restore();
+    // stubby legs
+    ctx.fillStyle=col;
+    [-14,-5,5,14].forEach(lx=>{
+      ctx.beginPath();ctx.ellipse(lx,26,4,5,0,0,Math.PI*2);ctx.fill();
+    });
+    // tiny fluffy tail nub
+    const tw=Math.sin(phase*2)*8;
+    ctx.fillStyle=col2;
+    ctx.beginPath();ctx.arc(22+tw*.2,12,6,0,Math.PI*2);ctx.fill();
+    // cheek blush
+    ctx.fillStyle='rgba(255,130,160,0.22)';
+    ctx.beginPath();ctx.arc(-10,-5,7,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(10,-5,7,0,Math.PI*2);ctx.fill();
+
+  }else{
+    // ── Fluffy happy pup (sitting, tongue out) ──
+    // fluffy body
+    ctx.fillStyle=col;
+    ctx.beginPath();ctx.arc(0,12,20,0,Math.PI*2);ctx.fill();
+    // fur texture rings
+    ctx.strokeStyle=col2;ctx.lineWidth=2;
+    [14,18,22].forEach(r=>{
+      ctx.beginPath();ctx.arc(0,12,r,Math.PI*.8,Math.PI*2.2);ctx.stroke();
+    });
+    // head
+    ctx.fillStyle=col;
+    ctx.beginPath();ctx.arc(0,-10,16,0,Math.PI*2);ctx.fill();
+    // fluffy head fur
+    ctx.strokeStyle=col2;ctx.lineWidth=2.5;
+    ctx.beginPath();ctx.arc(0,-10,17,Math.PI*.6,Math.PI*2.4);ctx.stroke();
+    // round floppy ears
+    ctx.fillStyle=col2;
+    ctx.beginPath();ctx.ellipse(-16,-12,7,14,-.4,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(16,-12,7,14,.4,0,Math.PI*2);ctx.fill();
+    // inner ear
+    ctx.fillStyle='rgba(255,160,190,0.6)';
+    ctx.beginPath();ctx.ellipse(-16,-12,4,9,-.4,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(16,-12,4,9,.4,0,Math.PI*2);ctx.fill();
+    // big puppy eyes
+    ctx.fillStyle='rgba(35,15,10,0.95)';
+    ctx.beginPath();ctx.arc(-6,-12,5.5,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(6,-12,5.5,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='rgba(80,160,240,0.4)';
+    ctx.beginPath();ctx.arc(-6,-12,3.5,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(6,-12,3.5,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,0.9)';
+    ctx.beginPath();ctx.arc(-8,-14,2,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(4,-14,2,0,Math.PI*2);ctx.fill();
+    // snout
+    ctx.fillStyle='rgba(255,235,215,0.9)';
+    ctx.beginPath();ctx.ellipse(0,-3,9,7,0,0,Math.PI*2);ctx.fill();
+    // nose
+    ctx.fillStyle='rgba(40,15,20,0.9)';
+    ctx.beginPath();ctx.ellipse(0,-5,4.5,3.5,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='rgba(30,10,15,0.6)';
+    ctx.beginPath();ctx.arc(-2,-5,1.3,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(2,-5,1.3,0,Math.PI*2);ctx.fill();
+    // open happy mouth
+    ctx.strokeStyle='rgba(70,25,20,0.5)';ctx.lineWidth=1.2;
+    ctx.beginPath();ctx.moveTo(-6,1);ctx.quadraticCurveTo(0,6,6,1);ctx.stroke();
+    // panting tongue
+    ctx.fillStyle='rgba(230,90,120,0.75)';
+    ctx.beginPath();ctx.ellipse(0,5,4,5,0,0,Math.PI*2);ctx.fill();
+    // tongue tip rounded
+    ctx.beginPath();ctx.arc(0,9,4,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='rgba(200,60,90,0.4)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(0,1);ctx.lineTo(0,9);ctx.stroke();
+    // wagging tail
+    const tw=Math.sin(phase*1.8)*18;
+    ctx.strokeStyle=col;ctx.lineWidth=5;
+    ctx.beginPath();ctx.moveTo(18,16);ctx.bezierCurveTo(28,8+tw,34,-2+tw,28,-12);ctx.stroke();
+    ctx.fillStyle=col2;ctx.beginPath();ctx.arc(28,-12,5,0,Math.PI*2);ctx.fill();
+    // paws
+    ctx.fillStyle=col;
+    ctx.beginPath();ctx.arc(-10,28,6,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(10,28,6,0,Math.PI*2);ctx.fill();
   }
 }
 
@@ -1452,6 +1686,7 @@ let bgFrame=0;
     if(o.x>bgC.width+90)o.x=-90;
     bgX.save();bgX.translate(o.x,o.y);bgX.rotate(o.r);bgX.scale(o.s,o.s);bgX.globalAlpha=o.alpha;
     if(o.type==='cat')drawBgCat(bgX,o.col,o.col2,o.ctype,o.phase);
+    else if(o.type==='dog')drawBgDog(bgX,o.col,o.col2,o.dtype,o.phase);
     else drawBgFlower(bgX,o.col,o.col2,o.ftype);
     bgX.restore();
   });
