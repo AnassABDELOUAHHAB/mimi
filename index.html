@@ -50,16 +50,24 @@ body{font-family:'Jost',sans-serif;background:var(--cream);color:var(--ink);min-
 #birthday-overlay{
   position:fixed;inset:0;z-index:99999;
   background:var(--cream);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  overflow:hidden;
+  overflow-y:auto; /* FIX: Allows overlay scrolling on small monitors */
+  overflow-x:hidden;
+  display:block; 
 }
 #birthday-overlay.out{animation:ovOut 1.4s cubic-bezier(.7,0,1,1) forwards}
 @keyframes ovOut{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.04);pointer-events:none}}
 
-#confetti-canvas{position:absolute;inset:0;pointer-events:none;z-index:1}
-#sparkle-canvas{position:absolute;inset:0;pointer-events:none;z-index:2}
+/* FIX: Changed to fixed so they follow you if you scroll down the overlay */
+#confetti-canvas{position:fixed;inset:0;pointer-events:none;z-index:1}
+#sparkle-canvas{position:fixed;inset:0;pointer-events:none;z-index:2}
 
-.ov-content{position:relative;z-index:10;display:flex;flex-direction:column;align-items:center;gap:18px;padding:20px;max-width:700px;width:100%}
+/* FIX: Added min-height and auto margins to center content correctly */
+.ov-content{
+  position:relative;z-index:10;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:100vh; margin:0 auto;
+  gap:18px;padding:40px 20px;max-width:700px;width:100%;
+}
 
 /* Birthday title with crayon hand-drawn look */
 .hb-wrap{text-align:center;opacity:0;animation:popBounce 1.1s cubic-bezier(.34,1.8,.64,1) 0.5s forwards}
@@ -603,9 +611,6 @@ footer{position:relative;z-index:10;text-align:center;padding:26px 20px;color:va
 </head>
 <body>
 
-<!-- ═══════════════════════════════════
-  BIRTHDAY OVERLAY
-═══════════════════════════════════ -->
 <div id="birthday-overlay">
   <canvas id="confetti-canvas"></canvas>
   <canvas id="sparkle-canvas"></canvas>
@@ -646,14 +651,8 @@ footer{position:relative;z-index:10;text-align:center;padding:26px 20px;color:va
   </div>
 </div>
 
-<!-- ═══════════════════════════════════
-  BG CANVAS
-═══════════════════════════════════ -->
 <canvas id="bg-canvas"></canvas>
 
-<!-- ═══════════════════════════════════
-  HEADER
-═══════════════════════════════════ -->
 <header>
   <div class="site-title">a little garden ✿<br>just for you</div>
   <p class="site-sub">five games · made with love · for your birthday</p>
@@ -670,7 +669,6 @@ footer{position:relative;z-index:10;text-align:center;padding:26px 20px;color:va
   <button class="tab-btn" onclick="showPanel('memory',this)">🌸 Memory</button>
 </nav>
 
-<!-- ═════════ PUZZLE ═════════ -->
 <div id="panel-puzzle" class="game-panel active">
   <div class="panel-wrap">
     <div class="panel-title">🧩 Reconstruct the drawing</div>
@@ -706,7 +704,6 @@ footer{position:relative;z-index:10;text-align:center;padding:26px 20px;color:va
   </div>
 </div>
 
-<!-- Puzzle win -->
 <div id="pz-win">
   <div class="win-box">
     <div class="win-title">You did it! ✿</div>
@@ -719,7 +716,6 @@ footer{position:relative;z-index:10;text-align:center;padding:26px 20px;color:va
   </div>
 </div>
 
-<!-- Drawing surprise reveal -->
 <div class="surprise-overlay" id="surprise-ov">
   <div class="surprise-title" id="surp-title">🎊 Drawing unlocked! 🎊</div>
   <img class="surprise-img" id="surp-img" src="" alt="Surprise drawing">
@@ -727,7 +723,6 @@ footer{position:relative;z-index:10;text-align:center;padding:26px 20px;color:va
   <button class="btn-p" onclick="closeSurprise()">Aww, next one! ✿</button>
 </div>
 
-<!-- ═════════ SUDOKU ═════════ -->
 <div id="panel-sudoku" class="game-panel">
   <div class="panel-wrap">
     <div class="panel-title">✦ Floral Sudoku</div>
@@ -765,7 +760,6 @@ footer{position:relative;z-index:10;text-align:center;padding:26px 20px;color:va
   </div>
 </div>
 
-<!-- ═════════ COLORING ═════════ -->
 <div id="panel-coloring" class="game-panel">
   <div class="panel-wrap">
     <div class="panel-title">🖍 Crayon Studio</div>
@@ -793,7 +787,6 @@ footer{position:relative;z-index:10;text-align:center;padding:26px 20px;color:va
   </div>
 </div>
 
-<!-- ═════════ CAT GAME ═════════ -->
 <div id="panel-cats" class="game-panel">
   <div class="panel-wrap">
     <div class="panel-title">🐱 Mimi's Great Escape</div>
@@ -822,7 +815,6 @@ footer{position:relative;z-index:10;text-align:center;padding:26px 20px;color:va
   </div>
 </div>
 
-<!-- ═════════ MEMORY ═════════ -->
 <div id="panel-memory" class="game-panel">
   <div class="panel-wrap">
     <div class="panel-title">🌸 Memory Garden</div>
@@ -1071,12 +1063,21 @@ function typeNextChar(){
 }
 setTimeout(typeNextChar,2600);
 
+// FIX: This function completely unlocks the scrollbar 
+// and removes the overlay when the user enters the site
 function enterSite(){
   ovRunning=false;
-  stopMusic();
+  stopMusic(); 
   const ov=document.getElementById('birthday-overlay');
   ov.classList.add('out');
-  setTimeout(()=>{ov.style.display='none'},1400);
+  
+  // FIX: Unlocks computer scrolling
+  document.body.style.overflowY = 'auto'; 
+  
+  setTimeout(()=>{
+    ov.style.display='none';
+    ov.remove(); // Safely remove it from the DOM completely
+  },1400);
 }
 
 /* ── Garden Yes / No mechanic ── */
