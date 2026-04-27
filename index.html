@@ -836,11 +836,10 @@ footer{position:relative;z-index:10;text-align:center;padding:26px 20px;color:va
 
 <script>
 /* ══════════════════════════════════════════
-   BIRTHDAY MUSIC (FIXED FOR IMMEDIATE AUTOPLAY)
+   BIRTHDAY MUSIC (BUTTON ONLY — no autoplay)
 ══════════════════════════════════════════ */
 let songEl = null;
 let musicPlaying = false;
-let autoPlayTriggered = false;
 
 function initSongEl() {
   if (songEl) return;
@@ -850,72 +849,28 @@ function initSongEl() {
   songEl.volume = 0.55;
 }
 
-// Function that fires on the very first click/tap ANYWHERE
-function tryAutoPlay() {
-  if (autoPlayTriggered) return;
-  initSongEl();
-  songEl.play().then(() => {
-    autoPlayTriggered = true;
-    musicPlaying = true;
-    const icon = document.getElementById('music-icon');
-    const label = document.getElementById('music-label');
-    if (icon) icon.textContent = '🎶';
-    if (label) label.textContent = 'Pause music';
-  }).catch((e) => {
-    console.log("Browser still blocked playback", e);
-  });
-}
-
-// Try autoplay immediately as soon as the page loads
-window.addEventListener('load', () => {
-  initSongEl();
-  songEl.play().then(() => {
-    // If browser allows it without a click, great!
-    autoPlayTriggered = true;
-    musicPlaying = true;
-    const icon = document.getElementById('music-icon');
-    const label = document.getElementById('music-label');
-    if (icon) icon.textContent = '🎶';
-    if (label) label.textContent = 'Pause music';
-  }).catch(() => {
-    // If the browser blocks it (very common), we bind it to the very first click anywhere.
-    document.addEventListener('click', tryAutoPlay, {once: true});
-    document.addEventListener('touchstart', tryAutoPlay, {once: true});
-  });
-});
-
 function toggleMusic() {
   initSongEl();
   if (musicPlaying) {
-    // Pause
     songEl.pause();
     musicPlaying = false;
     document.getElementById('music-icon').textContent = '🎵';
     document.getElementById('music-label').textContent = 'Play birthday music';
   } else {
-    // Play manually
-    autoPlayTriggered = true; // Prevents the click listener from firing twice
     songEl.play().then(() => {
       musicPlaying = true;
       document.getElementById('music-icon').textContent = '🎶';
       document.getElementById('music-label').textContent = 'Pause music';
-    }).catch(e => console.log("Blocked by browser", e));
+    }).catch(e => console.log("Playback error", e));
   }
 }
 
-// Function to safely stop music completely when entering garden
 function stopMusic() {
   if (songEl) {
     songEl.pause();
-    songEl.currentTime = 0; // Rewinds the track
+    songEl.currentTime = 0;
   }
   musicPlaying = false;
-  autoPlayTriggered = true; // Stop it from trying to play again later
-
-  // Remove the listeners just in case she entered without clicking anywhere else first
-  document.removeEventListener('click', tryAutoPlay);
-  document.removeEventListener('touchstart', tryAutoPlay);
-
   const icon = document.getElementById('music-icon');
   const label = document.getElementById('music-label');
   if (icon) icon.textContent = '🎵';
