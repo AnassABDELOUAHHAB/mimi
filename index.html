@@ -661,10 +661,10 @@ footer{position:relative;z-index:10;text-align:center;padding:26px 20px;color:va
 
 <nav>
   <button class="tab-btn active" onclick="showPanel('puzzle',this)">🧩 Puzzle</button>
-  <button class="tab-btn" onclick="showPanel('sudoku',this)">✦ Sudoku</button>
-  <button class="tab-btn" onclick="showPanel('coloring',this)">🖍 Coloring</button>
   <button class="tab-btn" onclick="showPanel('cats',this)">🐱 Cat Game</button>
+  <button class="tab-btn" onclick="showPanel('sudoku',this)">✦ Sudoku</button>
   <button class="tab-btn" onclick="showPanel('memory',this)">🌸 Memory</button>
+  <button class="tab-btn" onclick="showPanel('coloring',this)">🖍 Coloring</button>
 </nav>
 
 <div id="panel-puzzle" class="game-panel active">
@@ -721,6 +721,34 @@ footer{position:relative;z-index:10;text-align:center;padding:26px 20px;color:va
   <button class="btn-p" onclick="closeSurprise()">Aww, next one! ✿</button>
 </div>
 
+<div id="panel-cats" class="game-panel">
+  <div class="panel-wrap">
+    <div class="panel-title">🐱 Mimi's Great Escape</div>
+    <p class="panel-desc">Help Mimi escape while Dodo tries to sleep — chaos guaranteed! 😹</p>
+    <div id="cat-wrap">
+      <canvas id="cat-canvas"></canvas>
+      <div id="cat-screen">
+        <span class="cge">🐱</span>
+        <div class="cgt">Mimi's Great Escape</div>
+        <div class="cgs">
+          <b style="color:#f9d94e">← → or tap</b> to move Mimi<br>
+          Jump on platforms · Collect fish 🐟 · Reach the door 🚪<br>
+          But DONT wake Dodo who's sleeping on the platforms! 😴<br>
+          Dodo gets angry if you wake him — he throws yarn! 🧶<br>
+          <b style="color:#f0a8be">Mimi has 9 lives (of course 😼)</b>
+        </div>
+        <button class="btn-p" onclick="startCatGame()">Start the chaos! 😹</button>
+      </div>
+    </div>
+    <div class="cat-ui">
+      <div class="cat-sb"><span class="v" id="cat-score">0</span><span class="l">Score</span></div>
+      <div class="cat-sb"><span class="v" id="cat-lvl">1</span><span class="l">Level</span></div>
+      <div class="cat-sb"><span class="v" id="cat-lives">😺😺😺</span><span class="l">Lives</span></div>
+      <div class="cat-sb"><span class="v" id="cat-fish">0</span><span class="l">Fish 🐟</span></div>
+    </div>
+  </div>
+</div>
+
 <div id="panel-sudoku" class="game-panel">
   <div class="panel-wrap">
     <div class="panel-title">✦ Floral Sudoku</div>
@@ -758,6 +786,25 @@ footer{position:relative;z-index:10;text-align:center;padding:26px 20px;color:va
   </div>
 </div>
 
+<div id="panel-memory" class="game-panel">
+  <div class="panel-wrap">
+    <div class="panel-title">🌸 Memory Garden</div>
+    <p class="panel-desc">Find all the matching pairs hidden among the flowers</p>
+    <div class="mem-meta">
+      <div class="mem-st"><span class="v" id="mm-moves">0</span><span class="l">Moves</span></div>
+      <div class="mem-st"><span class="v" id="mm-pairs">0</span><span class="l">Pairs</span></div>
+      <div class="mem-st"><span class="v" id="mm-time">0:00</span><span class="l">Time</span></div>
+    </div>
+    <div id="mem-grid"></div>
+    <div id="mem-win">
+      <div style="font-family:'Caveat',cursive;font-size:2rem;font-weight:700;color:var(--pink-d)">Beautiful! ✿</div>
+      <p style="color:var(--muted);margin:8px 0 16px;font-family:'Caveat',cursive;font-size:1.1rem">All pairs in <span id="mm-wm">0</span> moves!</p>
+      <button class="btn-p" onclick="initMemory()">Play again</button>
+    </div>
+    <div style="text-align:center;margin-top:16px"><button class="btn-o" onclick="initMemory()">Shuffle</button></div>
+  </div>
+</div>
+
 <div id="panel-coloring" class="game-panel">
   <div class="panel-wrap">
     <div class="panel-title">🖍 Crayon Studio</div>
@@ -785,52 +832,6 @@ footer{position:relative;z-index:10;text-align:center;padding:26px 20px;color:va
   </div>
 </div>
 
-<div id="panel-cats" class="game-panel">
-  <div class="panel-wrap">
-    <div class="panel-title">🐱 Mimi's Great Escape</div>
-    <p class="panel-desc">Help Mimi escape while Dodo tries to sleep — chaos guaranteed! 😹</p>
-    <div id="cat-wrap">
-      <canvas id="cat-canvas"></canvas>
-      <div id="cat-screen">
-        <span class="cge">🐱</span>
-        <div class="cgt">Mimi's Great Escape</div>
-        <div class="cgs">
-          <b style="color:#f9d94e">← → or tap</b> to move Mimi<br>
-          Jump on platforms · Collect fish 🐟 · Reach the door 🚪<br>
-          But DONT wake Dodo who's sleeping on the platforms! 😴<br>
-          Dodo gets angry if you wake him — he throws yarn! 🧶<br>
-          <b style="color:#f0a8be">Mimi has 9 lives (of course 😼)</b>
-        </div>
-        <button class="btn-p" onclick="startCatGame()">Start the chaos! 😹</button>
-      </div>
-    </div>
-    <div class="cat-ui">
-      <div class="cat-sb"><span class="v" id="cat-score">0</span><span class="l">Score</span></div>
-      <div class="cat-sb"><span class="v" id="cat-lvl">1</span><span class="l">Level</span></div>
-      <div class="cat-sb"><span class="v" id="cat-lives">😺😺😺</span><span class="l">Lives</span></div>
-      <div class="cat-sb"><span class="v" id="cat-fish">0</span><span class="l">Fish 🐟</span></div>
-    </div>
-  </div>
-</div>
-
-<div id="panel-memory" class="game-panel">
-  <div class="panel-wrap">
-    <div class="panel-title">🌸 Memory Garden</div>
-    <p class="panel-desc">Find all the matching pairs hidden among the flowers</p>
-    <div class="mem-meta">
-      <div class="mem-st"><span class="v" id="mm-moves">0</span><span class="l">Moves</span></div>
-      <div class="mem-st"><span class="v" id="mm-pairs">0</span><span class="l">Pairs</span></div>
-      <div class="mem-st"><span class="v" id="mm-time">0:00</span><span class="l">Time</span></div>
-    </div>
-    <div id="mem-grid"></div>
-    <div id="mem-win">
-      <div style="font-family:'Caveat',cursive;font-size:2rem;font-weight:700;color:var(--pink-d)">Beautiful! ✿</div>
-      <p style="color:var(--muted);margin:8px 0 16px;font-family:'Caveat',cursive;font-size:1.1rem">All pairs in <span id="mm-wm">0</span> moves!</p>
-      <button class="btn-p" onclick="initMemory()">Play again</button>
-    </div>
-    <div style="text-align:center;margin-top:16px"><button class="btn-o" onclick="initMemory()">Shuffle</button></div>
-  </div>
-</div>
 
 <footer>made with love ✿ just for you · Mimi & Dodo send purrs 🐱🐱</footer>
 
@@ -2350,30 +2351,33 @@ function drawBigDaisy(c,cx,cy,r){
 }
 
 /* ══════════════════════════════════════════
-   CAT GAME: MIMI'S GREAT ESCAPE
+   CAT GAME: MIMI'S GREAT ESCAPE — ENHANCED
    ─────────────────────────────────────────
-   Mimi (player) is a crazy cat who wants to
-   escape the house every day. She must:
-   • Jump across platforms using physics
-   • Collect fish (score)
-   • Reach the EXIT DOOR on the right
-   • Avoid waking Dodo who is sleeping on
-     some platforms
-   • When woken, Dodo throws yarn balls!
-   • Mimi can wall-jump, double-jump (cat!)
-   • Platform crumbles if Mimi lands on
-     Dodo's platform (Dodo falls, is angry)
-   • Each level: new layout, faster, more
-     Dodos, more obstacles
+   Mimi is a neutered orange tomcat who
+   escapes every night to find love & fish.
+   • Orange cat sprite with tabby stripes
+   • Collect fish 🐟 for points
+   • Charm lady cats 💕 — approach gently,
+     say "hi I have no balls don't worry"
+     and gain big points + a kiss animation
+   • Bad Cats 😾 patrol and chase Mimi — bite!
+   • Dodo sleeps on platforms, throws yarn 🧶
+   • Double jump, crumbling platforms
+   • Each level: faster, more enemies, more
+     lady cats and bad cats
 ══════════════════════════════════════════ */
 let catInited=false,catCanvas,catCtx,catRunning=false,catAnimId=null;
-let catScore=0,catLives=9,catLevel=1,catFish=0;
+let catScore=0,catLives=9,catLevel=1,catFish=0,catCharm=0;
 let mimiX,mimiY,mimiVX,mimiVY,mimiOnGround,mimiJumps,miFacing;
 let catPlatforms=[],catFishes=[],catYarns=[],catDodos=[],catParticles=[];
+let catLadyCats=[],catBadCats=[];
 let catDoor={x:0,y:0,open:false};
 let catKeys={},catTapL=false,catTapR=false,catTapJ=false;
 let catFrame=0,catLevelTimer=0;
-const GRAVITY=0.52,JUMP_POW=-11,MIMI_SPEED=3.8,MIMI_W=32,MIMI_H=36;
+let mimiInvincible=0,mimiRomancing=0,mimiRomanceTarget=null,mimiPunching=0,mimiPunchCooldown=0;
+let catKOs=0; // bad cats knocked out
+let catBubble=null; // speech bubble {text,timer,x,y}
+const GRAVITY=0.52,JUMP_POW=-11.5,MIMI_SPEED=3.8,MIMI_W=32,MIMI_H=36;
 let catGW=0,catGH=0,catCameraX=0,catWorldW=0;
 
 function initCatCanvas(){
@@ -2381,9 +2385,8 @@ function initCatCanvas(){
   catCanvas=document.getElementById('cat-canvas');
   catCtx=catCanvas.getContext('2d');
   const wrap=document.getElementById('cat-wrap');
-  catGW=wrap.clientWidth||760;catGH=Math.min(400,Math.round(catGW*.52));
+  catGW=wrap.clientWidth||760;catGH=Math.min(520,Math.round(catGW*.62));
   catCanvas.width=catGW;catCanvas.height=catGH;catCanvas.style.height=catGH+'px';
-  // Controls
   catCanvas.addEventListener('touchstart',e=>{
     e.preventDefault();const tx=e.touches[0].clientX-catCanvas.getBoundingClientRect().left;
     if(tx<catGW/3)catTapL=true;
@@ -2395,42 +2398,90 @@ function initCatCanvas(){
   document.addEventListener('keyup',e=>catKeys[e.key]=false);
 }
 
+let catCoins=0,catCombo=0,catComboTimer=0;
+let catMovingPlats=[],catSpikes=[],catStars=[],catPowerUp=null,catPowerTimer=0,catActivePower=null,catActivePowerTimer=0;
+let catMoonGate=null,catMilestoneMsg=null,catMilestoneTimer=0,catComet=null,catCometTimer=0;
+
 function buildLevel(lvl){
-  catWorldW=catGW+(lvl-1)*300+600;
-  const floorY=catGH-40;
-  catPlatforms=[{x:0,y:floorY,w:catWorldW,h:40,type:'floor',hasDodo:false,dodoAwake:false}];
-  catFishes=[];catYarns=[];catDodos=[];catParticles=[];
-  // Generate platforms
-  const numPlat=7+lvl*2;
-  let lastX=220;
+  catWorldW=catGW+(lvl-1)*700+1800; // epic length!
+  const floorY=catGH-44;
+  catPlatforms=[{x:0,y:floorY,w:catWorldW,h:44,type:'floor',hasDodo:false,dodoAwake:false,crumble:0,moving:false}];
+  catFishes=[];catYarns=[];catDodos=[];catParticles=[];catLadyCats=[];catBadCats=[];
+  catSpikes=[];catStars=[];catMoonGate=null;catPowerUp=null;catActivePower=null;catActivePowerTimer=0;
+  catComet=null;catCometTimer=Math.floor(300+Math.random()*400);
+  mimiInvincible=0;mimiRomancing=0;mimiRomanceTarget=null;catBubble=null;catCombo=0;catComboTimer=0;
+
+  const numPlat=16+lvl*4; // more platforms, more adventure
+  let lastX=280;
   for(let i=0;i<numPlat;i++){
-    const pw=60+Math.random()*80;
-    const gap=70+Math.random()*90;
-    const ph=floorY-(100+i*18+Math.random()*60)-Math.floor(Math.random()*3)*30;
-    const pY=Math.max(catGH*.2,Math.min(floorY-80,ph));
-    const hasDodo=Math.random()<0.35+lvl*.05;
-    catPlatforms.push({x:lastX,y:pY,w:pw,h:14,type:'normal',hasDodo,dodoAwake:false,dodoAnim:0,crumble:0});
+    const pw=58+Math.random()*88;
+    const gap=62+Math.random()*105+(lvl>3?28:0);
+    const ph=floorY-(115+i*13+Math.random()*65)-Math.floor(Math.random()*3)*34;
+    const pY=Math.max(catGH*.13,Math.min(floorY-95,ph));
+    const hasDodo=Math.random()<0.26+lvl*.04;
+    const isMoving=lvl>1&&!hasDodo&&Math.random()<0.16+lvl*.035;
+    catPlatforms.push({x:lastX,y:pY,w:pw,h:14,type:'normal',hasDodo,dodoAwake:false,dodoAnim:0,crumble:0,
+      moving:isMoving,moveDir:Math.random()<.5?1:-1,moveRange:35+Math.random()*55,
+      moveOriginY:pY,moveOriginX:lastX,moveSpeed:0.55+Math.random()*.65,moveAxis:Math.random()<.6?'y':'x'});
     if(hasDodo){
       catDodos.push({platIdx:catPlatforms.length-1,px:lastX+pw*.5,py:pY,awake:false,wakeTimer:0,throwTimer:0});
     }
-    // Fish on platform
-    if(Math.random()<0.6)catFishes.push({x:lastX+pw/2,y:pY-20,collected:false,bob:Math.random()*Math.PI*2});
+    // Fish — sometimes clusters of 3
+    if(Math.random()<0.5){
+      const n=Math.random()<0.3?3:1;
+      for(let k=0;k<n;k++) catFishes.push({x:lastX+pw*.2+k*pw*.28,y:pY-22-k*16,collected:false,bob:Math.random()*Math.PI*2});
+    }
+    // Gold stars (rare, big points)
+    if(Math.random()<0.12+lvl*.02) catStars.push({x:lastX+pw*.5,y:pY-42,collected:false,bob:Math.random()*Math.PI*2,spin:0});
+    // Lady cats
+    if(i>1&&!hasDodo&&Math.random()<0.20+lvl*.04){
+      catLadyCats.push({x:lastX+pw*.5,y:pY-40,charmed:false,charming:false,charmTimer:0,bob:Math.random()*Math.PI*2,platIdx:catPlatforms.length-1});
+    }
+    // Floor spikes between platforms
+    if(lvl>1&&Math.random()<0.28){
+      const spikeX=lastX+pw+gap*.25+Math.random()*gap*.3;
+      catSpikes.push({x:spikeX,y:floorY-16,w:30});
+    }
     lastX+=pw+gap;
   }
-  // Door at end
-  catDoor={x:catWorldW-80,y:floorY-90,w:44,h:90,open:false,anim:0};
-  // Mimi start
+
+  // Moon gate teleporter for long levels
+  if(lvl>2){
+    const midX=catWorldW*.38;
+    catMoonGate={x:midX,y:floorY-88,w:34,h:88,anim:0,used:false,destX:Math.min(midX+catGW*.55,catWorldW-300)};
+  }
+
+  // Power-up (one per level)
+  const puTypes=['speed','shield','magnet'];
+  const puX=catWorldW*.25+Math.random()*catWorldW*.35;
+  catPowerUp={x:puX,y:floorY-58,type:puTypes[Math.floor(Math.random()*puTypes.length)],collected:false,bob:0,spin:0};
+
+  // Bad cats floor patrol
+  // One slow floor cat — easy target for Mimi to practice on
+  const bx=620+Math.random()*200;
+  catBadCats.push({x:bx,y:floorY-40,vx:0.6+lvl*.08,facing:1,
+    patrolLeft:bx-80,patrolRight:bx+80,alertTimer:0,chasing:false,biteTimer:0,aerial:false,
+    hp:2}); // only 2 hits to knock out
+  // Airborne bad cat from lvl 3
+  if(lvl>=3){
+    catBadCats.push({x:catWorldW*.5,y:floorY-40,vx:1.8+lvl*.35,facing:-1,
+      patrolLeft:catWorldW*.28,patrolRight:catWorldW*.72,alertTimer:0,chasing:false,
+      biteTimer:0,aerial:true,aerialVY:0,aerialOnGround:true});
+  }
+
+  catDoor={x:catWorldW-110,y:floorY-100,w:46,h:100,open:false,anim:0};
   mimiX=80;mimiY=floorY-MIMI_H;mimiVX=0;mimiVY=0;mimiOnGround=false;mimiJumps=0;miFacing=1;
   catCameraX=0;
 }
 
 function startCatGame(){
   if(!catInited)initCatCanvas();
-  catScore=0;catLives=9;catLevel=1;catFish=0;
+  catScore=0;catLives=9;catLevel=1;catFish=0;catCharm=0;catKOs=0;
   document.getElementById('cat-score').textContent='0';
   document.getElementById('cat-lvl').textContent='1';
   document.getElementById('cat-lives').textContent='😺'.repeat(Math.min(9,catLives));
   document.getElementById('cat-fish').textContent='0';
+  document.getElementById('cat-charm').textContent='0';
   document.getElementById('cat-screen').style.display='none';
   buildLevel(catLevel);
   catRunning=true;
@@ -2447,125 +2498,372 @@ function catLoop(){
   drawCatGame2();
 }
 
+function showMilestone(msg){
+  catMilestoneMsg=msg;catMilestoneTimer=120;
+}
+
 function updateMimi(){
   const leftKey=catKeys['ArrowLeft']||catKeys['a']||catTapL;
   const rightKey=catKeys['ArrowRight']||catKeys['d']||catTapR;
   const jumpKey=catKeys[' ']||catKeys['ArrowUp']||catKeys['w']||catTapJ;
-  // Mimi is CRAZY — fast acceleration, wall jump
-  if(leftKey){mimiVX=Math.max(mimiVX-.8,-MIMI_SPEED*(1+catLevel*.08));miFacing=-1}
-  else if(rightKey){mimiVX=Math.min(mimiVX+.8,MIMI_SPEED*(1+catLevel*.08));miFacing=1}
-  else mimiVX*=0.78;
-
-  // Jump (double jump — cat style!)
+  if(mimiRomancing>0){mimiRomancing--;mimiVX*=0.65;return;}
+  const speedMult=catActivePower==='speed'?1.5:1;
+  if(leftKey){mimiVX=Math.max(mimiVX-.9,-MIMI_SPEED*speedMult*(1+catLevel*.09));miFacing=-1}
+  else if(rightKey){mimiVX=Math.min(mimiVX+.9,MIMI_SPEED*speedMult*(1+catLevel*.09));miFacing=1}
+  else mimiVX*=0.76;
   if(jumpKey&&!catKeys._jumpHeld){
-    if(mimiOnGround||mimiJumps<2){mimiVY=JUMP_POW*(1+mimiJumps*.1);mimiJumps++;spawnCatP(mimiX,mimiY+MIMI_H,'jump')}
+    if(mimiOnGround||mimiJumps<2){
+      mimiVY=JUMP_POW*(1+mimiJumps*.12);
+      // ↑+→ or ↑+← while in air = forward air dash (extra horizontal boost)
+      if(mimiJumps>=1){
+        if(rightKey){ mimiVX=Math.min(MIMI_SPEED*2.2*(catActivePower==='speed'?1.5:1), mimiVX+5.5); miFacing=1; }
+        else if(leftKey){ mimiVX=Math.max(-MIMI_SPEED*2.2*(catActivePower==='speed'?1.5:1), mimiVX-5.5); miFacing=-1; }
+      }
+      mimiJumps++;
+      spawnCatP(mimiX,mimiY+MIMI_H,'jump');
+    }
   }
   catKeys._jumpHeld=jumpKey;
-
-  mimiVY+=GRAVITY;
-  if(mimiVY>14)mimiVY=14;
+  // FIGHT: press Z or tap double-left to punch (knockback bad cats)
+  const punchKey=catKeys['z']||catKeys['Z']||catKeys['Control'];
+  if(punchKey&&mimiPunchCooldown===0){
+    mimiPunching=10;mimiPunchCooldown=18;
+    spawnCatP(mimiX+(miFacing>0?MIMI_W+4:-10),mimiY+MIMI_H/2,'hit');
+    // Hit any bad cat in range — big hitbox, easy to land
+    catBadCats.forEach(bc=>{
+      const bdist=Math.abs(mimiX+MIMI_W/2-(bc.x+16));
+      if(bdist<75&&Math.abs(mimiY-bc.y)<52){
+        bc.hp=(bc.hp||2)-1;
+        bc.stunned=(bc.stunned||0)+70;
+        bc.vx*=-1;bc.x+=miFacing*35;
+        bc.chasing=false;bc.alertTimer=0;
+        spawnCatP(bc.x,bc.y,'hit');
+        if(bc.hp<=0){
+          // Knocked out!
+          bc.dead=true;catKOs++;
+          catScore+=40;document.getElementById('cat-score').textContent=catScore;
+          catBubble=makeBubble('KO! 💥 +40pts',bc.x,bc.y-30);catBubble.timer=130;
+          showMilestone('🥊 KO! +40pts!');
+          spawnCatP(bc.x,bc.y,'charm');
+        }else{
+          catScore+=15;document.getElementById('cat-score').textContent=catScore;
+          catBubble=makeBubble('POW! 🥊',bc.x,bc.y-30);
+          showMilestone('🥊 SCRATCH! +15pts');
+        }
+      }
+    });
+  }
+  if(mimiPunching>0)mimiPunching--;
+  if(mimiPunchCooldown>0)mimiPunchCooldown--;
+  if(mimiInvincible>0)mimiInvincible--;
+  if(catActivePowerTimer>0){catActivePowerTimer--;if(catActivePowerTimer===0){catActivePower=null;showMilestone('Power-up expired!')}}
+  mimiVY+=GRAVITY;if(mimiVY>15)mimiVY=15;
   mimiX+=mimiVX;mimiY+=mimiVY;
-
-  // Platform collision
   mimiOnGround=false;
   catPlatforms.forEach((p,pi)=>{
+    if(p.crumble>=99)return;
     if(mimiX+MIMI_W>p.x&&mimiX<p.x+p.w&&mimiY+MIMI_H>p.y&&mimiY+MIMI_H<p.y+p.h+12&&mimiVY>=0){
       mimiY=p.y-MIMI_H;mimiVY=0;mimiOnGround=true;mimiJumps=0;
-      // Wake Dodo?
-      if(p.hasDodo&&!p.dodoAwake&&Math.abs(mimiX+MIMI_W/2-(p.x+p.w/2))<p.w*.6){
+      if(p.hasDodo&&!p.dodoAwake&&Math.abs(mimiX+MIMI_W/2-(p.x+p.w/2))<p.w*.65){
         p.dodoAwake=true;
         catDodos.forEach(d=>{if(d.platIdx===pi){d.awake=true;d.wakeTimer=0}});
         spawnCatP(p.x+p.w/2,p.y,'wake');
-        if(p.type!=='floor'&&p.crumble===0)p.crumble=1;// start crumbling!
+        if(p.type!=='floor'&&p.crumble===0)p.crumble=1;
       }
     }
   });
-
-  // Wall bounds
   if(mimiX<0){mimiX=0;mimiVX*=-0.3}
   if(mimiX+MIMI_W>catWorldW){mimiX=catWorldW-MIMI_W;mimiVX=0}
-
-  // Fall off world
   if(mimiY>catGH+80){mimiLoseLife()}
+  catCameraX=Math.max(0,Math.min(catWorldW-catGW,mimiX+MIMI_W/2-catGW*.4));
 
-  // Camera follows Mimi
-  catCameraX=Math.max(0,Math.min(catWorldW-catGW,mimiX+MIMI_W/2-catGW*.35));
+  // Magnet power-up: auto collect nearby fish
+  const magnetRange=catActivePower==='magnet'?120:0;
 
   // Collect fish
   catFishes.forEach(f=>{
-    if(!f.collected&&Math.abs(mimiX+MIMI_W/2-f.x)<28&&Math.abs(mimiY+MIMI_H/2-f.y)<28){
-      f.collected=true;catScore+=10;catFish++;
-      document.getElementById('cat-score').textContent=catScore;
-      document.getElementById('cat-fish').textContent=catFish;
-      spawnCatP(f.x,f.y,'fish');
+    if(!f.collected){
+      const dx=mimiX+MIMI_W/2-f.x,dy=mimiY+MIMI_H/2-f.y;
+      const d=Math.sqrt(dx*dx+dy*dy);
+      if(magnetRange>0&&d<magnetRange){f.x+=dx*.08;f.y+=dy*.08}
+      if(d<30){
+        f.collected=true;catFish++;
+        catCombo++;catComboTimer=COMBO_TIMEOUT;
+        const pts=10*(catCombo>2?catCombo-1:1);
+        catScore+=pts;
+        document.getElementById('cat-score').textContent=catScore;
+        document.getElementById('cat-fish').textContent=catFish;
+        spawnCatP(f.x,f.y,'fish');
+        if(catCombo>2) showMilestone('x'+catCombo+' COMBO! +'+pts+'pts!');
+      }
     }
     f.bob+=0.06;
   });
 
+  // Collect gold stars
+  catStars.forEach(s=>{
+    if(!s.collected&&Math.abs(mimiX+MIMI_W/2-s.x)<28&&Math.abs(mimiY+MIMI_H/2-s.y)<28){
+      s.collected=true;catScore+=25;
+      document.getElementById('cat-score').textContent=catScore;
+      spawnCatP(s.x,s.y,'star');
+      showMilestone('⭐ STAR! +25pts!');
+    }
+    s.bob+=0.05;s.spin+=0.08;
+  });
+
+  // Power-up collect
+  if(catPowerUp&&!catPowerUp.collected){
+    const dx=mimiX+MIMI_W/2-catPowerUp.x,dy=mimiY+MIMI_H/2-catPowerUp.y;
+    if(Math.sqrt(dx*dx+dy*dy)<32){
+      catPowerUp.collected=true;
+      catActivePower=catPowerUp.type;
+      catActivePowerTimer=300;
+      const pNames={speed:'⚡ SPEED BOOST!',shield:'🛡️ SHIELD!',magnet:'🧲 MAGNET!'};
+      showMilestone(pNames[catPowerUp.type]);
+      if(catActivePower==='shield')mimiInvincible=300;
+      spawnCatP(catPowerUp.x,catPowerUp.y,'charm');
+    }
+    catPowerUp.bob+=0.05;catPowerUp.spin+=0.06;
+  }
+
+  // Spike collision
+  if(mimiInvincible===0&&catActivePower!=='shield'){
+    catSpikes.forEach(sp=>{
+      if(mimiX+MIMI_W>sp.x&&mimiX<sp.x+sp.w&&mimiY+MIMI_H>sp.y&&mimiY+MIMI_H<sp.y+18){
+        mimiLoseLife();spawnCatP(sp.x+sp.w/2,sp.y,'hit');
+        catBubble=makeBubble('ouch! 🩸',mimiX+MIMI_W/2,Math.max(60,mimiY-10));
+      }
+    });
+  }
+
+  // Moon gate teleport
+  if(catMoonGate&&!catMoonGate.used){
+    const mgcx=catMoonGate.x+catMoonGate.w/2,mgcy=catMoonGate.y+catMoonGate.h/2;
+    if(Math.abs(mimiX+MIMI_W/2-mgcx)<28&&Math.abs(mimiY+MIMI_H/2-mgcy)<48){
+      mimiX=catMoonGate.destX;mimiVX=2;catMoonGate.used=true;
+      spawnCatP(mimiX,mimiY,'charm');
+      showMilestone('🌙 Moon Gate! Teleported!');
+    }
+  }
+
   // Reach door
-  if(Math.abs(mimiX+MIMI_W/2-catDoor.x-catDoor.w/2)<50&&Math.abs(mimiY+MIMI_H/2-catDoor.y-catDoor.h/2)<60){
+  if(Math.abs(mimiX+MIMI_W/2-catDoor.x-catDoor.w/2)<54&&Math.abs(mimiY+MIMI_H/2-catDoor.y-catDoor.h/2)<66){
     catLevelClear();
   }
 
   // Yarn collision
-  catYarns.forEach(y=>{
-    if(Math.abs(mimiX+MIMI_W/2-y.x)<24&&Math.abs(mimiY+MIMI_H/2-y.y)<24){
-      y.active=false;mimiLoseLife();spawnCatP(y.x,y.y,'hit');
+  if(mimiInvincible===0&&catActivePower!=='shield'){
+    catYarns.forEach(y=>{
+      if(Math.abs(mimiX+MIMI_W/2-y.x)<22&&Math.abs(mimiY+MIMI_H/2-y.y)<22){
+        y.active=false;mimiLoseLife();spawnCatP(y.x,y.y,'hit');
+      }
+    });
+  }
+
+  // Comet collision
+  if(catComet&&mimiInvincible===0&&catActivePower!=='shield'){
+    const cx2=catComet.x-catCameraX;
+    if(Math.abs(mimiX+MIMI_W/2-catComet.x)<28&&Math.abs(mimiY+MIMI_H/2-catComet.y)<28){
+      mimiLoseLife();spawnCatP(catComet.x,catComet.y,'hit');catComet=null;
+    }
+  }
+
+  // Lady cat romance — multi-step dialogue, slow & readable
+  // Dialogue steps: each step has Mimi's line, lady's response, and duration (frames)
+  const romanceScript=[
+    {mimi:"hey there... 😼",          lady:null,            dur:110},
+    {mimi:"i have no balls",          lady:"...excuse me?? 😳",dur:130},
+    {mimi:"don't worry about it 😏",  lady:null,            dur:110},
+    {mimi:"you look lovely tonight 🌙",lady:"oh you charmer 😅",dur:130},
+    {mimi:"wanna escape together?",   lady:"...maybe 😏",    dur:120},
+    {mimi:null,                       lady:"ok fine 😻 come here!",dur:100},
+  ];
+  catLadyCats.forEach(lc=>{
+    if(lc.charmed)return;
+    const dist=Math.abs(mimiX+MIMI_W/2-lc.x);
+    const yDist=Math.abs(mimiY+MIMI_H/2-lc.y);
+    if(dist<52&&yDist<42&&Math.abs(mimiVX)<1.6){
+      if(!lc.charming){
+        lc.charming=true;lc.charmTimer=0;lc.dialogStep=0;lc.stepTimer=0;
+        mimiRomancing=999; // keep locked until charmed
+      }
+    }
+    if(lc.charming&&!lc.charmed){
+      lc.stepTimer++;
+      const step=romanceScript[lc.dialogStep]||null;
+      if(step){
+        // Show bubble for current step
+        if(lc.stepTimer===1){
+          if(step.mimi){
+            const bx=Math.max(90,Math.min(catGW-90,mimiX+MIMI_W/2-catCameraX));
+            catBubble=makeBubble(step.mimi,bx+catCameraX,Math.max(70,mimiY-12));
+            catBubble.timer=step.dur-10;
+          }
+          if(step.lady){
+            // Lady's bubble appears 40 frames into the step
+            lc.pendingLadyBubble={text:step.lady,at:40};
+          }
+        }
+        if(lc.pendingLadyBubble&&lc.stepTimer===lc.pendingLadyBubble.at){
+          catBubble=makeBubble(lc.pendingLadyBubble.text,lc.x,lc.y-40);
+          catBubble.timer=step.dur-lc.pendingLadyBubble.at-5;
+          lc.pendingLadyBubble=null;
+        }
+        if(lc.stepTimer>=step.dur){
+          lc.dialogStep++;lc.stepTimer=0;
+          if(lc.dialogStep>=romanceScript.length){
+            // All dialogue done — charmed!
+            lc.charmed=true;catCharm++;mimiRomancing=0;
+            const pts=50+catCombo*10;catScore+=pts;
+            document.getElementById('cat-score').textContent=catScore;
+            document.getElementById('cat-charm').textContent=catCharm;
+            spawnCatP(lc.x,lc.y,'charm');
+            catBubble=makeBubble('😻 +'+pts+' pts!\n(Mimi scores again~)',lc.x,lc.y-40);
+            catBubble.timer=130;
+            showMilestone('💕 Charmed! +'+pts+'pts!');
+          }
+        }
+      }
     }
   });
+  // Keep Mimi locked during active romance
+  if(catLadyCats.some(lc=>lc.charming&&!lc.charmed))mimiRomancing=2;
+  else if(mimiRomancing>2)mimiRomancing--;
+
+  // Bad cat collision
+  if(mimiInvincible===0&&catActivePower!=='shield'){
+    catBadCats.forEach(bc=>{
+      if(bc.dead)return; // already KO'd
+      const dist=Math.abs(mimiX+MIMI_W/2-(bc.x+16));
+      const yDist=Math.abs(mimiY+MIMI_H/2-(bc.y+18));
+      if(dist<36&&yDist<36){
+        mimiLoseLife();spawnCatP(bc.x,bc.y,'hit');
+        catBubble=makeBubble('😾 BITE!',Math.max(80,Math.min(catGW-80,bc.x-catCameraX))+catCameraX,bc.y-30);
+      }
+    });
+  }
 }
+
+function makeBubble(text,worldX,worldY){
+  return{text,timer:100,wx:worldX,wy:worldY};
+}
+
+function COMBO_TIMEOUT_DEF(){return 90}
+const COMBO_TIMEOUT=90;
 
 function updateLevel(){
   catLevelTimer++;
-  // Update Dodos
+  if(catComboTimer>0){catComboTimer--;if(catComboTimer===0)catCombo=0}
+  // Moving platforms
+  catPlatforms.forEach(p=>{
+    if(!p.moving)return;
+    if(p.moveAxis==='y'){
+      p.y=p.moveOriginY+Math.sin(catLevelTimer*p.moveSpeed*.04)*p.moveRange;
+    }else{
+      p.x=p.moveOriginX+Math.sin(catLevelTimer*p.moveSpeed*.04)*p.moveRange;
+      catDodos.forEach(d=>{if(d.platIdx===catPlatforms.indexOf(p))d.px=p.x+p.w*.5});
+    }
+  });
   catDodos.forEach(d=>{
     const p=catPlatforms[d.platIdx];
     d.px=p.x+p.w*.5;d.py=p.y;d.dodoAnim=(d.dodoAnim||0)+0.03;
     if(d.awake){
-      d.wakeTimer++;
-      d.throwTimer=(d.throwTimer||0)+1;
-      if(d.throwTimer%Math.max(40,90-catLevel*8)===0){
-        // Throw yarn at Mimi!
-        const dx=mimiX-d.px,dy=mimiY-d.py;
-        const dist=Math.sqrt(dx*dx+dy*dy)||1;
-        const spd=3.5+catLevel*.4;
-        catYarns.push({x:d.px,y:d.py-10,vx:dx/dist*spd,vy:dy/dist*spd-1,r:0,active:true});
+      d.wakeTimer++;d.throwTimer=(d.throwTimer||0)+1;
+      if(d.throwTimer%Math.max(36,82-catLevel*7)===0){
+        const ddx=mimiX-d.px,ddy=mimiY-d.py;
+        const dist=Math.sqrt(ddx*ddx+ddy*ddy)||1;
+        const spd=3.5+catLevel*.48;
+        catYarns.push({x:d.px,y:d.py-10,vx:ddx/dist*spd,vy:ddy/dist*spd-1.2,r:0,active:true});
       }
     }
   });
-  // Update yarns
-  catYarns.forEach(y=>{y.x+=y.vx;y.y+=y.vy;y.vy+=0.15;y.r+=0.15});
-  catYarns=catYarns.filter(y=>y.active&&y.y<catGH+50);
-  // Crumbling platforms
-  catPlatforms.forEach(p=>{
-    if(p.crumble>0){p.crumble++;if(p.crumble>90)p.crumble=99}
-  });
-  // Update particles
+  catYarns.forEach(y=>{y.x+=y.vx;y.y+=y.vy;y.vy+=0.14;y.r+=0.14});
+  catYarns=catYarns.filter(y=>y.active&&y.y<catGH+60);
+  catPlatforms.forEach(p=>{if(p.crumble>0){p.crumble++;if(p.crumble>90)p.crumble=99}});
   catParticles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=p.grav||0;p.life--;p.alpha=p.life/p.maxLife});
   catParticles=catParticles.filter(p=>p.life>0);
-  // Door animation
   catDoor.anim+=0.05;
+  catLadyCats.forEach(lc=>{lc.bob+=0.04});
+  if(catMoonGate)catMoonGate.anim+=0.06;
+
+  // Comet: random dangerous projectile that crosses the screen
+  if(catComet){
+    catComet.x+=catComet.vx;catComet.y+=catComet.vy;catComet.trail.push({x:catComet.x,y:catComet.y});
+    if(catComet.trail.length>18)catComet.trail.shift();
+    if(catComet.x<-100||catComet.x>catWorldW+100)catComet=null;
+  }else{
+    catCometTimer--;
+    if(catCometTimer<=0){
+      catCometTimer=Math.floor(250+Math.random()*350);
+      // Comet flies across at Mimi's current height range
+      const startLeft=Math.random()<.5;
+      const cy=catGH*.2+Math.random()*catGH*.5;
+      catComet={x:startLeft?catCameraX-60:catCameraX+catGW+60,
+        y:cy,vx:startLeft?6+catLevel*.5:-(6+catLevel*.5),vy:(Math.random()-.5)*1.5,trail:[]};
+    }
+  }
+
+  // Bad cats patrol & chase (incl. aerial)
+  catBadCats.forEach(bc=>{
+    const floorY=catGH-44;
+    const dx=mimiX+MIMI_W/2-(bc.x+16);
+    const dist=Math.abs(dx);
+    if(bc.aerial){
+      // Airborne bad cat: jumps between platforms
+      if(bc.aerialOnGround&&Math.random()<0.02){bc.aerialVY=-(8+catLevel*.5);bc.aerialOnGround=false}
+      bc.aerialVY+=GRAVITY;bc.y+=bc.aerialVY;
+      catPlatforms.forEach(p=>{
+        if(p.crumble>=99)return;
+        if(bc.x+32>p.x&&bc.x<p.x+p.w&&bc.y+36>p.y&&bc.y+36<p.y+p.h+8&&bc.aerialVY>=0){
+          bc.y=p.y-36;bc.aerialVY=0;bc.aerialOnGround=true;
+        }
+      });
+      if(bc.y>floorY-36){bc.y=floorY-36;bc.aerialVY=0;bc.aerialOnGround=true}
+    }else{
+      bc.y=floorY-40;
+    }
+    // Chase/patrol
+    if(bc.dead)return; // KO'd — stays where it fell
+    if((bc.stunned||0)>0){bc.stunned--;bc.x+=bc.facing*-1.2;return} // staggering from punch!
+    if(dist<140&&Math.abs(mimiY-(bc.y+18))<catGH*.5){
+      bc.chasing=true;bc.alertTimer=90;
+      const spd=bc.vx*(1+catLevel*.12);
+      bc.x+=dx>0?spd:-spd;bc.facing=dx>0?1:-1;
+    }else{
+      if(bc.alertTimer>0){bc.alertTimer--;bc.chasing=false}
+      bc.x+=bc.vx*bc.facing;
+      if(bc.x<bc.patrolLeft){bc.facing=1}
+      if(bc.x>bc.patrolRight){bc.facing=-1}
+    }
+  });
+
+  if(catBubble){catBubble.timer--;if(catBubble.timer<=0)catBubble=null}
+  if(catMilestoneTimer>0)catMilestoneTimer--;
 }
 
 function mimiLoseLife(){
+  if(mimiInvincible>0)return;
   catLives--;spawnCatP(mimiX,mimiY,'die');
+  mimiInvincible=100;mimiRomancing=0;catCombo=0;catComboTimer=0;
   document.getElementById('cat-lives').textContent='😺'.repeat(Math.max(0,catLives));
   if(catLives<=0){catGameOver2();return}
-  // Respawn at start of level
   mimiX=80;mimiY=catPlatforms[0].y-MIMI_H;mimiVX=0;mimiVY=0;catCameraX=0;
 }
 
 function catLevelClear(){
-  catRunning=false;catScore+=catLevel*50;
+  catRunning=false;
+  const bonus=catLevel*80+catCharm*25+catCombo*15;
+  catScore+=bonus;
   document.getElementById('cat-score').textContent=catScore;
-  spawnPetals(50);
+  spawnPetals(55);
   catLevel++;document.getElementById('cat-lvl').textContent=catLevel;
   const ss=document.getElementById('cat-screen');ss.style.display='flex';
   ss.innerHTML=`<span class="cge">🏃</span>
     <div class="cgt">Level ${catLevel-1} cleared! 😼</div>
-    <div class="cgs">Mimi escaped! On to the next adventure...<br>
-    Score: ${catScore} · Fish collected: ${catFish}<br>
-    <b style="color:#f9d94e">Level ${catLevel} — more Dodos are sleeping! 😴</b></div>
+    <div class="cgs">Mimi vanishes into the moonlight!<br>
+    Score: ${catScore} · Fish: ${catFish} 🐟 · Charms: ${catCharm} 💕 · KOs: ${catKOs} 🥊<br>
+    Level bonus: +${bonus}pts<br>
+    <b style="color:#f9d94e">Level ${catLevel} — longer night, more danger! 😾</b></div>
     <button class="btn-p" onclick="nextCatLevel()" style="margin-top:12px">Keep escaping! 😹</button>`;
 }
 
@@ -2580,63 +2878,193 @@ function catGameOver2(){
   const ss=document.getElementById('cat-screen');ss.style.display='flex';
   ss.innerHTML=`<span class="cge">😿</span>
     <div class="cgt">Mimi got caught! 😭</div>
-    <div class="cgs">She'll try again tomorrow...<br>Score: ${catScore} · Fish: ${catFish} 🐟<br>Levels cleared: ${catLevel-1}</div>
+    <div class="cgs">The night was too dangerous...<br>Score: ${catScore} · Fish: ${catFish} 🐟 · Charms: ${catCharm} 💕 · KOs: ${catKOs} 🥊<br>Levels cleared: ${catLevel-1}</div>
     <button class="btn-p" onclick="startCatGame()" style="margin-top:12px">Try again! 😼</button>`;
 }
 
 function spawnCatP(x,y,type){
-  const cols={jump:['#f0a8be','#fce8ee'],fish:['#4aa8d8','#f9d94e'],wake:['#f9d94e','#9b59b6'],hit:['#e8437a','#ff6b6b'],die:['#c96a89','#f0a8be']};
+  const cols={jump:['#f0a8be','#fce8ee'],fish:['#4aa8d8','#f9d94e'],wake:['#f9d94e','#9b59b6'],
+    hit:['#e8437a','#ff6b6b'],die:['#c96a89','#f0a8be'],charm:['#ff69b4','#ff1493','#fff'],
+    star:['#f9d94e','#ffe066','#fff']};
+  const emojiMap={fish:'🐟',charm:'💕',wake:'💢',hit:'⚡',star:'⭐'};
   const c=cols[type]||['white'];
-  for(let i=0;i<8;i++){
-    const a=Math.random()*Math.PI*2,s=2+Math.random()*4;
-    catParticles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-2,grav:0.1,life:30+Math.random()*20,maxLife:50,alpha:1,col:c[Math.floor(Math.random()*c.length)],sz:4+Math.random()*8,emoji:type==='fish'?'🐟':null});
+  const emj=emojiMap[type]||null;
+  const n=type==='charm'?16:type==='star'?12:8;
+  for(let i=0;i<n;i++){
+    const a=Math.random()*Math.PI*2,s=2+Math.random()*(type==='charm'||type==='star'?7:4);
+    catParticles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-2.8,grav:0.1,
+      life:40+Math.random()*25,maxLife:65,alpha:1,
+      col:c[Math.floor(Math.random()*c.length)],sz:4+Math.random()*10,
+      emoji:i<3?emj:null});
   }
+}
+
+function drawLadyCatSprite(c,lc,frame){
+  c.save();c.translate(lc.x,lc.y+Math.sin(lc.bob)*3);
+  if(lc.charmed){
+    // charmed — happy pose
+    c.font='14px serif';c.textAlign='center';c.fillText('😻',0,-36);
+  }else if(lc.charming){
+    // being seduced
+    c.font='12px serif';c.textAlign='center';c.fillText('💓',0,-36);
+  }else{
+    // idle — cute waiting
+    c.font='12px serif';c.textAlign='center';c.fillText('💭',0,-36);
+  }
+  // Body — cream/white female cat
+  c.fillStyle='#f5f0e8';c.beginPath();c.ellipse(0,5,11,14,0,0,Math.PI*2);c.fill();
+  // Head
+  c.fillStyle='#f5f0e8';c.beginPath();c.ellipse(1,-10,11,10,-.08,0,Math.PI*2);c.fill();
+  // Cute round ears
+  c.fillStyle='#f5f0e8';
+  c.beginPath();c.arc(-8,-18,5,0,Math.PI*2);c.fill();
+  c.beginPath();c.arc(10,-18,5,0,Math.PI*2);c.fill();
+  c.fillStyle='rgba(255,180,200,0.7)';
+  c.beginPath();c.arc(-8,-18,3,0,Math.PI*2);c.fill();
+  c.beginPath();c.arc(10,-18,3,0,Math.PI*2);c.fill();
+  // Eyes — big blue eyes
+  c.fillStyle='#1a1030';c.beginPath();c.ellipse(-3,-12,5,5.5,0,0,Math.PI*2);c.fill();
+  c.beginPath();c.ellipse(8,-12,5,5.5,0,0,Math.PI*2);c.fill();
+  c.fillStyle='rgba(100,160,255,0.9)';c.beginPath();c.ellipse(-3,-12,3.5,4,0,0,Math.PI*2);c.fill();
+  c.beginPath();c.ellipse(8,-12,3.5,4,0,0,Math.PI*2);c.fill();
+  c.fillStyle='#080410';c.beginPath();c.ellipse(-3,-12,2,4,0,0,Math.PI*2);c.fill();
+  c.beginPath();c.ellipse(8,-12,2,4,0,0,Math.PI*2);c.fill();
+  c.fillStyle='white';c.beginPath();c.arc(-5,-14,1.5,0,Math.PI*2);c.fill();c.beginPath();c.arc(6,-14,1.5,0,Math.PI*2);c.fill();
+  // Rosy cheeks
+  c.fillStyle='rgba(255,150,180,0.25)';c.beginPath();c.arc(-7,-9,4,0,Math.PI*2);c.fill();c.beginPath();c.arc(9,-9,4,0,Math.PI*2);c.fill();
+  // Nose — tiny pink
+  c.fillStyle='#ffaacc';c.beginPath();c.arc(2,-6,1.8,0,Math.PI*2);c.fill();
+  // Tail — curled cute
+  c.strokeStyle='#f5f0e8';c.lineWidth=3.5;c.lineCap='round';
+  c.beginPath();c.moveTo(10,12);c.bezierCurveTo(22,6,26,18,16,22);c.stroke();
+  // Hair bow on head
+  c.fillStyle='#e8437a';
+  c.beginPath();c.moveTo(-2,-20);c.bezierCurveTo(-8,-26,-12,-20,-8,-16);c.bezierCurveTo(-4,-20,-2,-20,-2,-20);c.fill();
+  c.beginPath();c.moveTo(-2,-20);c.bezierCurveTo(4,-26,8,-20,4,-16);c.bezierCurveTo(0,-20,-2,-20,-2,-20);c.fill();
+  c.fillStyle='#ff6b9d';c.beginPath();c.arc(-2,-20,2.5,0,Math.PI*2);c.fill();
+  c.restore();
+}
+
+function drawBadCatSprite(c,bc,frame){
+  c.save();c.translate(bc.x+16,bc.y+18);c.scale(bc.facing,1);
+  // Shadow
+  c.fillStyle='rgba(0,0,0,0.2)';c.beginPath();c.ellipse(0,20,14,4,0,0,Math.PI*2);c.fill();
+  // Body — dark gray/black bad cat
+  const bcol=bc.chasing?'#1a0a0a':'#2a1a1a';
+  c.fillStyle=bcol;c.beginPath();c.ellipse(0,5,13,16,0,0,Math.PI*2);c.fill();
+  // Head
+  c.fillStyle=bcol;c.beginPath();c.ellipse(2,-10,13,11,-.1,0,Math.PI*2);c.fill();
+  // Mean pointed ears
+  c.fillStyle=bcol;
+  c.beginPath();c.moveTo(-7,-18);c.lineTo(-14,-32);c.lineTo(-1,-21);c.closePath();c.fill();
+  c.beginPath();c.moveTo(11,-18);c.lineTo(18,-32);c.lineTo(5,-21);c.closePath();c.fill();
+  // Mean red eyes
+  c.fillStyle='#cc0000';c.beginPath();c.ellipse(-3,-12,5,5,0,0,Math.PI*2);c.fill();
+  c.beginPath();c.ellipse(8,-12,5,5,0,0,Math.PI*2);c.fill();
+  if(bc.chasing){
+    // Narrowed angry eyes
+    c.fillStyle='#ff3300';c.beginPath();c.ellipse(-3,-12,4,3,0,0,Math.PI*2);c.fill();
+    c.beginPath();c.ellipse(8,-12,4,3,0,0,Math.PI*2);c.fill();
+    // Sweat drop / anger mark above
+    c.font='11px serif';c.textAlign='center';c.fillText('😾',0,-30);
+  }
+  c.fillStyle='#550000';c.beginPath();c.ellipse(-3,-12,2,4,0,0,Math.PI*2);c.fill();
+  c.beginPath();c.ellipse(8,-12,2,4,0,0,Math.PI*2);c.fill();
+  // Scar over eye
+  c.strokeStyle='rgba(200,50,50,0.8)';c.lineWidth=1.5;
+  c.beginPath();c.moveTo(-7,-16);c.lineTo(-1,-8);c.stroke();
+  // Nose
+  c.fillStyle='#440000';c.beginPath();c.arc(2,-6,2,0,Math.PI*2);c.fill();
+  // Mean mouth / fangs
+  c.strokeStyle='rgba(200,100,100,0.6)';c.lineWidth=1.5;
+  c.beginPath();c.moveTo(-2,-4);c.quadraticCurveTo(2,-2,6,-4);c.stroke();
+  c.fillStyle='white';// fangs
+  c.beginPath();c.moveTo(0,-4);c.lineTo(-2,0);c.lineTo(2,0);c.closePath();c.fill();
+  c.beginPath();c.moveTo(5,-4);c.lineTo(3,0);c.lineTo(7,0);c.closePath();c.fill();
+  // Tail — aggressive
+  const tw2=Math.sin(frame*.2)*12;
+  c.strokeStyle=bcol;c.lineWidth=4;c.lineCap='round';
+  c.beginPath();c.moveTo(-10,14);c.quadraticCurveTo(-24+tw2,22,-20+tw2*1.2,38);c.stroke();
+  // Running legs when chasing
+  if(bc.chasing){
+    const lp=frame*.3;
+    c.fillStyle=bcol;
+    c.beginPath();c.ellipse(-5,22,4,7,Math.sin(lp)*.5,0,Math.PI*2);c.fill();
+    c.beginPath();c.ellipse(5,22,4,7,Math.sin(lp+Math.PI)*.5,0,Math.PI*2);c.fill();
+  }
+  c.restore();
 }
 
 function drawCatGame2(){
   const c=catCtx,W=catGW,H=catGH,cx=catCameraX;
-  // Dreamy night sky
+  // Night sky gradient
   const sky=c.createLinearGradient(0,0,0,H);
-  sky.addColorStop(0,'#0d0822');sky.addColorStop(.5,'#1a1245');sky.addColorStop(1,'#0d2218');
+  sky.addColorStop(0,'#07051a');sky.addColorStop(.45,'#130d3a');sky.addColorStop(1,'#0a1f14');
   c.fillStyle=sky;c.fillRect(0,0,W,H);
-  // Stars
-  for(let i=0;i<80;i++){
-    const sx=((i*137.5+catFrame*.08)%catWorldW)-cx;
-    if(sx<-5||sx>W+5)continue;
-    const sy=(i*89.3)%H*.72;
-    const bri=.3+.7*Math.abs(Math.sin(catFrame*.018+i));
-    c.fillStyle=`rgba(255,255,255,${bri*.8})`;
-    c.beginPath();c.arc(sx,sy,.8+i%2*.5,0,Math.PI*2);c.fill();
+  // Twinkling stars (parallax)
+  for(let i=0;i<100;i++){
+    const sx=((i*137.5+catFrame*.06)%catWorldW)-cx;
+    if(sx<-4||sx>W+4)continue;
+    const sy=(i*79.3)%H*.7;
+    const bri=.25+.75*Math.abs(Math.sin(catFrame*.02+i*.4));
+    const sz=i%5===0?1.4:.7+i%2*.4;
+    c.fillStyle=`rgba(255,255,255,${bri*.85})`;
+    c.beginPath();c.arc(sx,sy,sz,0,Math.PI*2);c.fill();
   }
-  // Moon
-  c.fillStyle='rgba(255,252,210,.88)';c.beginPath();c.arc(W-60,48,28,0,Math.PI*2);c.fill();
-  c.fillStyle='rgba(13,8,34,.35)';c.beginPath();c.arc(W-48,42,24,0,Math.PI*2);c.fill();
+  // Moon with glow
+  c.save();
+  const moonGlow=c.createRadialGradient(W-62,46,0,W-62,46,55);
+  moonGlow.addColorStop(0,'rgba(255,252,200,.18)');moonGlow.addColorStop(1,'transparent');
+  c.fillStyle=moonGlow;c.beginPath();c.arc(W-62,46,55,0,Math.PI*2);c.fill();
+  c.fillStyle='rgba(255,252,210,.9)';c.beginPath();c.arc(W-62,46,26,0,Math.PI*2);c.fill();
+  c.fillStyle='rgba(13,8,34,.3)';c.beginPath();c.arc(W-50,40,22,0,Math.PI*2);c.fill();
+  c.restore();
 
-  // Draw world
-  // Platforms
+  // Floor
   catPlatforms.forEach(p=>{
     const px=p.x-cx,py=p.y;
     if(px+p.w<-10||px>W+10)return;
     if(p.type==='floor'){
-      c.fillStyle='#1a3a2e';c.fillRect(px,py,p.w,p.h);
-      // Grass top
-      c.fillStyle='#2a5a40';c.fillRect(px,py,p.w,8);
+      c.fillStyle='#152e22';c.fillRect(px,py,p.w,p.h);
+      c.fillStyle='#24503a';c.fillRect(px,py,p.w,9);
+      // grass tufts
+      for(let gx=px+10;gx<px+p.w-8;gx+=22){
+        c.fillStyle='#2e6644';c.beginPath();c.arc(gx,py-1,2,Math.PI,0);c.fill();
+      }
     }else{
-      if(p.crumble>=99){return}// fallen off
+      if(p.crumble>=99)return;
       const alpha=p.crumble>0?1-(p.crumble/99)*.7:1;
       c.save();c.globalAlpha=alpha;
-      // Crayon-style platform
-      c.fillStyle=p.hasDodo?'#2a2050':'#1a3a2e';
+      // Moving platforms glow blue-ish
+      const pcol=p.moving?'#1a2a50':p.hasDodo?'#2a2050':'#1a3a2e';
+      const scol=p.moving?'#5599ff':p.hasDodo?'#9b59b6':'#4a9070';
+      c.fillStyle=pcol;
       c.beginPath();c.roundRect?c.roundRect(px,py,p.w,p.h,6):c.rect(px,py,p.w,p.h);c.fill();
-      // Crayon outline
-      c.strokeStyle=p.hasDodo?'#9b59b6':'#4a9070';c.lineWidth=2.5;
+      c.strokeStyle=scol;c.lineWidth=2.5;
       c.beginPath();c.roundRect?c.roundRect(px,py,p.w,p.h,6):c.rect(px,py,p.w,p.h);c.stroke();
+      if(p.moving){
+        // Arrow indicator on moving platform
+        c.fillStyle='rgba(100,180,255,.5)';c.font='9px serif';c.textAlign='center';
+        c.fillText('↕',px+p.w/2,py+10);
+      }
       if(p.crumble>0){
-        c.strokeStyle='rgba(255,80,80,.6)';c.lineWidth=1;
+        c.strokeStyle='rgba(255,60,60,.7)';c.lineWidth=1.2;
         c.setLineDash([3,3]);c.strokeRect(px,py,p.w,p.h);c.setLineDash([]);
       }
       c.restore();
     }
+  });
+
+  // Spikes
+  catSpikes.forEach(sp=>{
+    const sx=sp.x-cx;if(sx+sp.w<-5||sx>W+5)return;
+    c.save();c.fillStyle='#cc2222';
+    const n=Math.floor(sp.w/10);
+    for(let i=0;i<n;i++){
+      c.beginPath();c.moveTo(sx+i*10,sp.y+16);c.lineTo(sx+i*10+5,sp.y);c.lineTo(sx+i*10+10,sp.y+16);c.closePath();c.fill();
+    }
+    c.strokeStyle='#ff4444';c.lineWidth=1;c.strokeRect(sx,sp.y+14,sp.w,2);
+    c.restore();
   });
 
   // Fish
@@ -2644,6 +3072,8 @@ function drawCatGame2(){
     if(f.collected)return;
     const fx=f.x-cx,fy=f.y+Math.sin(f.bob)*5;
     c.save();c.translate(fx,fy);
+    // Magnetism pull visual
+    if(catActivePower==='magnet'){const d=Math.abs(mimiX+MIMI_W/2-f.x);if(d<120){c.globalAlpha=.5+(1-d/120)*.5}}
     c.fillStyle='#4aa8d8';c.beginPath();c.ellipse(0,0,12,7,0,0,Math.PI*2);c.fill();
     c.fillStyle='#29b6f6';c.beginPath();c.moveTo(10,0);c.lineTo(17,-5);c.lineTo(17,5);c.closePath();c.fill();
     c.fillStyle='white';c.beginPath();c.arc(-5,0,2.5,0,Math.PI*2);c.fill();
@@ -2651,41 +3081,150 @@ function drawCatGame2(){
     c.restore();
   });
 
-  // Door
-  const dx=catDoor.x-cx,dy=catDoor.y;
-  if(dx>-20&&dx<W+20){
-    // Frame
-    c.fillStyle='#4a3020';c.fillRect(dx-5,dy,catDoor.w+10,catDoor.h+5);
-    // Door surface
-    const doorCol=`hsl(${30+Math.sin(catDoor.anim)*10},60%,40%)`;
-    c.fillStyle=doorCol;c.fillRect(dx,dy,catDoor.w,catDoor.h);
-    // Door panel
-    c.strokeStyle='rgba(255,220,160,.4)';c.lineWidth=2;
-    c.strokeRect(dx+6,dy+8,catDoor.w-12,catDoor.h-16);
-    // Exit sign
-    c.fillStyle='#f9d94e';c.font='bold 10px "Caveat",cursive';c.textAlign='center';
-    c.fillText('EXIT',dx+catDoor.w/2,dy-8);
-    c.fillText('→',dx+catDoor.w/2,dy+catDoor.h/2);
+  // Gold stars
+  catStars.forEach(s=>{
+    if(s.collected)return;
+    const sx2=s.x-cx,sy2=s.y+Math.sin(s.bob)*4;
+    c.save();c.translate(sx2,sy2);c.rotate(s.spin);
+    // Star shape
+    c.fillStyle='#f9d94e';
+    c.beginPath();
+    for(let i=0;i<5;i++){
+      const a=i*Math.PI*.4-Math.PI*.5;const a2=a+Math.PI*.2;
+      i===0?c.moveTo(Math.cos(a)*13,Math.sin(a)*13):c.lineTo(Math.cos(a)*13,Math.sin(a)*13);
+      c.lineTo(Math.cos(a2)*6,Math.sin(a2)*6);
+    }
+    c.closePath();c.fill();
+    c.strokeStyle='#ffe066';c.lineWidth=1.2;c.stroke();
     // Glow
-    c.save();c.globalAlpha=0.15+Math.sin(catDoor.anim)*.08;
-    c.fillStyle='#f9d94e';c.beginPath();c.arc(dx+catDoor.w/2,dy+catDoor.h/2,40,0,Math.PI*2);c.fill();
+    const sg=c.createRadialGradient(0,0,0,0,0,20);
+    sg.addColorStop(0,'rgba(255,230,80,.25)');sg.addColorStop(1,'transparent');
+    c.fillStyle=sg;c.beginPath();c.arc(0,0,20,0,Math.PI*2);c.fill();
+    c.restore();
+  });
+
+  // Power-up
+  if(catPowerUp&&!catPowerUp.collected){
+    const px2=catPowerUp.x-cx,py2=catPowerUp.y+Math.sin(catPowerUp.bob)*4;
+    c.save();c.translate(px2,py2);c.rotate(catPowerUp.spin);
+    const puEmoji={speed:'⚡',shield:'🛡️',magnet:'🧲'}[catPowerUp.type];
+    const puCol={speed:'#f9d94e',shield:'#4aa8d8',magnet:'#9b59b6'}[catPowerUp.type];
+    // Glowing orb
+    const pg=c.createRadialGradient(0,0,0,0,0,24);
+    pg.addColorStop(0,puCol+'88');pg.addColorStop(1,'transparent');
+    c.fillStyle=pg;c.beginPath();c.arc(0,0,24,0,Math.PI*2);c.fill();
+    c.fillStyle='rgba(255,255,255,.15)';c.beginPath();c.arc(0,0,14,0,Math.PI*2);c.fill();
+    c.strokeStyle=puCol;c.lineWidth=2;c.beginPath();c.arc(0,0,14,0,Math.PI*2);c.stroke();
+    c.font='16px serif';c.textAlign='center';c.textBaseline='middle';c.fillText(puEmoji,0,1);
+    c.restore();
+    // Label
+    c.fillStyle='rgba(255,255,255,.7)';c.font='bold 9px "Caveat",cursive';c.textAlign='center';
+    c.fillText(catPowerUp.type.toUpperCase()+'!',px2,py2-22);
+  }
+
+  // Moon gate teleporter
+  if(catMoonGate&&!catMoonGate.used){
+    const mgx=catMoonGate.x-cx,mgy=catMoonGate.y;
+    c.save();
+    // Pulsing glow
+    const ga=0.18+Math.sin(catMoonGate.anim)*0.1;
+    const gg=c.createRadialGradient(mgx+catMoonGate.w/2,mgy+catMoonGate.h/2,0,mgx+catMoonGate.w/2,mgy+catMoonGate.h/2,60);
+    gg.addColorStop(0,`rgba(180,100,255,${ga})`);gg.addColorStop(1,'transparent');
+    c.fillStyle=gg;c.beginPath();c.arc(mgx+catMoonGate.w/2,mgy+catMoonGate.h/2,60,0,Math.PI*2);c.fill();
+    // Gate arch
+    c.strokeStyle=`rgba(200,140,255,${0.7+Math.sin(catMoonGate.anim)*.2})`;c.lineWidth=3;
+    c.beginPath();c.arc(mgx+catMoonGate.w/2,mgy+catMoonGate.h,catMoonGate.w/2+6,Math.PI,0);c.stroke();
+    c.strokeStyle='rgba(140,80,200,.5)';c.lineWidth=1;
+    c.beginPath();c.moveTo(mgx,mgy+catMoonGate.h);c.lineTo(mgx,mgy+4);c.stroke();
+    c.beginPath();c.moveTo(mgx+catMoonGate.w,mgy+catMoonGate.h);c.lineTo(mgx+catMoonGate.w,mgy+4);c.stroke();
+    // Sparkles inside
+    for(let i=0;i<5;i++){
+      const sa=catMoonGate.anim*2+i*1.26;
+      const sr=10+Math.sin(sa)*8;
+      c.fillStyle=`rgba(220,180,255,${0.4+Math.sin(sa)*.3})`;
+      c.beginPath();c.arc(mgx+catMoonGate.w/2+Math.cos(sa)*sr,mgy+catMoonGate.h*.5+Math.sin(sa)*sr*.5,2,0,Math.PI*2);c.fill();
+    }
+    c.fillStyle='rgba(220,180,255,.85)';c.font='bold 9px "Caveat",cursive';c.textAlign='center';
+    c.fillText('🌙 GATE',mgx+catMoonGate.w/2,mgy-10);
     c.restore();
   }
 
-  // Dodo — sleeping on platforms!
+  // Lady cats
+  catLadyCats.forEach(lc=>{
+    if(lc.charmed){
+      c.font='12px serif';c.textAlign='center';
+      c.fillText('💕',lc.x-cx,lc.y+Math.sin(lc.bob)*4-8);
+      return;
+    }
+    drawLadyCatSprite(catCtx,{...lc,x:lc.x-cx},catFrame);
+    const dist=Math.abs(mimiX+MIMI_W/2-lc.x);
+    if(dist<130&&!lc.charming){
+      c.save();c.font='bold 10px "Caveat",cursive';
+      c.fillStyle='rgba(255,200,230,0.9)';c.strokeStyle='rgba(180,60,100,.6)';c.lineWidth=2;
+      c.textAlign='center';
+      const hx=lc.x-cx,hy=lc.y-52;
+      const tw=c.measureText('slow down! 🐾').width+16;
+      c.beginPath();c.roundRect?c.roundRect(hx-tw/2,hy-14,tw,20,5):c.rect(hx-tw/2,hy-14,tw,20);
+      c.fill();c.stroke();
+      c.fillStyle='#7a1a3a';c.fillText('slow down! 🐾',hx,hy+1);
+      c.restore();
+    }
+  });
+
+  // Bad cats
+  catBadCats.forEach(bc=>{
+    const bsx=bc.x-cx;if(bsx<-50||bsx>W+50)return;
+    if(bc.dead){
+      // Draw KO'd cat lying on its side with Zs
+      c.save();c.translate(bsx+16,bc.y+28);c.rotate(Math.PI/2);c.scale(0.7,0.7);
+      drawBadCatSprite(catCtx,{...bc,x:0,y:-18,chasing:false,alertTimer:0},0);
+      c.restore();
+      c.font='13px serif';c.textAlign='center';
+      c.fillText('z',bsx+26,bc.y+8);c.font='10px serif';c.fillText('z',bsx+34,bc.y);
+      c.fillStyle='rgba(255,255,100,.85)';c.font='bold 10px "Caveat",cursive';c.textAlign='center';
+      c.fillText('KO 💥',bsx+16,bc.y-6);
+      return;
+    }
+    drawBadCatSprite(catCtx,{...bc,x:bsx},catFrame);
+    if(bc.alertTimer>60){c.font='11px serif';c.textAlign='center';c.fillText('🚨',bsx+16,bc.y-10)}
+    if((bc.stunned||0)>0){
+      // Spinning stars when stunned
+      c.save();c.globalAlpha=0.9;
+      for(let si=0;si<3;si++){
+        const sa=(catFrame*.18+si*2.09);
+        c.font='11px serif';c.textAlign='center';
+        c.fillText('⭐',bsx+16+Math.cos(sa)*12,bc.y-18+Math.sin(sa)*5);
+      }
+      c.restore();
+    }
+  });
+
+  // Door
+  const dx=catDoor.x-cx,dy=catDoor.y;
+  if(dx>-20&&dx<W+20){
+    c.fillStyle='#3a2010';c.fillRect(dx-6,dy,catDoor.w+12,catDoor.h+6);
+    const doorH=`hsl(${28+Math.sin(catDoor.anim)*12},60%,38%)`;
+    c.fillStyle=doorH;c.fillRect(dx,dy,catDoor.w,catDoor.h);
+    c.strokeStyle='rgba(255,220,140,.45)';c.lineWidth=2;
+    c.strokeRect(dx+6,dy+8,catDoor.w-12,catDoor.h-16);
+    // Door glow
+    c.save();c.globalAlpha=0.14+Math.sin(catDoor.anim)*.09;
+    c.fillStyle='#f9d94e';c.beginPath();c.arc(dx+catDoor.w/2,dy+catDoor.h/2,44,0,Math.PI*2);c.fill();
+    c.restore();
+    c.fillStyle='#f9d94e';c.font='bold 11px "Caveat",cursive';c.textAlign='center';
+    c.fillText('EXIT →',dx+catDoor.w/2,dy-10);
+  }
+
+  // Dodos
   catDodos.forEach(d=>{
     const p=catPlatforms[d.platIdx];if(!p||p.crumble>=99)return;
     const ddx=d.px-cx,ddy=d.py-34;
     c.save();c.translate(ddx,ddy);
-    if(d.awake){c.scale(1+Math.sin(catFrame*.3)*.04,1)}// jitter when awake
+    if(d.awake){c.scale(1+Math.sin(catFrame*.3)*.04,1)}
     c.globalAlpha=p.crumble>0?1-p.crumble/150:1;
     drawDodoSprite(c,d.awake,catFrame,d.dodoAnim||0);
-    if(d.awake){
-      // Anger symbol
-      c.font='14px serif';c.textAlign='center';c.fillText('😤',0,-36);
-    }else{
-      c.font='11px serif';c.textAlign='center';c.fillText('z',18,-32);c.font='14px serif';c.fillText('z',28,-44);
-    }
+    if(d.awake){c.font='14px serif';c.textAlign='center';c.fillText('😤',0,-38)}
+    else{c.font='10px serif';c.textAlign='center';c.fillText('z',20,-30);c.font='13px serif';c.fillText('z',30,-44)}
     c.restore();
   });
 
@@ -2694,11 +3233,34 @@ function drawCatGame2(){
     const yx=y.x-cx;if(yx<-20||yx>W+20)return;
     c.save();c.translate(yx,y.y);c.rotate(y.r);
     c.fillStyle='#9b59b6';c.beginPath();c.arc(0,0,9,0,Math.PI*2);c.fill();
-    c.strokeStyle='rgba(200,150,240,.8)';c.lineWidth=1.5;
-    c.beginPath();c.arc(0,0,6,0,Math.PI*2);c.stroke();
+    c.strokeStyle='rgba(200,150,240,.8)';c.lineWidth=1.5;c.beginPath();c.arc(0,0,6,0,Math.PI*2);c.stroke();
     c.beginPath();c.moveTo(-8,0);c.quadraticCurveTo(0,-6,8,0);c.stroke();
     c.restore();
   });
+
+  // Comet
+  if(catComet){
+    const comx=catComet.x-cx,comy=catComet.y;
+    // Trail
+    catComet.trail.forEach((pt,i)=>{
+      const ta=i/catComet.trail.length;
+      c.save();c.globalAlpha=ta*.6;c.fillStyle=`hsl(${30+i*4},100%,60%)`;
+      c.beginPath();c.arc(pt.x-cx,pt.y,4*ta,0,Math.PI*2);c.fill();
+      c.restore();
+    });
+    // Head
+    c.save();
+    const cg=c.createRadialGradient(comx,comy,0,comx,comy,18);
+    cg.addColorStop(0,'rgba(255,200,80,0.9)');cg.addColorStop(1,'transparent');
+    c.fillStyle=cg;c.beginPath();c.arc(comx,comy,18,0,Math.PI*2);c.fill();
+    c.fillStyle='white';c.beginPath();c.arc(comx,comy,5,0,Math.PI*2);c.fill();
+    c.restore();
+    // Warning label when incoming
+    if(comx>-30&&comx<W+30){
+      c.fillStyle='rgba(255,120,30,.9)';c.font='bold 11px "Caveat",cursive';c.textAlign='center';
+      c.fillText('☄️ COMET!',comx,comy-22);
+    }
+  }
 
   // Particles
   catParticles.forEach(p=>{
@@ -2708,75 +3270,254 @@ function drawCatGame2(){
     c.restore();
   });
 
-  // MIMI (player)
+  // MIMI
   const mx=mimiX-cx;
+  // Active power aura
+  if(catActivePower){
+    const aCol={speed:'rgba(255,230,50,.18)',shield:'rgba(80,180,255,.18)',magnet:'rgba(180,80,255,.18)'}[catActivePower];
+    c.save();c.fillStyle=aCol;c.beginPath();c.arc(mx+MIMI_W/2,mimiY+MIMI_H/2,30+Math.sin(catFrame*.1)*5,0,Math.PI*2);c.fill();c.restore();
+  }
   drawMimiSprite(c,mx,mimiY,miFacing,mimiVX,mimiVY,mimiOnGround,catFrame);
 
+  // Speech bubble — always clamped inside canvas
+  if(catBubble){
+    const rawBX=catBubble.wx-cx;
+    const lines=catBubble.text.split('\n');
+    const bw=Math.max(...lines.map(l=>l.length*7.2))+24;
+    const bh=lines.length*20+16;
+    const rawBY=catBubble.wy;
+    // Clamp so it never goes off screen
+    const bx=Math.max(bw/2+6,Math.min(W-bw/2-6,rawBX));
+    const byt=Math.max(40,rawBY-bh-16);
+    c.save();
+    c.fillStyle='rgba(255,255,255,0.97)';c.strokeStyle='#e8437a';c.lineWidth=2.2;
+    c.shadowColor='rgba(232,67,122,.3)';c.shadowBlur=8;
+    c.beginPath();c.roundRect?c.roundRect(bx-bw/2,byt,bw,bh,10):c.rect(bx-bw/2,byt,bw,bh);
+    c.fill();c.stroke();c.shadowBlur=0;
+    // Tail
+    c.fillStyle='rgba(255,255,255,0.97)';
+    const tailY=byt+bh;
+    c.beginPath();c.moveTo(bx-7,tailY);c.lineTo(bx+7,tailY);c.lineTo(rawBX,rawBY-4);c.closePath();c.fill();
+    c.strokeStyle='#e8437a';c.lineWidth=1.5;
+    c.beginPath();c.moveTo(bx-7,tailY);c.lineTo(rawBX,rawBY-4);c.stroke();
+    c.beginPath();c.moveTo(bx+7,tailY);c.lineTo(rawBX,rawBY-4);c.stroke();
+    c.fillStyle='#3a0a20';c.font='bold 11px "Caveat",cursive';c.textAlign='center';c.textBaseline='middle';
+    lines.forEach((ln,i)=>c.fillText(ln,bx,byt+12+i*20));
+    c.restore();
+  }
+
+  // Milestone message (center flash)
+  if(catMilestoneTimer>0){
+    const alpha=Math.min(1,catMilestoneTimer/30);
+    const scale=catMilestoneTimer>90?1+(catMilestoneTimer-90)/40*.3:1;
+    c.save();c.globalAlpha=alpha;c.translate(W/2,H*.38);c.scale(scale,scale);
+    c.fillStyle='rgba(0,0,0,.4)';c.fillRect(-120,-18,240,36);
+    c.fillStyle='#f9d94e';c.font='bold 18px "Caveat",cursive';c.textAlign='center';c.textBaseline='middle';
+    c.fillText(catMilestoneMsg,0,0);
+    c.restore();
+  }
+
+  // Punch cooldown indicator
+  if(mimiPunchCooldown>0){
+    const punchBarW=50,punchBarH=5;
+    const punchBarX=W/2-punchBarW/2,punchBarY=42;
+    c.fillStyle='rgba(0,0,0,.4)';c.fillRect(punchBarX-1,punchBarY-1,punchBarW+2,punchBarH+2);
+    c.fillStyle='#ff6622';c.fillRect(punchBarX,punchBarY,punchBarW*(1-mimiPunchCooldown/18),punchBarH);
+    c.fillStyle='rgba(255,150,80,.7)';c.font='8px "Caveat",cursive';c.textAlign='center';
+    c.fillText('🥊 recharging',W/2,punchBarY+punchBarH+9);
+  }
+  // Active power timer bar
+  if(catActivePower&&catActivePowerTimer>0){
+    const barW=120,barH=6,barX=W/2-barW/2,barY=38;
+    const pCol={speed:'#f9d94e',shield:'#4aa8d8',magnet:'#9b59b6'}[catActivePower];
+    c.fillStyle='rgba(0,0,0,.4)';c.fillRect(barX-2,barY-2,barW+4,barH+4);
+    c.fillStyle=pCol;c.fillRect(barX,barY,barW*(catActivePowerTimer/300),barH);
+    c.fillStyle='white';c.font='9px "Caveat",cursive';c.textAlign='center';
+    c.fillText(catActivePower.toUpperCase(),W/2,barY+barH+10);
+  }
+
+  // Progress bar (how far to exit)
+  const progW=W-24,progH=4,progX=12,progY=H-8;
+  c.fillStyle='rgba(255,255,255,.1)';c.fillRect(progX,progY,progW,progH);
+  c.fillStyle='#f9d94e';c.fillRect(progX,progY,progW*(mimiX/catWorldW),progH);
+
   // HUD
-  c.fillStyle='rgba(13,8,34,.7)';c.fillRect(0,0,W,36);
+  c.fillStyle='rgba(7,5,26,.8)';c.fillRect(0,0,W,36);
   c.fillStyle='#f0d0ff';c.font='bold 13px "Caveat",cursive';c.textAlign='left';c.textBaseline='middle';
-  c.fillText(`⭐ ${catScore}  🐟 ${catFish}  Level ${catLevel}  ${'😺'.repeat(Math.min(5,catLives))}`,12,18);
-  // Arrow hints
-  c.fillStyle='rgba(255,255,255,.25)';c.font='11px "Jost",sans-serif';c.textAlign='right';
-  c.fillText('← → move  ↑/Space jump (×2)',W-10,18);
+  const livesStr='😺'.repeat(Math.min(5,catLives));
+  const comboStr=catCombo>1?`  🔥x${catCombo}`:'';
+  c.fillText(`⭐${catScore}  🐟${catFish}  💕${catCharm}  Lv${catLevel}  ${livesStr}${comboStr}`,10,18);
+  c.fillStyle='rgba(255,255,255,.2)';c.font='9px "Jost",sans-serif';c.textAlign='right';
+  c.fillText('← → move · ↑ jump(×2) · Z/Ctrl = SCRATCH 🥊 · go slow to charm ladies 💕',W-8,18);
 }
 
 function drawMimiSprite(c,x,y,facing,vx,vy,onGround,frame){
-  c.save();c.translate(x+MIMI_W/2,y+MIMI_H/2);c.scale(facing,1);
-  // Dream glow
-  c.globalAlpha=.2;const gl=c.createRadialGradient(0,0,0,0,0,32);
-  gl.addColorStop(0,'#f0a8be');gl.addColorStop(1,'transparent');c.fillStyle=gl;
-  c.beginPath();c.arc(0,0,32,0,Math.PI*2);c.fill();c.globalAlpha=1;
-  // Lean when running
-  const lean=Math.max(-.3,Math.min(.3,vx*.04));c.rotate(lean);
-  // Body
-  c.fillStyle='#e8d0b0';c.strokeStyle='rgba(255,255,255,.5)';c.lineWidth=1.2;
-  c.beginPath();c.ellipse(0,6,13,17,0,0,Math.PI*2);c.fill();
-  // Head
-  c.fillStyle='#e8d0b0';c.beginPath();c.ellipse(2,-11,13,12,-.1,0,Math.PI*2);c.fill();
-  // Sharp ears (Mimi!)
-  c.fillStyle='#e8d0b0';
-  c.beginPath();c.moveTo(-8,-20);c.lineTo(-16,-34);c.lineTo(-2,-22);c.closePath();c.fill();
-  c.beginPath();c.moveTo(12,-20);c.lineTo(20,-34);c.lineTo(6,-22);c.closePath();c.fill();
-  c.fillStyle='rgba(240,168,190,.7)';
-  c.beginPath();c.moveTo(-8,-21);c.lineTo(-13,-30);c.lineTo(-4,-22);c.closePath();c.fill();
-  c.beginPath();c.moveTo(12,-21);c.lineTo(17,-30);c.lineTo(7,-22);c.closePath();c.fill();
-  // Eyes — intense slit pupils
-  c.fillStyle='#1a0a10';
-  c.beginPath();c.ellipse(-4,-13,5.5,6,0,0,Math.PI*2);c.fill();
-  c.beginPath();c.ellipse(8,-13,5.5,6,0,0,Math.PI*2);c.fill();
-  c.fillStyle='rgba(255,230,100,.9)';// glowing irises (crazy cat energy)
-  c.beginPath();c.ellipse(-4,-13,4.5,5,0,0,Math.PI*2);c.fill();
-  c.beginPath();c.ellipse(8,-13,4.5,5,0,0,Math.PI*2);c.fill();
-  c.fillStyle='#0d0510';
-  c.beginPath();c.ellipse(-4,-13,2,5,0,0,Math.PI*2);c.fill();// slit
-  c.beginPath();c.ellipse(8,-13,2,5,0,0,Math.PI*2);c.fill();
-  c.fillStyle='white';c.beginPath();c.arc(-6,-15,1.8,0,Math.PI*2);c.fill();c.beginPath();c.arc(6,-15,1.8,0,Math.PI*2);c.fill();
+  c.save();
+  const baseAlpha=(mimiInvincible>0&&Math.floor(catFrame/4)%2===0)?0.38:1;
+  c.globalAlpha=baseAlpha;
+
+  // ── Gallop animation system ──
+  // Real cats gallop: body stretches forward then bunches up, all four paws
+  // cycle in a rotary sequence: RH→LF→LH→RF (Muybridge)
+  const speed=Math.abs(vx);
+  const running=onGround&&speed>0.6;
+  const galloping=onGround&&speed>2.8;
+  // Gallop period: faster = shorter period
+  const gPeriod=galloping?Math.max(12,22-speed*2):18;
+  const gT=(frame%gPeriod)/gPeriod; // 0..1 one full cycle
+  // Body rock: vertical bounce at double frequency, lateral lean
+  const bodyBounce=(running&&speed>0.3)?Math.sin(gT*Math.PI*2)*(galloping?5:2.5):0;
+  const bodyLean=Math.max(-.32,Math.min(.32,vx*.05));
+  // Body stretch/scrunch: cats stretch out during suspension phase
+  const stretchPhase=galloping?Math.sin(gT*Math.PI*2)*.18:0;
+  const bodyScaleX=1+stretchPhase;
+  const bodyScaleY=1-stretchPhase*.5;
+
+  c.translate(x+MIMI_W/2, y+MIMI_H/2+bodyBounce);
+  c.scale(facing,1);
+  c.rotate(bodyLean);
+
+  // Glow
+  const gl=c.createRadialGradient(0,0,0,0,0,28);
+  gl.addColorStop(0,'rgba(255,140,0,0.15)');gl.addColorStop(1,'transparent');
+  c.fillStyle=gl;c.beginPath();c.arc(0,0,30,0,Math.PI*2);c.fill();
+
+  // ── Four-paw positions (rotary gallop: RH LF LH RF) ──
+  // Each paw has phase offset 0, 0.25, 0.5, 0.75 in the cycle
+  // When paw is in swing phase (up) it lifts; stance phase it's on ground
+  function pawPos(phaseOffset,isHind){
+    // When Mimi is idle (not running), freeze paws in natural standing position
+    if(!running) return {px:isHind?3:-2, py:0, swing:false};
+    const t=(gT+phaseOffset)%1;
+    const swing=t<0.5; // swing = lifted, stance = pushing
+    const liftH=galloping?14:7;
+    const forwardReach=galloping?10:5;
+    const px2=swing?(isHind?-4:6)+Math.sin(t*Math.PI)*forwardReach:(isHind?4:-2);
+    const py2=swing?-Math.sin(t*Math.PI)*liftH:0;
+    return{px:px2,py:py2,swing};
+  }
+  const RF=pawPos(0,   false); // right front
+  const LH=pawPos(0.25,true);  // left hind
+  const LF=pawPos(0.5, false); // left front
+  const RH=pawPos(0.75,true);  // right hind
+
+  // ── TAIL (drawn first, behind body) ──
+  // Tail position depends on state: running=low+streaming, idle=high curl
+  const isMoving=speed>0.3&&onGround;
+  const tailSwing=isMoving?
+    Math.sin(frame*.28)*10+Math.cos(frame*.14)*5:   // stream behind when running
+    Math.sin(frame*.12)*14+Math.cos(frame*.08)*7;    // lazy curl when idle/airborne
+  const tailY=isMoving?22:14;
+  const tailEndX=isMoving?-20+tailSwing*.5:-16+tailSwing*1.3;
+  const tailEndY=isMoving?38:44;
+  c.strokeStyle='#f4855a';c.lineWidth=5;c.lineCap='round';
+  c.beginPath();c.moveTo(-8,tailY);c.quadraticCurveTo(-22+tailSwing,tailY+12,tailEndX,tailEndY);c.stroke();
+  // Stripe on tail
+  c.strokeStyle='rgba(160,50,0,0.4)';c.lineWidth=2;
+  c.beginPath();c.moveTo(-8,tailY);c.quadraticCurveTo(-22+tailSwing,tailY+12,tailEndX,tailEndY);c.stroke();
+  c.fillStyle='#b03808';c.beginPath();c.arc(tailEndX,tailEndY,4,0,Math.PI*2);c.fill();
+
+  // ── HIND LEGS (behind body) ──
+  c.save();c.scale(bodyScaleX,bodyScaleY);
+  function drawLeg(lx,ly,paw,isHind){
+    const kneeX=isHind?lx-paw.px*.3:lx+paw.px*.3;
+    const kneeY=ly+(isHind?8:6);
+    c.strokeStyle='#f4855a';c.lineWidth=4;c.lineCap='round';
+    c.beginPath();c.moveTo(lx,ly);c.quadraticCurveTo(kneeX,kneeY,lx+paw.px,ly+12+paw.py);c.stroke();
+    // Paw
+    c.fillStyle=paw.swing?'#ffa07a':'#f4855a';
+    c.beginPath();c.ellipse(lx+paw.px,ly+13+paw.py,4,3,paw.px*.05,0,Math.PI*2);c.fill();
+  }
+  drawLeg(-6,16,RH,true);
+  drawLeg(4,16,LH,true);
+  c.restore();
+
+  // ── BODY (stretched during gallop) ──
+  c.save();c.scale(bodyScaleX,bodyScaleY);
+  c.fillStyle='#f4855a';
+  c.beginPath();c.ellipse(0,6,13,16,0,0,Math.PI*2);c.fill();
+  // Tabby body stripes
+  c.strokeStyle='rgba(160,50,0,0.38)';c.lineWidth=2;
+  c.beginPath();c.moveTo(-10,1);c.quadraticCurveTo(0,-3,10,1);c.stroke();
+  c.beginPath();c.moveTo(-11,7);c.quadraticCurveTo(0,4,11,7);c.stroke();
+  c.beginPath();c.moveTo(-10,14);c.quadraticCurveTo(0,11,10,14);c.stroke();
+  c.restore();
+
+  // ── FRONT LEGS ──
+  c.save();c.scale(bodyScaleX,bodyScaleY);
+  drawLeg(-5,14,LF,false);
+  drawLeg(5,14,RF,false);
+  c.restore();
+
+  // ── HEAD (tilts forward when running) ──
+  const headTilt=running?0.18:0;
+  const headX=running?4:2;
+  c.save();c.translate(headX,-11);c.rotate(headTilt);
+  c.fillStyle='#f4855a';c.beginPath();c.ellipse(0,0,13,12,0,0,Math.PI*2);c.fill();
+  // Head stripes
+  c.strokeStyle='rgba(160,50,0,0.3)';c.lineWidth=1.4;
+  c.beginPath();c.moveTo(-3,-9);c.lineTo(-3,-4);c.stroke();
+  c.beginPath();c.moveTo(2,-10);c.lineTo(2,-5);c.stroke();
+  c.beginPath();c.moveTo(7,-9);c.lineTo(6,-4);c.stroke();
+  // Ears (flatten back when running fast)
+  const earFlatten=(galloping&&speed>0.3)?0.55:1;
+  c.fillStyle='#f4855a';
+  c.save();c.scale(1,earFlatten);
+  c.beginPath();c.moveTo(-8,-9);c.lineTo(-15,-22);c.lineTo(-2,-11);c.closePath();c.fill();
+  c.beginPath();c.moveTo(10,-9);c.lineTo(18,-22);c.lineTo(5,-11);c.closePath();c.fill();
+  c.fillStyle='rgba(255,155,120,0.72)';
+  c.beginPath();c.moveTo(-8,-10);c.lineTo(-12,-19);c.lineTo(-4,-11);c.closePath();c.fill();
+  c.beginPath();c.moveTo(10,-10);c.lineTo(15,-19);c.lineTo(6,-11);c.closePath();c.fill();
+  c.restore();
+  // Eyes — narrow when galloping (focused)
+  const eyeH=galloping?3.5:5;
+  c.fillStyle='#0d0a06';
+  c.beginPath();c.ellipse(-4,-2,5,6,0,0,Math.PI*2);c.fill();
+  c.beginPath();c.ellipse(7,-2,5,6,0,0,Math.PI*2);c.fill();
+  c.fillStyle='rgba(80,215,55,0.88)';
+  c.beginPath();c.ellipse(-4,-2,4,eyeH,0,0,Math.PI*2);c.fill();
+  c.beginPath();c.ellipse(7,-2,4,eyeH,0,0,Math.PI*2);c.fill();
+  c.fillStyle='#060204';
+  c.beginPath();c.ellipse(-4,-2,1.8,eyeH,0,0,Math.PI*2);c.fill();
+  c.beginPath();c.ellipse(7,-2,1.8,eyeH,0,0,Math.PI*2);c.fill();
+  c.fillStyle='white';c.beginPath();c.arc(-6,-4,1.5,0,Math.PI*2);c.fill();c.beginPath();c.arc(5,-4,1.5,0,Math.PI*2);c.fill();
   // Nose
-  c.fillStyle='#e8437a';c.beginPath();c.arc(2,-7,2,0,Math.PI*2);c.fill();
-  // Tail — always in motion!
-  const tw=Math.sin(frame*.18)*18+Math.cos(frame*.12)*8;
-  c.strokeStyle='#e8d0b0';c.lineWidth=4;c.lineCap='round';
-  c.beginPath();c.moveTo(-10,14);c.quadraticCurveTo(-28+tw,30,-18+tw*1.4,44);c.stroke();
-  c.lineWidth=2;c.strokeStyle='rgba(255,220,180,.4)';c.stroke();
-  // Running legs (animated)
-  if(!onGround){
-    c.fillStyle='#e8d0b0';
-    c.beginPath();c.ellipse(-6,22,5,8,-.5,0,Math.PI*2);c.fill();
-    c.beginPath();c.ellipse(6,22,5,8,.5,0,Math.PI*2);c.fill();
-  }else if(Math.abs(vx)>.5){
-    const legPhase=frame*.22;
-    c.fillStyle='#e8d0b0';
-    c.beginPath();c.ellipse(-6,22,4,7,Math.sin(legPhase)*.4,0,Math.PI*2);c.fill();
-    c.beginPath();c.ellipse(6,22,4,7,Math.sin(legPhase+Math.PI)*.4,0,Math.PI*2);c.fill();
+  c.fillStyle='#ffaaaa';c.beginPath();c.arc(2,3,2,0,Math.PI*2);c.fill();
+  // Whiskers (stream back when running)
+  const wAngle=running?-0.18:0;
+  c.strokeStyle='rgba(255,240,215,0.65)';c.lineWidth=1;
+  c.save();c.rotate(wAngle);
+  c.beginPath();c.moveTo(2,3);c.lineTo(18,1);c.stroke();
+  c.beginPath();c.moveTo(2,3);c.lineTo(18,5);c.stroke();
+  c.beginPath();c.moveTo(2,3);c.lineTo(-12,1);c.stroke();
+  c.beginPath();c.moveTo(2,3);c.lineTo(-12,5);c.stroke();
+  c.restore();
+  c.restore(); // end head
+
+  // Romance heart
+  if(mimiRomancing>0){
+    c.save();c.globalAlpha=baseAlpha;
+    c.font='15px serif';c.textAlign='center';c.fillText('💕',0,-38);
+    c.restore();
   }
-  // Speed lines when going fast
-  if(Math.abs(vx)>3){
-    c.strokeStyle='rgba(255,200,220,.4)';c.lineWidth=1;
-    [-18,-25,-32].forEach((ox,i)=>{
-      c.beginPath();c.moveTo(ox,-6+i*5);c.lineTo(ox-12,-6+i*5);c.stroke();
-    });
+  // Fighting punch flash
+  if(mimiPunching>0){
+    c.save();c.globalAlpha=baseAlpha*(mimiPunching/8);
+    c.fillStyle='#ff4400';c.font='bold 16px serif';c.textAlign='center';
+    c.fillText('⚡',18,-10);
+    c.restore();
   }
+
+  // Speed lines when really hauling
+  if(speed>3.2){
+    c.strokeStyle='rgba(255,170,80,.35)';c.lineWidth=1.2;
+    const numLines=Math.floor(speed);
+    for(let i=0;i<Math.min(numLines,5);i++){
+      const ox=-20-i*7;
+      c.beginPath();c.moveTo(ox,-8+i*6);c.lineTo(ox-14+i*2,-8+i*6);c.stroke();
+    }
+  }
+
   c.restore();
 }
 
