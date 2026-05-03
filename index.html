@@ -1061,7 +1061,7 @@ let ovRunning=true;
     const progress = elapsedMs / totalMs; // 0 = just had birthday, 1 = tomorrow is birthday
 
     // Title shows current age
-    document.getElementById('age-title').textContent = `${currentAge} years old`;
+    document.getElementById('age-title').textContent = `${currentAge} years old + ${365-daysLeft} days, ${24-hoursLeft} hours ${60-minsLeft} `;
     document.getElementById('age-sub').textContent = `and more beautiful every single day 🌸`;
 
     // Days left
