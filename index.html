@@ -813,7 +813,7 @@ footer{position:relative;z-index:10;text-align:center;padding:26px 20px;color:va
 <div id="panel-memory" class="game-panel">
   <div class="panel-wrap">
     <div class="panel-title">🌸 Memory Garden</div>
-    <p class="panel-desc">Find all the matching pairs hidden among the flowers</p>
+    <p class="panel-desc">You don't have a weak memory! you just have to train it 🙂</p>
     <div class="mem-meta">
       <div class="mem-st"><span class="v" id="mm-moves">0</span><span class="l">Moves</span></div>
       <div class="mem-st"><span class="v" id="mm-pairs">0</span><span class="l">Pairs</span></div>
@@ -1049,6 +1049,7 @@ let ovRunning=true;
     // Days, hours, minutes until next birthday
     const msLeft = nextBday - now;
     const daysLeft  = Math.floor(msLeft / (1000*60*60*24));
+    const monthsLeft  = Math.floor(msLeft / (1000*60*60*24*30));
     const hoursLeft = Math.floor((msLeft % (1000*60*60*24)) / (1000*60*60));
     const minsLeft  = Math.floor((msLeft % (1000*60*60)) / (1000*60));
 
