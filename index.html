@@ -1788,8 +1788,9 @@ function showPanel(n,btn){
    shared cubic bezier so no gaps/holes.
 ══════════════════════════════════════════ */
 // Drawing list — auto-iterates, surprises on complete
+// Supports both .png and .jpg — resolved at load time
 const DRAWING_LIST=[];
-for(let i=1;i<=8;i++)DRAWING_LIST.push({src:`images/drawing${i}.png`,name:`Drawing ${i}`,unlocked:false,completed:false});
+for(let i=1;i<=8;i++)DRAWING_LIST.push({base:`images/drawing${i}`,src:`images/drawing${i}.png`,name:`Drawing ${i}`,unlocked:false,completed:false});
 
 let pzCurrentIdx=0,pzImgSrc=null,pzN=4;
 let pzPW=0,pzPH=0,pzBX=0,pzBY=0,pzAW=0,pzAH=0;
@@ -1867,8 +1868,49 @@ function buildPuzzle(){
   area.querySelectorAll('.jpc').forEach(p=>p.remove());
 
   const aW=area.clientWidth||820;
-  const img=new Image();img.crossOrigin='anonymous';
-  img.onload=()=>{
+
+  // Try loading the image — supports .png and .jpg, falls back gracefully
+  function tryLoadImage(src,onSuccess,onFail){
+    const img=new Image();
+    img.onload=()=>onSuccess(img);
+    img.onerror=onFail;
+    img.src=src;
+  }
+
+  const d=DRAWING_LIST[pzCurrentIdx];
+  const pngSrc=d.base+'.png';
+  const jpgSrc=d.base+'.jpg';
+  const jpegSrc=d.base+'.jpeg';
+
+  tryLoadImage(pngSrc,
+    img=>_buildFromImage(img,aW,area),
+    ()=>tryLoadImage(jpgSrc,
+      img=>_buildFromImage(img,aW,area),
+      ()=>tryLoadImage(jpegSrc,
+        img=>_buildFromImage(img,aW,area),
+        ()=>{
+          // All failed — use placeholder
+          const tmp=document.createElement('canvas');tmp.width=400;tmp.height=320;
+          const tc=tmp.getContext('2d');
+          const g=tc.createLinearGradient(0,0,400,320);
+          g.addColorStop(0,'#fce8ee');g.addColorStop(1,'#e8f4ee');
+          tc.fillStyle=g;tc.fillRect(0,0,400,320);
+          tc.font='60px serif';tc.textAlign='center';tc.fillText('🌸',200,100);
+          tc.font='italic 28px "Cormorant Garamond",serif';tc.fillStyle='#c96a89';
+          tc.fillText('Drawing '+(pzCurrentIdx+1),200,170);
+          tc.font='16px "Jost",sans-serif';tc.fillStyle='#8a7080';
+          tc.fillText('Add drawing'+(pzCurrentIdx+1)+'.png or .jpg',200,218);
+          tc.fillText('in the images/ folder',200,244);
+          const ph=new Image();
+          ph.onload=()=>_buildFromImage(ph,aW,area);
+          ph.src=tmp.toDataURL();
+        }
+      )
+    )
+  );
+}
+
+function _buildFromImage(img,aW,area){
     const asp=img.naturalHeight/img.naturalWidth;
     const bW=Math.min(aW*0.52,420);
     const bH=bW*asp;
@@ -1939,22 +1981,6 @@ function buildPuzzle(){
     }
     area.addEventListener('mousemove',pzDM);area.addEventListener('mouseup',pzDU);
     area.addEventListener('touchmove',pzDM,{passive:false});area.addEventListener('touchend',pzDU);
-  };
-  img.onerror=()=>{
-    // Placeholder if image not found
-    const tmp=document.createElement('canvas');tmp.width=400;tmp.height=320;
-    const tc=tmp.getContext('2d');
-    const g=tc.createLinearGradient(0,0,400,320);
-    g.addColorStop(0,'#fce8ee');g.addColorStop(1,'#e8f4ee');
-    tc.fillStyle=g;tc.fillRect(0,0,400,320);
-    tc.font='60px serif';tc.textAlign='center';tc.fillText('🌸',200,100);
-    tc.font='italic 28px "Cormorant Garamond",serif';tc.fillStyle='#c96a89';
-    tc.fillText('drawing '+(pzCurrentIdx+1),200,180);
-    tc.font='18px "Jost",sans-serif';tc.fillStyle='#8a7080';
-    tc.fillText('Place drawing'+( pzCurrentIdx+1)+'.png in images/',200,230);
-    img.src=tmp.toDataURL();
-  };
-  img.src=pzImgSrc;
 }
 
 function jigsawPath(x0,y0,x1,y1,tabs,t){
