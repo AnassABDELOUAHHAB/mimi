@@ -977,8 +977,8 @@ let ovRunning=true;
    ★ BIRTHDAY CONFIG — edit these to test ★
 ══════════════════════════════════════════ */
 const BIRTH_YEAR  = 2003; // year of birth
-const BIRTH_MONTH = 1;    // birth month  (1 = Jan … 12 = Dec)
-const BIRTH_DAY   = 5;    // birth day
+const BIRTH_MONTH = 5;    // birth month  (1 = Jan … 12 = Dec)
+const BIRTH_DAY   = 4;    // birth day
 
 /* ══════════════════════════════════════════
    OVERLAY: BIRTHDAY CHECK vs COUNTDOWN
@@ -1058,15 +1058,30 @@ const BIRTH_DAY   = 5;    // birth day
     if(now >= nextBday) nextBday = new Date(now.getFullYear()+1, BIRTH_MONTH - 1, BIRTH_DAY, 0, 0, 0);
     const nextAge = nextBday.getFullYear() - BIRTH_YEAR;
 
+    // ── Age string: skip zero units, natural "and" before last ──
+    const ageParts = [];
+    if(ageYears  > 0) ageParts.push(ageYears  + (ageYears  === 1 ? ' year'   : ' years'));
+    if(ageMonths > 0) ageParts.push(ageMonths + (ageMonths === 1 ? ' month'  : ' months'));
+    if(ageDays   > 0) ageParts.push(ageDays   + (ageDays   === 1 ? ' day'    : ' days'));
+    if(ageMins   > 0) ageParts.push(ageMins   + (ageMins   === 1 ? ' minute' : ' minutes'));
+    let ageStr;
+    if(ageParts.length === 0) ageStr = 'just born!!';
+    else if(ageParts.length === 1) ageStr = ageParts[0];
+    else ageStr = ageParts.slice(0,-1).join(', ') + ', and ' + ageParts[ageParts.length-1];
+
+    // ── Countdown remaining: months + days + hours + mins ──
     const msLeft = nextBday - now;
-    const untilDays  = Math.floor(msLeft / (1000*60*60*24));
-    const untilHours = Math.floor((msLeft % (1000*60*60*24)) / (1000*60*60));
-    const untilMins  = Math.floor((msLeft % (1000*60*60)) / (1000*60));
+    const untilTotalDays = Math.floor(msLeft / (1000*60*60*24));
+    const untilMonths = Math.floor(untilTotalDays / 30);
+    const untilDays   = untilTotalDays - untilMonths * 30;
+    const untilHours  = Math.floor((msLeft % (1000*60*60*24)) / (1000*60*60));
+    const untilMins   = Math.floor((msLeft % (1000*60*60)) / (1000*60));
 
     const untilParts = [];
-    if(untilDays > 0)  untilParts.push(untilDays  + (untilDays  === 1 ? ' day' : ' days'));
-    if(untilHours > 0) untilParts.push(untilHours + (untilHours === 1 ? ' hour' : ' hours'));
-    if(untilMins > 0)  untilParts.push(untilMins  + (untilMins  === 1 ? ' minute' : ' minutes'));
+    if(untilMonths > 0) untilParts.push(untilMonths + (untilMonths === 1 ? ' month'  : ' months'));
+    if(untilDays   > 0) untilParts.push(untilDays   + (untilDays   === 1 ? ' day'    : ' days'));
+    if(untilHours  > 0) untilParts.push(untilHours  + (untilHours  === 1 ? ' hour'   : ' hours'));
+    if(untilMins   > 0) untilParts.push(untilMins   + (untilMins   === 1 ? ' minute' : ' minutes'));
     let untilStr;
     if(untilParts.length === 0) untilStr = 'right now!! 🎉';
     else if(untilParts.length === 1) untilStr = untilParts[0];
@@ -1075,21 +1090,32 @@ const BIRTH_DAY   = 5;    // birth day
     const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
     const bdayMonthName = MONTH_NAMES[BIRTH_MONTH - 1];
 
-    document.getElementById('age-title').textContent =
-      `Hi cutie pie! you are ${ageYears} years, ${ageMonths} months, ${ageDays} days, ${ageHours} hours and ${ageMins} minutes old`;
+    document.getElementById('age-title').textContent = `Hi cutie pie! you are ${ageStr} old`;
     document.getElementById('age-sub').textContent = `and more beautiful every second 🌸`;
 
-    document.getElementById('days-left').textContent = untilDays > 0 ? untilDays : untilHours > 0 ? untilHours + 'h' : untilMins + 'm';
+    // ── Chart center: number + label, hide "days left" when showing hours/mins ──
+    const daysLeftEl   = document.getElementById('days-left');
+    const daysLabelEl  = daysLeftEl.nextElementSibling;
+    if(untilTotalDays > 0){
+      daysLeftEl.textContent  = untilTotalDays;
+      daysLabelEl.textContent = untilTotalDays === 1 ? 'day left' : 'days left';
+    } else if(untilHours > 0){
+      daysLeftEl.textContent  = untilHours + 'h';
+      daysLabelEl.textContent = '';
+    } else {
+      daysLeftEl.textContent  = untilMins + 'm';
+      daysLabelEl.textContent = '';
+    }
     document.getElementById('countdown-detail').textContent =
       `${untilStr} until ${bdayMonthName} ${BIRTH_DAY} — turning ${nextAge}! 🎂`;
 
     const countdownMsg =
-      untilDays < 1  ? "omg it's literally TODAY!! 🎉🎂 happy birthday!!" :
-      untilDays < 7  ? "omg it's almost your birthday!! 🎉 i can barely wait" :
-      untilDays < 30 ? "it's getting so close… i'm already planning everything" :
-      untilDays < 90 ? "still a while to go… but every day with you is a gift already" :
-      untilDays < 180? "we're halfway there! i'm counting every second until your next birthday" :
-                       "the whole year ahead of loving you before your next birthday";
+      untilTotalDays < 1  ? "omg it's literally TODAY!! 🎉🎂 happy birthday!!" :
+      untilTotalDays < 7  ? "omg it's almost your birthday!! 🎉 i can barely wait" :
+      untilTotalDays < 30 ? "it's getting so close… i'm already planning everything" :
+      untilTotalDays < 90 ? "still a while to go… but every day with you is a gift already" :
+      untilTotalDays < 180? "we're halfway there! i'm counting every second until your next birthday" :
+                            "the whole year ahead of loving you before your next birthday";
     document.getElementById('countdown-msg').textContent = countdownMsg;
 
     // Ring chart
