@@ -1029,7 +1029,7 @@ let ovRunning=true;
     ovRunning = false;
 
     // ── Birth date: May 5, 2003 (month 0-indexed = 4) ──
-    const BIRTH_YEAR = 2003, BIRTH_MONTH = 4, BIRTH_DAY = 4;
+    const BIRTH_YEAR = 2001, BIRTH_MONTH = 8, BIRTH_DAY = 19;
     const birth = new Date(BIRTH_YEAR, BIRTH_MONTH, BIRTH_DAY, 0, 0, 0);
 
     // ── Exact current age: years, months, days, hours, minutes ──
@@ -1078,7 +1078,7 @@ let ovRunning=true;
 
     // ── Age title: precise age ──
     document.getElementById('age-title').textContent =
-      `Hi cutie pie! you are ${ageYears} years, ${ageMonths} months, ${ageDays} days,${ageHours} hours & and ${ageMins} minutes old —`;
+      `Hi cutie pie! you are ${ageYears} years, ${ageMonths} months, ${ageDays} days,${ageHours} hours & and ${ageMins} minutes old`;
     document.getElementById('age-sub').textContent =
       ` and more beautiful every second 🌸`;
 
@@ -1121,7 +1121,7 @@ let ovRunning=true;
       const hx = cx + Math.cos(endAngle)*r;
       const hy = cy + Math.sin(endAngle)*r;
       ctx.font='16px serif';ctx.textAlign='center';ctx.textBaseline='middle';
-      ctx.fillText('💕', hx, hy);
+      ctx.fillText('', hx, hy);
     }, 100);
   }
 })();
