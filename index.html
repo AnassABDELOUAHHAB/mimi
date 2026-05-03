@@ -1032,12 +1032,12 @@ let ovRunning=true;
 
     // Compute age and days until next birthday (June 8)
     const birthYear = 2003;
-    const thisYearBday = new Date(now.getFullYear(), 5, 8); // month is 0-indexed
+    const thisYearBday = new Date(now.getFullYear(), 4, 8); // month is 0-indexed
     let nextBday, daysInYear;
     if(now < thisYearBday){
       nextBday = thisYearBday;
     } else {
-      nextBday = new Date(now.getFullYear()+1, 5, 8);
+      nextBday = new Date(now.getFullYear()+1, 4, 8);
     }
     // Age she'll turn on next birthday
     const nextAge = nextBday.getFullYear() - birthYear;
@@ -1053,13 +1053,13 @@ let ovRunning=true;
     // Fraction of year elapsed since last birthday
     const lastBday = (now >= thisYearBday)
       ? thisYearBday
-      : new Date(now.getFullYear()-1, 5, 8);
+      : new Date(now.getFullYear()-1, 4, 8);
     const totalMs = nextBday - lastBday; // one full year in ms
     const elapsedMs = now - lastBday;
     const progress = elapsedMs / totalMs; // 0 = just had birthday, 1 = tomorrow is birthday
 
     // Title shows current age
-    document.getElementById('age-title').textContent = `${currentAge} years old 🎂`;
+    document.getElementById('age-title').textContent = `${currentAge} years old`;
     document.getElementById('age-sub').textContent = `and more beautiful every single day 🌸`;
 
     // Days left
