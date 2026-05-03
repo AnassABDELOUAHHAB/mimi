@@ -50,10 +50,14 @@ body{font-family:'Jost',sans-serif;background:var(--cream);color:var(--ink);min-
 #birthday-overlay{
   position:fixed;inset:0;z-index:99999;
   background:var(--cream);
-  overflow-y:auto; 
+  overflow-y:scroll;
   overflow-x:hidden;
-  display:block; 
+  display:block;
 }
+#birthday-overlay::-webkit-scrollbar{width:8px}
+#birthday-overlay::-webkit-scrollbar-track{background:var(--pink-ll)}
+#birthday-overlay::-webkit-scrollbar-thumb{background:var(--pink-l);border-radius:4px}
+#birthday-overlay::-webkit-scrollbar-thumb:hover{background:var(--pink-d)}
 #birthday-overlay.out{animation:ovOut 1.4s cubic-bezier(.7,0,1,1) forwards}
 @keyframes ovOut{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.04);pointer-events:none}}
 
@@ -62,9 +66,9 @@ body{font-family:'Jost',sans-serif;background:var(--cream);color:var(--ink);min-
 
 .ov-content{
   position:relative;z-index:10;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  min-height:100vh; margin:0 auto;
-  gap:18px;padding:40px 20px;max-width:700px;width:100%;
+  display:flex;flex-direction:column;align-items:center;
+  gap:18px;padding:48px 20px 60px;max-width:700px;width:100%;
+  margin:0 auto;
 }
 
 /* Birthday title with crayon hand-drawn look */
@@ -132,9 +136,7 @@ body{font-family:'Jost',sans-serif;background:var(--cream);color:var(--ink);min-
   background:linear-gradient(90deg,var(--c1),var(--c3),var(--c4),var(--c5),var(--c6),var(--c1));
   border-radius:16px 16px 0 0;
 }
-.msg-inner{max-height:42vh;overflow-y:auto;padding-right:6px}
-.msg-inner::-webkit-scrollbar{width:3px}
-.msg-inner::-webkit-scrollbar-thumb{background:var(--pink-l);border-radius:2px}
+.msg-inner{padding-right:6px}
 .msg-text{
   font-family:'Caveat',cursive;font-size:1.18rem;line-height:1.85;color:var(--ink);
 }
