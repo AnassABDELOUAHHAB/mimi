@@ -938,19 +938,6 @@ function addSparkBurst(x,y){
   }
 }
 
-// Trigger burst at intervals
-// Spark bursts only on birthday
-(function(){
-  const _m=new Date().getMonth()+1,_d=new Date().getDate();
-  if(_m===6&&_d===8){
-    setTimeout(()=>addSparkBurst(window.innerWidth*.3,window.innerHeight*.25),800);
-    setTimeout(()=>addSparkBurst(window.innerWidth*.7,window.innerHeight*.2),1300);
-    setTimeout(()=>addSparkBurst(window.innerWidth*.5,window.innerHeight*.35),1800);
-    setTimeout(()=>addSparkBurst(window.innerWidth*.2,window.innerHeight*.5),2400);
-    setTimeout(()=>addSparkBurst(window.innerWidth*.8,window.innerHeight*.45),2900);
-  }
-})();
-
 let ovRunning=true;
 (function animOv(){
   if(!ovRunning)return;
@@ -984,7 +971,6 @@ let ovRunning=true;
   requestAnimationFrame(animOv);
 })();
 
-// Typewriter message
 /* ══════════════════════════════════════════
    OVERLAY: BIRTHDAY CHECK vs COUNTDOWN
 ══════════════════════════════════════════ */
@@ -992,17 +978,32 @@ let ovRunning=true;
   const now = new Date();
   const month = now.getMonth() + 1; // 1-12
   const day   = now.getDate();
-  const isBirthday = (month === 4 && day === 4);
+
+  // ── Birth date (update both to match!) ──
+  const BIRTH_YEAR = 2003, BIRTH_MONTH = 4, BIRTH_DAY = 4; // May 4
+  const BDAY_MONTH = 5, BDAY_DAY = 4; // same day, 1-indexed for comparison
+
+  const isBirthday = (month === BDAY_MONTH && day === BDAY_DAY);
+
+  // Always show the overlay and lock scroll
+  document.body.style.overflow = 'hidden';
+  document.getElementById('birthday-overlay').style.display = 'flex';
 
   if(isBirthday){
-    // ── BIRTHDAY MODE ── show decorations
+    // ── BIRTHDAY MODE ──
     document.getElementById('bday-mode').style.display = 'flex';
-    document.getElementById('bg-canvas').style.display = 'block';
     document.getElementById('confetti-canvas').style.display = 'block';
     document.getElementById('sparkle-canvas').style.display = 'block';
-    // garden-question animation delay after birthday content
     document.getElementById('garden-question').style.animation = 'fadeIn 0.8s ease 3.2s forwards';
 
+    // Spark bursts
+    setTimeout(()=>addSparkBurst(window.innerWidth*.3,window.innerHeight*.25),800);
+    setTimeout(()=>addSparkBurst(window.innerWidth*.7,window.innerHeight*.2),1300);
+    setTimeout(()=>addSparkBurst(window.innerWidth*.5,window.innerHeight*.35),1800);
+    setTimeout(()=>addSparkBurst(window.innerWidth*.2,window.innerHeight*.5),2400);
+    setTimeout(()=>addSparkBurst(window.innerWidth*.8,window.innerHeight*.45),2900);
+
+    // Typewriter message
     const MSG_LINES=[
       'Hii!',
       "It's your birthday!! 🎂",
@@ -1026,20 +1027,18 @@ let ovRunning=true;
     // ── COUNTDOWN MODE ──
     document.getElementById('countdown-mode').style.display = 'flex';
     document.getElementById('garden-question').style.animation = 'fadeIn 0.8s ease 1.8s forwards';
+    // Stop confetti in countdown mode
     ovRunning = false;
 
-    // ── Birth date: May 5, 2003 (month 0-indexed = 4) ──
-    const BIRTH_YEAR = 2003, BIRTH_MONTH = 4, BIRTH_DAY = 4;
-    const birth = new Date(BIRTH_YEAR, BIRTH_MONTH, BIRTH_DAY, 0, 0, 0);
+    const birth = new Date(BIRTH_YEAR, BIRTH_MONTH - 1, BIRTH_DAY, 0, 0, 0);
 
-    // ── Exact current age: years, months, days, hours, minutes ──
+    // Exact current age
     let ageYears = now.getFullYear() - birth.getFullYear();
     let ageMonths = now.getMonth() - birth.getMonth();
     let ageDays = now.getDate() - birth.getDate();
     let ageHours = now.getHours() - birth.getHours();
     let ageMins = now.getMinutes() - birth.getMinutes();
 
-    // Borrow up the chain
     if(ageMins < 0){ ageMins += 60; ageHours--; }
     if(ageHours < 0){ ageHours += 24; ageDays--; }
     if(ageDays < 0){
@@ -1049,47 +1048,36 @@ let ovRunning=true;
     }
     if(ageMonths < 0){ ageMonths += 12; ageYears--; }
 
-    // ── Next birthday ──
-    let nextBday = new Date(now.getFullYear(), BIRTH_MONTH, BIRTH_DAY, 0, 0, 0);
-    if(now >= nextBday) nextBday = new Date(now.getFullYear()+1, BIRTH_MONTH, BIRTH_DAY, 0, 0, 0);
+    // Next birthday
+    let nextBday = new Date(now.getFullYear(), BIRTH_MONTH - 1, BIRTH_DAY, 0, 0, 0);
+    if(now >= nextBday) nextBday = new Date(now.getFullYear()+1, BIRTH_MONTH - 1, BIRTH_DAY, 0, 0, 0);
     const nextAge = nextBday.getFullYear() - BIRTH_YEAR;
 
-    // ── Time until next birthday ──
     const msLeft = nextBday - now;
-    const totalMinutes = Math.floor(msLeft / (1000*60));
     const untilDays  = Math.floor(msLeft / (1000*60*60*24));
     const untilHours = Math.floor((msLeft % (1000*60*60*24)) / (1000*60*60));
     const untilMins  = Math.floor((msLeft % (1000*60*60)) / (1000*60));
 
-    // ── Build "time until" string — skip zero values ──
     const untilParts = [];
     if(untilDays > 0)  untilParts.push(untilDays  + (untilDays  === 1 ? ' day' : ' days'));
     if(untilHours > 0) untilParts.push(untilHours + (untilHours === 1 ? ' hour' : ' hours'));
     if(untilMins > 0)  untilParts.push(untilMins  + (untilMins  === 1 ? ' minute' : ' minutes'));
-    // Format with & before last
     let untilStr;
     if(untilParts.length === 0) untilStr = 'right now!! 🎉';
     else if(untilParts.length === 1) untilStr = untilParts[0];
     else untilStr = untilParts.slice(0,-1).join(', ') + ' & ' + untilParts[untilParts.length-1];
 
-    // ── Month names for birthday display ──
     const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-    const bdayMonthName = MONTH_NAMES[BIRTH_MONTH];
+    const bdayMonthName = MONTH_NAMES[BIRTH_MONTH - 1];
 
-    // ── Age title: precise age ──
     document.getElementById('age-title').textContent =
-      `Hi cutie pie! you are ${ageYears} years, ${ageMonths} months, ${ageDays} days,${ageHours} hours and ${ageMins} minutes old`;
-    document.getElementById('age-sub').textContent =
-      ` and more beautiful every second 🌸`;
+      `Hi cutie pie! you are ${ageYears} years, ${ageMonths} months, ${ageDays} days, ${ageHours} hours and ${ageMins} minutes old`;
+    document.getElementById('age-sub').textContent = `and more beautiful every second 🌸`;
 
-    // ── Ring: days left displayed in center ──
     document.getElementById('days-left').textContent = untilDays > 0 ? untilDays : untilHours > 0 ? untilHours + 'h' : untilMins + 'm';
-
-    // ── Countdown detail ──
     document.getElementById('countdown-detail').textContent =
       `${untilStr} until ${bdayMonthName} ${BIRTH_DAY} — turning ${nextAge}! 🎂`;
 
-    // ── Motivational message ──
     const countdownMsg =
       untilDays < 1  ? "omg it's literally TODAY!! 🎉🎂 happy birthday!!" :
       untilDays < 7  ? "omg it's almost your birthday!! 🎉 i can barely wait" :
@@ -1099,10 +1087,10 @@ let ovRunning=true;
                        "the whole year ahead of loving you before your next birthday";
     document.getElementById('countdown-msg').textContent = countdownMsg;
 
-    // ── Ring chart ──
-    const lastBday = (now >= new Date(now.getFullYear(), BIRTH_MONTH, BIRTH_DAY))
-      ? new Date(now.getFullYear(), BIRTH_MONTH, BIRTH_DAY)
-      : new Date(now.getFullYear()-1, BIRTH_MONTH, BIRTH_DAY);
+    // Ring chart
+    const lastBday = (now >= new Date(now.getFullYear(), BIRTH_MONTH - 1, BIRTH_DAY))
+      ? new Date(now.getFullYear(), BIRTH_MONTH - 1, BIRTH_DAY)
+      : new Date(now.getFullYear()-1, BIRTH_MONTH - 1, BIRTH_DAY);
     const progress = (now - lastBday) / (nextBday - lastBday);
 
     setTimeout(()=>{
@@ -1118,20 +1106,9 @@ let ovRunning=true;
       grad.addColorStop(0,'#e8437a');grad.addColorStop(0.5,'#f4855a');grad.addColorStop(1,'#f9d94e');
       ctx.beginPath();ctx.arc(cx,cy,r,startAngle,endAngle);
       ctx.strokeStyle=grad;ctx.lineWidth=lw;ctx.lineCap='round';ctx.stroke();
-      const hx = cx + Math.cos(endAngle)*r;
-      const hy = cy + Math.sin(endAngle)*r;
-      ctx.font='16px serif';ctx.textAlign='center';ctx.textBaseline='middle';
-      ctx.fillText('', hx, hy);
     }, 100);
   }
 })();
-
-const MSG_LINES=[]; // kept for compatibility (used in birthday mode above)
-let lineIdx=0,charIdx=0,typingActive=true;
-const msgEl=document.getElementById('msg-text');
-// (typing is now handled inside initOverlay for birthday mode)
-
-
 
 // Enter the site and stop the music
 function enterSite(){
