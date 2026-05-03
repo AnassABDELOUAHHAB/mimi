@@ -2079,7 +2079,7 @@ function spawnPetals(n=45){
    SUDOKU ENGINE
 ══════════════════════════════════════════ */
 let sdkBoard=[],sdkSol=[],sdkGiven=[],sdkNotes=[],sdkSel=-1;
-let sdkMode='normal',sdkDiff='easy',sdkTimer=null,sdkSecs=0,sdkErrs=0,sdkNum=null;
+let sdkMode='normal',sdkDiff='easy',sdkTimer=null,sdkSecs=0,sdkErrs=0,sdkNum=null,sdkStarted=false;
 
 const SDK_PUZZ={
   easy:[
@@ -2112,8 +2112,13 @@ function setSdkNum(n){
   document.querySelectorAll('.sdk-num').forEach(b=>b.classList.toggle('aon',+b.dataset.n===n));
   if(sdkSel>=0)sdkInput(n);
 }
+function sdkStartTimer(){
+  if(sdkStarted)return;
+  sdkStarted=true;
+  sdkTimer=setInterval(()=>{sdkSecs++;const m=Math.floor(sdkSecs/60),s=sdkSecs%60;document.getElementById('sdk-time').textContent=m+':'+String(s).padStart(2,'0')},1000);
+}
 function newSudoku(){
-  clearInterval(sdkTimer);sdkSecs=0;sdkErrs=0;sdkSel=-1;sdkNum=null;
+  clearInterval(sdkTimer);sdkSecs=0;sdkErrs=0;sdkSel=-1;sdkNum=null;sdkStarted=false;
   document.getElementById('sdk-time').textContent='0:00';
   document.getElementById('sdk-err').textContent='0';
   document.getElementById('sdk-win').style.display='none';
@@ -2124,7 +2129,6 @@ function newSudoku(){
   for(let i=0;i<81;i++){sdkBoard.push(+str[i]);sdkGiven.push(+str[i]!==0);sdkNotes.push(new Set())}
   sdkSol=sdkSolve([...sdkBoard]);
   renderSdk();
-  sdkTimer=setInterval(()=>{sdkSecs++;const m=Math.floor(sdkSecs/60),s=sdkSecs%60;document.getElementById('sdk-time').textContent=m+':'+String(s).padStart(2,'0')},1000);
 }
 function sdkSolve(b){
   const e=b.indexOf(0);if(e<0)return b;
@@ -2163,7 +2167,7 @@ function renderSdk(){
   }
   if(sdkSel>=0)sdkHl(sdkSel);
 }
-function sdkSel_(i){sdkSel=i;sdkHl(i);if(sdkNum!==null&&!sdkGiven[i])sdkInput(sdkNum)}
+function sdkSel_(i){sdkStartTimer();sdkSel=i;sdkHl(i);if(sdkNum!==null&&!sdkGiven[i])sdkInput(sdkNum)}
 function sdkHl(idx){
   const cells=document.querySelectorAll('.sdk-cell');
   cells.forEach(c=>{c.classList.remove('selected','hl')});
@@ -2177,6 +2181,7 @@ function sdkHl(idx){
 }
 function sdkInput(n){
   if(sdkSel<0||sdkGiven[sdkSel])return;
+  sdkStartTimer();
   if(sdkMode==='notes'){
     sdkNotes[sdkSel].has(n)?sdkNotes[sdkSel].delete(n):sdkNotes[sdkSel].add(n);sdkBoard[sdkSel]=0;
   }else{
@@ -2238,7 +2243,8 @@ let colColor='#e8437a',colBrush=9,colDrawing=false,colFillMode=true;
 let colCtx,colCanvas;
 const COL_PAGES=[
   {id:'mimi',label:'Mimi 🐱'},{id:'dodo',label:'Dodo 🐱'},
-  {id:'cats2',label:'Friends 🐾'},{id:'roses',label:'Roses 🌹'},{id:'daisies',label:'Daisies 🌼'}
+  {id:'cats2',label:'Friends 🐾'},{id:'roses',label:'Roses 🌹'},{id:'daisies',label:'Daisies 🌼'},
+  {id:'cherry',label:'Cherry 🤍'},{id:'negra',label:'Negra 🖤'}
 ];
 
 function initColoring(){
@@ -2312,7 +2318,7 @@ function floodFill(sx,sy,fillColor){
 function loadColPage(id){
   colCtx.clearRect(0,0,colCanvas.width,colCanvas.height);
   colCtx.fillStyle='#ffffff';colCtx.fillRect(0,0,colCanvas.width,colCanvas.height);
-  const fns={mimi:drawMimi,dodo:drawDodo,cats2:drawCatsFriends,roses:drawRosesPage,daisies:drawDaisiesPage};
+  const fns={mimi:drawMimi,dodo:drawDodo,cats2:drawCatsFriends,roses:drawRosesPage,daisies:drawDaisiesPage,cherry:drawCherry,negra:drawNegra};
   if(fns[id])fns[id]();
 }
 
@@ -2499,6 +2505,148 @@ function drawBigDaisy(c,cx,cy,r){
   c.save();c.translate(cx,cy);
   for(let i=0;i<12;i++){c.save();c.rotate(i*30*Math.PI/180);c.beginPath();c.ellipse(0,-(r*.65),r*.2,r*.58,0,0,Math.PI*2);c.stroke();c.restore()}
   c.beginPath();c.arc(0,0,r*.26,0,Math.PI*2);c.stroke();c.restore();
+}
+
+// ── Cherry — a beautiful white cat ──
+function drawCherry(){
+  const c=colCtx;cc(c);c.lineWidth=2.5;
+  c.font='bold italic 22px "Caveat",cursive';c.fillStyle='#c96a89';c.textAlign='center';
+  c.fillText('Cherry 🤍 (a beautiful white cat)',300,34);
+  // Body — elegant, slender (graceful white cat)
+  c.beginPath();c.ellipse(300,348,105,140,0,0,Math.PI*2);c.stroke();
+  // Head — slightly smaller, refined shape
+  c.beginPath();c.ellipse(300,184,88,80,0,0,Math.PI*2);c.stroke();
+  // Ears — medium, fluffy rounded tips
+  c.beginPath();c.moveTo(228,120);c.bezierCurveTo(205,70,262,66,260,112);c.closePath();c.stroke();
+  c.beginPath();c.moveTo(372,120);c.bezierCurveTo(395,70,338,66,340,112);c.closePath();c.stroke();
+  // Inner ear detail
+  c.lineWidth=1.4;
+  c.beginPath();c.moveTo(233,116);c.bezierCurveTo(216,78,256,74,254,108);c.stroke();
+  c.beginPath();c.moveTo(367,116);c.bezierCurveTo(384,78,344,74,346,108);c.stroke();
+  c.lineWidth=2.5;
+  // Eyes — large, soft, gentle (beautiful cat)
+  c.beginPath();c.ellipse(268,184,24,20,0,0,Math.PI*2);c.stroke();
+  c.beginPath();c.ellipse(332,184,24,20,0,0,Math.PI*2);c.stroke();
+  // Round pupils (curious, soft expression)
+  c.fillStyle='#2c1a24';
+  c.beginPath();c.arc(268,185,10,0,Math.PI*2);c.fill();
+  c.beginPath();c.arc(332,185,10,0,Math.PI*2);c.fill();
+  // Eye shine
+  c.fillStyle='white';c.beginPath();c.arc(263,179,4,0,Math.PI*2);c.fill();c.beginPath();c.arc(327,179,4,0,Math.PI*2);c.fill();
+  c.beginPath();c.arc(274,189,2,0,Math.PI*2);c.fill();c.beginPath();c.arc(338,189,2,0,Math.PI*2);c.fill();
+  // Delicate nose — small heart shape
+  c.fillStyle='#ffb3c6';
+  c.beginPath();c.moveTo(300,207);c.bezierCurveTo(296,202,290,204,290,209);c.bezierCurveTo(290,215,300,221,300,221);c.bezierCurveTo(300,221,310,215,310,209);c.bezierCurveTo(310,204,304,202,300,207);c.fill();
+  // Mouth — gentle sweet smile
+  c.lineWidth=1.8;c.strokeStyle='#2c1a24';
+  c.beginPath();c.moveTo(293,221);c.quadraticCurveTo(300,232,307,221);c.stroke();
+  // Whiskers — long, elegant, slightly upward
+  c.lineWidth=1.4;
+  [[288,213,218,204],[284,221,216,222],[288,229,218,236],[312,213,382,204],[316,221,384,222],[312,229,382,236]].forEach(([x1,y1,x2,y2])=>{c.beginPath();c.moveTo(x1,y1);c.lineTo(x2,y2);c.stroke()});
+  // Neck fluff — lots of fluffy chest fur (white cats are fluffy!)
+  c.lineWidth=1.6;
+  for(let i=0;i<7;i++){c.beginPath();c.arc(272+i*12,258,7,Math.PI,0);c.stroke()}
+  // Body texture — soft fur lines
+  c.lineWidth=1;c.setLineDash([3,3]);
+  [[246,310,354,310],[242,334,358,334],[240,360,360,360]].forEach(([x1,y1,x2,y2])=>{
+    c.beginPath();c.moveTo(x1,y1);c.quadraticCurveTo((x1+x2)/2,y1-5,x2,y2);c.stroke()});
+  c.setLineDash([]);
+  // Paws — dainty, small
+  c.lineWidth=2.5;
+  c.beginPath();c.ellipse(242,460,42,24,0,0,Math.PI*2);c.stroke();
+  c.beginPath();c.ellipse(358,460,42,24,0,0,Math.PI*2);c.stroke();
+  // Toe beans
+  c.lineWidth=1.4;
+  [[229,464,227,480],[242,466,242,482],[255,464,257,480],[346,464,343,480],[358,466,358,482],[370,464,373,480]].forEach(([x1,y1,x2,y2])=>{c.beginPath();c.moveTo(x1,y1);c.lineTo(x2,y2);c.stroke()});
+  // Tail — graceful, long, curling upward elegantly
+  c.lineWidth=3;c.strokeStyle='#2c1a24';
+  c.beginPath();c.moveTo(405,388);c.bezierCurveTo(468,335,492,300,462,265);c.bezierCurveTo(440,240,410,258,428,288);c.stroke();
+  // Tail tip — fluffy
+  c.lineWidth=1.4;c.setLineDash([2,2]);
+  c.beginPath();c.ellipse(448,270,18,12,0.8,0,Math.PI*2);c.stroke();c.setLineDash([]);
+  // Collar — delicate with a heart charm
+  c.lineWidth=2.8;c.strokeStyle='#2c1a24';
+  c.beginPath();c.ellipse(300,260,80,16,0,0,Math.PI*2);c.stroke();
+  c.lineWidth=2;c.beginPath();c.arc(300,274,7,0,Math.PI*2);c.stroke();
+  // Heart on collar
+  c.fillStyle='#e8437a';c.font='10px serif';c.textAlign='center';c.fillText('♥',300,277);
+  c.font='bold 9px "Jost",sans-serif';c.fillStyle='#c96a89';c.textAlign='center';c.fillText('Cherry',300,308);
+  // Decorative flowers around Cherry (she is beautiful!)
+  c.lineWidth=1.4;c.strokeStyle='#2c1a24';
+  [[92,160,16],[510,155,14],[80,390,13],[518,375,15]].forEach(([fx,fy,fr])=>{
+    for(let i=0;i<6;i++){c.save();c.translate(fx,fy);c.rotate(i*60*Math.PI/180);c.beginPath();c.ellipse(0,-fr*.6,fr*.22,fr*.55,0,0,Math.PI*2);c.stroke();c.restore()}
+    c.beginPath();c.arc(fx,fy,fr*.22,0,Math.PI*2);c.stroke();
+  });
+  c.strokeStyle='#f0a8be';c.lineWidth=1;c.strokeRect(18,55,564,448);c.strokeStyle='#8ec4a4';c.lineWidth=0.5;c.strokeRect(24,61,552,436);
+}
+
+// ── Negra — a sleek black cat ──
+function drawNegra(){
+  const c=colCtx;cc(c);c.lineWidth=2.5;
+  c.font='bold italic 22px "Caveat",cursive';c.fillStyle='#2c1a24';c.textAlign='center';
+  c.fillText('Negra 🖤 (mysterious & majestic)',300,34);
+  // Body — sleek, muscular, low to ground (like a panther)
+  c.beginPath();c.ellipse(300,352,112,138,0,0,Math.PI*2);c.stroke();
+  // Head — angular, proud
+  c.beginPath();c.ellipse(300,188,90,82,0,0,Math.PI*2);c.stroke();
+  // Ears — tall, pointed (alert, regal)
+  c.beginPath();c.moveTo(222,126);c.lineTo(196,64);c.lineTo(258,110);c.closePath();c.stroke();
+  c.beginPath();c.moveTo(378,126);c.lineTo(404,64);c.lineTo(342,110);c.closePath();c.stroke();
+  // Inner ear
+  c.lineWidth=1.4;
+  c.beginPath();c.moveTo(228,122);c.lineTo(208,74);c.lineTo(254,108);c.closePath();c.stroke();
+  c.beginPath();c.moveTo(372,122);c.lineTo(392,74);c.lineTo(346,108);c.closePath();c.stroke();
+  c.lineWidth=2.5;
+  // Eyes — almond shaped, mysterious (slightly slanted, piercing)
+  c.save();c.translate(268,186);c.rotate(-0.12);c.beginPath();c.ellipse(0,0,23,17,0,0,Math.PI*2);c.stroke();c.restore();
+  c.save();c.translate(332,186);c.rotate(0.12);c.beginPath();c.ellipse(0,0,23,17,0,0,Math.PI*2);c.stroke();c.restore();
+  // Slit pupils — dramatic
+  c.fillStyle='#2c1a24';
+  c.beginPath();c.ellipse(268,187,6,15,0,0,Math.PI*2);c.fill();
+  c.beginPath();c.ellipse(332,187,6,15,0,0,Math.PI*2);c.fill();
+  // Eye shine
+  c.fillStyle='white';c.beginPath();c.arc(262,180,3.5,0,Math.PI*2);c.fill();c.beginPath();c.arc(326,180,3.5,0,Math.PI*2);c.fill();
+  // Nose — small, classic
+  c.fillStyle='#2c1a24';
+  c.beginPath();c.moveTo(300,210);c.lineTo(293,220);c.lineTo(307,220);c.closePath();c.fill();
+  // Mouth — slight upward curl at one side (mysterious smirk)
+  c.lineWidth=2;c.strokeStyle='#2c1a24';
+  c.beginPath();c.moveTo(293,220);c.lineTo(280,228);c.stroke();
+  c.beginPath();c.moveTo(307,220);c.quadraticCurveTo(316,226,313,232);c.stroke();
+  // Whiskers — dramatic, long
+  c.lineWidth=1.6;
+  [[288,216,210,206],[284,224,208,226],[288,232,212,244],[312,216,390,206],[316,224,392,226],[312,232,388,244]].forEach(([x1,y1,x2,y2])=>{c.beginPath();c.moveTo(x1,y1);c.lineTo(x2,y2);c.stroke()});
+  // Body — smooth fur texture (crosshatch subtle)
+  c.lineWidth=0.9;c.setLineDash([4,4]);
+  [[248,308,352,308],[244,332,356,332],[242,358,358,358]].forEach(([x1,y1,x2,y2])=>{
+    c.beginPath();c.moveTo(x1,y1);c.quadraticCurveTo((x1+x2)/2,y1-6,x2,y2);c.stroke()});
+  c.setLineDash([]);
+  // Paws — strong, confident
+  c.lineWidth=2.5;
+  c.beginPath();c.ellipse(240,462,44,26,0,0,Math.PI*2);c.stroke();
+  c.beginPath();c.ellipse(360,462,44,26,0,0,Math.PI*2);c.stroke();
+  // Claws (slightly showing)
+  c.lineWidth=1.6;
+  [[226,464,222,482],[240,466,240,484],[254,464,258,482],[346,464,342,482],[360,466,360,484],[374,464,378,482]].forEach(([x1,y1,x2,y2])=>{c.beginPath();c.moveTo(x1,y1);c.lineTo(x2,y2);c.stroke()});
+  // Tail — long, powerful, whipping to the side
+  c.lineWidth=3.5;c.strokeStyle='#2c1a24';
+  c.beginPath();c.moveTo(412,392);c.bezierCurveTo(480,355,530,390,520,440);c.bezierCurveTo(510,475,468,465,478,438);c.stroke();
+  // Moon above — Negra is a night cat
+  c.lineWidth=2;c.strokeStyle='#2c1a24';
+  c.beginPath();c.arc(490,88,28,0.5,2.6);c.stroke();
+  c.beginPath();c.arc(503,88,22,0.5,2.6);c.stroke();
+  // Stars around
+  ['★','★','★','✦','✦'].forEach((s,i)=>{
+    c.font=(i<3?'16':'12')+'px serif';c.fillStyle='#2c1a24';c.textAlign='center';
+    c.fillText(s,[440,468,510,420,526][i],[78,104,118,100,88][i]);
+  });
+  // Collar with moon charm
+  c.lineWidth=2.8;c.strokeStyle='#2c1a24';
+  c.beginPath();c.ellipse(300,262,82,16,0,0,Math.PI*2);c.stroke();
+  c.lineWidth=2;c.beginPath();c.arc(300,276,7,0,Math.PI*2);c.stroke();
+  c.font='10px serif';c.fillStyle='#2c1a24';c.textAlign='center';c.fillText('🌙',300,279);
+  c.font='bold 9px "Jost",sans-serif';c.fillStyle='#2c1a24';c.textAlign='center';c.fillText('Negra',300,310);
+  c.strokeStyle='#2c1a24';c.lineWidth=1;c.strokeRect(18,55,564,448);c.strokeStyle='#8a7080';c.lineWidth=0.5;c.strokeRect(24,61,552,436);
 }
 
 /* ══════════════════════════════════════════
