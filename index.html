@@ -1032,12 +1032,14 @@ let ovRunning=true;
 
     // Compute age and days until next birthday (June 8)
     const birthYear = 2003;
-    const thisYearBday = new Date(now.getFullYear(), 4, 8); // month is 0-indexed
+    const BirthMonth = 4;
+    const BirthDay = 4;
+    const thisYearBday = new Date(now.getFullYear(), BirthMonth, BirthDay); // month is 0-indexed
     let nextBday, daysInYear;
     if(now < thisYearBday){
       nextBday = thisYearBday;
     } else {
-      nextBday = new Date(now.getFullYear()+1, 4, 8);
+      nextBday = new Date(now.getFullYear()+1, BirthMonth, BirthDay);
     }
     // Age she'll turn on next birthday
     const nextAge = nextBday.getFullYear() - birthYear;
@@ -1053,7 +1055,7 @@ let ovRunning=true;
     // Fraction of year elapsed since last birthday
     const lastBday = (now >= thisYearBday)
       ? thisYearBday
-      : new Date(now.getFullYear()-1, 4, 8);
+      : new Date(now.getFullYear()-1, BirthMonth, BirthDay);
     const totalMs = nextBday - lastBday; // one full year in ms
     const elapsedMs = now - lastBday;
     const progress = elapsedMs / totalMs; // 0 = just had birthday, 1 = tomorrow is birthday
