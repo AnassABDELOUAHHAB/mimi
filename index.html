@@ -1029,7 +1029,7 @@ let ovRunning=true;
     ovRunning = false;
 
     // ── Birth date: May 5, 2003 (month 0-indexed = 4) ──
-    const BIRTH_YEAR = 2001, BIRTH_MONTH = 8, BIRTH_DAY = 19;
+    const BIRTH_YEAR = 2003, BIRTH_MONTH = 4, BIRTH_DAY = 4;
     const birth = new Date(BIRTH_YEAR, BIRTH_MONTH, BIRTH_DAY, 0, 0, 0);
 
     // ── Exact current age: years, months, days, hours, minutes ──
@@ -1078,7 +1078,7 @@ let ovRunning=true;
 
     // ── Age title: precise age ──
     document.getElementById('age-title').textContent =
-      `Hi cutie pie! you are ${ageYears} years, ${ageMonths} months, ${ageDays} days,${ageHours} hours & and ${ageMins} minutes old`;
+      `Hi cutie pie! you are ${ageYears} years, ${ageMonths} months, ${ageDays} days,${ageHours} hours and ${ageMins} minutes old`;
     document.getElementById('age-sub').textContent =
       ` and more beautiful every second 🌸`;
 
@@ -1092,11 +1092,11 @@ let ovRunning=true;
     // ── Motivational message ──
     const countdownMsg =
       untilDays < 1  ? "omg it's literally TODAY!! 🎉🎂 happy birthday!!" :
-      untilDays < 7  ? "omg it's almost your birthday!! 🎉 i can barely wait 😻" :
-      untilDays < 30 ? "it's getting so close… i'm already planning everything 🌸" :
-      untilDays < 90 ? "still a while to go… but every day with you is a gift already 💕" :
-      untilDays < 180? "we're halfway there! i'm counting every second until your next birthday 🕰️💕" :
-                       "the whole year ahead of loving you before your next birthday 🌷";
+      untilDays < 7  ? "omg it's almost your birthday!! 🎉 i can barely wait" :
+      untilDays < 30 ? "it's getting so close… i'm already planning everything" :
+      untilDays < 90 ? "still a while to go… but every day with you is a gift already" :
+      untilDays < 180? "we're halfway there! i'm counting every second until your next birthday" :
+                       "the whole year ahead of loving you before your next birthday";
     document.getElementById('countdown-msg').textContent = countdownMsg;
 
     // ── Ring chart ──
