@@ -57,8 +57,8 @@ body{font-family:'Jost',sans-serif;background:var(--cream);color:var(--ink);min-
 #birthday-overlay.out{animation:ovOut 1.4s cubic-bezier(.7,0,1,1) forwards}
 @keyframes ovOut{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.04);pointer-events:none}}
 
-#confetti-canvas{position:fixed;inset:0;pointer-events:none;z-index:1}
-#sparkle-canvas{position:fixed;inset:0;pointer-events:none;z-index:2}
+#confetti-canvas{position:fixed;inset:0;pointer-events:none;z-index:1;display:none}
+#sparkle-canvas{position:fixed;inset:0;pointer-events:none;z-index:2;display:none}
 
 .ov-content{
   position:relative;z-index:10;
@@ -218,7 +218,7 @@ body{font-family:'Jost',sans-serif;background:var(--cream);color:var(--ink);min-
 /* ══════════════════════════════════════
    BACKGROUND
 ══════════════════════════════════════ */
-#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0.9}
+#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0.9;display:none}
 
 /* ══════════════════════════════════════
    HEADER
@@ -639,7 +639,7 @@ footer{position:relative;z-index:10;text-align:center;padding:26px 20px;color:va
         <div class="hb-title" style="font-size:clamp(2.5rem,9vw,5.5rem)" id="age-title">✨</div>
         <div class="hb-sub" id="age-sub">my favourite person in the world 🌸</div>
       </div>
-      <div id="countdown-card" class="msg-card" style="text-align:center;padding:32px 28px">
+      <div id="countdown-card" style="text-align:center;padding:12px 0">
         <!-- Circle countdown chart -->
         <div style="position:relative;width:200px;height:200px;margin:0 auto 18px">
           <canvas id="countdown-ring" width="200" height="200"></canvas>
@@ -939,11 +939,17 @@ function addSparkBurst(x,y){
 }
 
 // Trigger burst at intervals
-setTimeout(()=>addSparkBurst(window.innerWidth*.3,window.innerHeight*.25),800);
-setTimeout(()=>addSparkBurst(window.innerWidth*.7,window.innerHeight*.2),1300);
-setTimeout(()=>addSparkBurst(window.innerWidth*.5,window.innerHeight*.35),1800);
-setTimeout(()=>addSparkBurst(window.innerWidth*.2,window.innerHeight*.5),2400);
-setTimeout(()=>addSparkBurst(window.innerWidth*.8,window.innerHeight*.45),2900);
+// Spark bursts only on birthday
+(function(){
+  const _m=new Date().getMonth()+1,_d=new Date().getDate();
+  if(_m===6&&_d===8){
+    setTimeout(()=>addSparkBurst(window.innerWidth*.3,window.innerHeight*.25),800);
+    setTimeout(()=>addSparkBurst(window.innerWidth*.7,window.innerHeight*.2),1300);
+    setTimeout(()=>addSparkBurst(window.innerWidth*.5,window.innerHeight*.35),1800);
+    setTimeout(()=>addSparkBurst(window.innerWidth*.2,window.innerHeight*.5),2400);
+    setTimeout(()=>addSparkBurst(window.innerWidth*.8,window.innerHeight*.45),2900);
+  }
+})();
 
 let ovRunning=true;
 (function animOv(){
@@ -989,8 +995,11 @@ let ovRunning=true;
   const isBirthday = (month === 6 && day === 8);
 
   if(isBirthday){
-    // ── BIRTHDAY MODE ──
+    // ── BIRTHDAY MODE ── show decorations
     document.getElementById('bday-mode').style.display = 'flex';
+    document.getElementById('bg-canvas').style.display = 'block';
+    document.getElementById('confetti-canvas').style.display = 'block';
+    document.getElementById('sparkle-canvas').style.display = 'block';
     // garden-question animation delay after birthday content
     document.getElementById('garden-question').style.animation = 'fadeIn 0.8s ease 3.2s forwards';
 
@@ -1722,6 +1731,8 @@ function drawBgFlower(ctx,col,col2,type){
 
 let bgFrame=0;
 (function animBg(){
+  const _m=new Date().getMonth()+1,_d=new Date().getDate();
+  if(!(_m===6&&_d===8)){return;} // decorations only on birthday
   bgFrame++;
   bgX.clearRect(0,0,bgC.width,bgC.height);
   bgObjs.forEach(o=>{
