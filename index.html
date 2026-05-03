@@ -160,7 +160,8 @@ body{font-family:'Jost',sans-serif;background:var(--cream);color:var(--ink);min-
 /* Garden Yes/No question */
 .garden-question{
   display:flex;flex-direction:column;align-items:center;gap:14px;
-  opacity:0;animation:fadeIn 0.8s ease 3.2s forwards;
+  opacity:0;
+  /* animation delay set dynamically by JS depending on mode */
 }
 .garden-ask{
   font-family:'Caveat',cursive;font-size:1.5rem;font-weight:700;
@@ -614,26 +615,47 @@ footer{position:relative;z-index:10;text-align:center;padding:26px 20px;color:va
   <canvas id="sparkle-canvas"></canvas>
 
   <div class="ov-content">
-    <div class="hb-wrap">
-      <div class="hb-title" id="hb-title"> Happy Birthday! 🎂</div>
-      <div class="hb-sub" id="hb-sub">to you, my wonderful mimi ✨</div>
-    </div>
-
-    <div class="emoji-burst" id="emoji-burst">
-      🌸 🎀 🌺 🎂 🌼 🐱 🌷
-    </div>
-
-    <button class="music-btn" onclick="toggleMusic()">
-      <span class="music-note" id="music-icon">🎵</span>
-      <span id="music-label">Play birthday music</span>
-    </button>
-
-    <div class="msg-card">
-      <div class="msg-inner">
-        <div class="msg-text" id="msg-text"></div>
+    <!-- ═══ BIRTHDAY MODE (shown on June 8) ═══ -->
+    <div id="bday-mode" style="display:none;flex-direction:column;align-items:center;gap:18px;width:100%">
+      <div class="hb-wrap">
+        <div class="hb-title" id="hb-title"> Happy Birthday! 🎂</div>
+        <div class="hb-sub" id="hb-sub">to you, my wonderful mimi ✨</div>
+      </div>
+      <div class="emoji-burst" id="emoji-burst">🌸 🎀 🌺 🎂 🌼 🐱 🌷</div>
+      <button class="music-btn" onclick="toggleMusic()">
+        <span class="music-note" id="music-icon">🎵</span>
+        <span id="music-label">Play birthday music</span>
+      </button>
+      <div class="msg-card">
+        <div class="msg-inner">
+          <div class="msg-text" id="msg-text"></div>
+        </div>
       </div>
     </div>
 
+    <!-- ═══ COUNTDOWN MODE (shown every other day) ═══ -->
+    <div id="countdown-mode" style="display:none;flex-direction:column;align-items:center;gap:18px;width:100%">
+      <div class="hb-wrap">
+        <div class="hb-title" style="font-size:clamp(2.5rem,9vw,5.5rem)" id="age-title">✨</div>
+        <div class="hb-sub" id="age-sub">my favourite person in the world 🌸</div>
+      </div>
+      <div id="countdown-card" class="msg-card" style="text-align:center;padding:32px 28px">
+        <!-- Circle countdown chart -->
+        <div style="position:relative;width:200px;height:200px;margin:0 auto 18px">
+          <canvas id="countdown-ring" width="200" height="200"></canvas>
+          <div id="countdown-center" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+            <span style="font-family:'Caveat',cursive;font-size:2.8rem;font-weight:700;color:var(--pink-d);line-height:1" id="days-left">…</span>
+            <span style="font-family:'Caveat',cursive;font-size:1rem;color:var(--muted)">days left</span>
+          </div>
+        </div>
+        <div style="font-family:'Caveat',cursive;font-size:1.25rem;color:var(--ink);line-height:1.6" id="countdown-msg">
+          i'm counting every second until your next birthday 🕰️💕
+        </div>
+        <div style="font-family:'Caveat',cursive;font-size:0.95rem;color:var(--muted);margin-top:10px" id="countdown-detail"></div>
+      </div>
+    </div>
+
+    <!-- ═══ GARDEN GATE — always shown (both modes) ═══ -->
     <div class="garden-question" id="garden-question">
       <div class="cat-gif-wrap" id="cat-gif-wrap">
         <img class="cat-gif" id="cat-gif"
@@ -957,34 +979,129 @@ let ovRunning=true;
 })();
 
 // Typewriter message
-const MSG_LINES=[
-  'Hii!',
-  "It's your birthday!",
-  'I built you a little garden, just for you.',
-  'Happy Birthday, my dear. With so much love ✿',
-];
+/* ══════════════════════════════════════════
+   OVERLAY: BIRTHDAY CHECK vs COUNTDOWN
+══════════════════════════════════════════ */
+(function initOverlay(){
+  const now = new Date();
+  const month = now.getMonth() + 1; // 1-12
+  const day   = now.getDate();
+  const isBirthday = (month === 6 && day === 8);
 
+  if(isBirthday){
+    // ── BIRTHDAY MODE ──
+    document.getElementById('bday-mode').style.display = 'flex';
+    // garden-question animation delay after birthday content
+    document.getElementById('garden-question').style.animation = 'fadeIn 0.8s ease 3.2s forwards';
+
+    const MSG_LINES=[
+      'Hii!',
+      "It's your birthday!! 🎂",
+      'I built you a little garden, just for you.',
+      'Happy Birthday, my dear. With so much love ✿',
+    ];
+    let lineIdx=0,charIdx=0,typingActive=true;
+    const msgEl=document.getElementById('msg-text');
+    function typeNextChar(){
+      if(!typingActive)return;
+      if(lineIdx>=MSG_LINES.length)return;
+      const line=MSG_LINES[lineIdx];
+      if(charIdx===0){const span=document.createElement('div');span.style.minHeight='1.4em';msgEl.appendChild(span);}
+      const span=msgEl.lastElementChild;
+      if(charIdx<line.length){span.textContent+=line[charIdx];charIdx++;setTimeout(typeNextChar,28);}
+      else{lineIdx++;charIdx=0;setTimeout(typeNextChar,120);}
+    }
+    setTimeout(typeNextChar, 2600);
+
+  } else {
+    // ── COUNTDOWN MODE ──
+    document.getElementById('countdown-mode').style.display = 'flex';
+    // garden-question shows sooner since no long typewriter
+    document.getElementById('garden-question').style.animation = 'fadeIn 0.8s ease 1.8s forwards';
+    // No confetti/sparkles for countdown — stop them
+    ovRunning = false;
+
+    // Compute age and days until next birthday (June 8)
+    const birthYear = 2003;
+    const thisYearBday = new Date(now.getFullYear(), 5, 8); // month is 0-indexed
+    let nextBday, daysInYear;
+    if(now < thisYearBday){
+      nextBday = thisYearBday;
+    } else {
+      nextBday = new Date(now.getFullYear()+1, 5, 8);
+    }
+    // Age she'll turn on next birthday
+    const nextAge = nextBday.getFullYear() - birthYear;
+    // Current age
+    const currentAge = (now >= thisYearBday) ? nextAge - 1 : nextAge - 1;
+
+    // Days, hours, minutes until next birthday
+    const msLeft = nextBday - now;
+    const daysLeft  = Math.floor(msLeft / (1000*60*60*24));
+    const hoursLeft = Math.floor((msLeft % (1000*60*60*24)) / (1000*60*60));
+    const minsLeft  = Math.floor((msLeft % (1000*60*60)) / (1000*60));
+
+    // Fraction of year elapsed since last birthday
+    const lastBday = (now >= thisYearBday)
+      ? thisYearBday
+      : new Date(now.getFullYear()-1, 5, 8);
+    const totalMs = nextBday - lastBday; // one full year in ms
+    const elapsedMs = now - lastBday;
+    const progress = elapsedMs / totalMs; // 0 = just had birthday, 1 = tomorrow is birthday
+
+    // Title shows current age
+    document.getElementById('age-title').textContent = `${currentAge} years old 🎂`;
+    document.getElementById('age-sub').textContent = `and more beautiful every single day 🌸`;
+
+    // Days left
+    document.getElementById('days-left').textContent = daysLeft;
+
+    // Detail text
+    document.getElementById('countdown-detail').textContent =
+      `${daysLeft} days, ${hoursLeft} hours & ${minsLeft} minutes until June 8 — turning ${nextAge}!`;
+
+    // Countdown messages based on how far away
+    const msgs = [
+      daysLeft < 7  ? "omg it's almost your birthday!! 🎉 i can barely wait 😻" :
+      daysLeft < 30 ? "it's getting so close… i'm already planning everything 🌸" :
+      daysLeft < 90 ? "still a while to go… but every day with you is a gift already 💕" :
+      daysLeft < 180? "we're halfway there! i'm counting every second until your next birthday 🕰️💕" :
+                      "the whole year ahead of loving you before your next birthday 🌷"
+    ];
+    document.getElementById('countdown-msg').textContent = msgs[0];
+
+    // Draw the ring chart
+    setTimeout(()=>{
+      const canvas = document.getElementById('countdown-ring');
+      if(!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const cx = 100, cy = 100, r = 84, lw = 14;
+      // Background ring
+      ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);
+      ctx.strokeStyle='rgba(240,168,190,0.2)';ctx.lineWidth=lw;ctx.stroke();
+      // Progress ring (how much of year has passed = how close to birthday)
+      const startAngle = -Math.PI/2;
+      const endAngle = startAngle + (2*Math.PI*progress);
+      const grad = ctx.createLinearGradient(0,0,200,200);
+      grad.addColorStop(0,'#e8437a');grad.addColorStop(0.5,'#f4855a');grad.addColorStop(1,'#f9d94e');
+      ctx.beginPath();ctx.arc(cx,cy,r,startAngle,endAngle);
+      ctx.strokeStyle=grad;ctx.lineWidth=lw;ctx.lineCap='round';ctx.stroke();
+      // Little heart at the tip
+      const tipAngle = endAngle;
+      const hx = cx + Math.cos(tipAngle)*r;
+      const hy = cy + Math.sin(tipAngle)*r;
+      ctx.font='16px serif';ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText('💕', hx, hy);
+    }, 100);
+  }
+})();
+
+const MSG_LINES=[]; // kept for compatibility (used in birthday mode above)
 let lineIdx=0,charIdx=0,typingActive=true;
 const msgEl=document.getElementById('msg-text');
-function typeNextChar(){
-  if(!typingActive)return;
-  if(lineIdx>=MSG_LINES.length)return;
-  const line=MSG_LINES[lineIdx];
-  if(charIdx===0){
-    const span=document.createElement('div');
-    span.style.minHeight='1.4em';
-    msgEl.appendChild(span);
-  }
-  const span=msgEl.lastElementChild;
-  if(charIdx<line.length){
-    span.textContent+=line[charIdx];charIdx++;
-    setTimeout(typeNextChar,line.length===0?20:28);
-  }else{
-    lineIdx++;charIdx=0;
-    setTimeout(typeNextChar,line.length===0?80:120);
-  }
-}
-setTimeout(typeNextChar,2600);
+// (typing is now handled inside initOverlay for birthday mode)
+
+
 
 // Enter the site and stop the music
 function enterSite(){
