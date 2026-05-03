@@ -724,17 +724,18 @@ footer{position:relative;z-index:10;text-align:center;padding:26px 20px;color:va
 <div id="panel-cats" class="game-panel">
   <div class="panel-wrap">
     <div class="panel-title">🐱 Mimi's Great Escape</div>
-    <p class="panel-desc">Help Mimi escape while Dodo tries to sleep — chaos guaranteed! 😹</p>
+    <p class="panel-desc">Mimi the orange tomcat is on the prowl — escape the house, charm the ladies & dodge the bullies! 😼</p>
     <div id="cat-wrap">
       <canvas id="cat-canvas"></canvas>
       <div id="cat-screen">
         <span class="cge">🐱</span>
         <div class="cgt">Mimi's Great Escape</div>
         <div class="cgs">
-          <b style="color:#f9d94e">← → or tap</b> to move Mimi<br>
-          Jump on platforms · Collect fish 🐟 · Reach the door 🚪<br>
-          But DONT wake Dodo who's sleeping on the platforms! 😴<br>
-          Dodo gets angry if you wake him — he throws yarn! 🧶<br>
+          <b style="color:#f9d94e">← → or tap sides</b> to move · <b style="color:#f0a8be">↑ / Space / tap center</b> to jump (double jump!)<br>
+          🐟 Collect fish · ⭐ Gold stars · 💕 Charm lady cats (walk up slowly!)<br>
+          <b style="color:#e8437a">Z or Ctrl = SCRATCH/PUNCH bad cats 🥊</b> · 🚪 Reach the EXIT<br>
+          ↑+→ in air = air dash! · Power-ups: ⚡ Speed 🛡️ Shield 🧲 Magnet<br>
+          <b style="color:#f4855a">Mimi has no balls — but the ladies love that 😂</b><br>
           <b style="color:#f0a8be">Mimi has 9 lives (of course 😼)</b>
         </div>
         <button class="btn-p" onclick="startCatGame()">Start the chaos! 😹</button>
@@ -745,6 +746,7 @@ footer{position:relative;z-index:10;text-align:center;padding:26px 20px;color:va
       <div class="cat-sb"><span class="v" id="cat-lvl">1</span><span class="l">Level</span></div>
       <div class="cat-sb"><span class="v" id="cat-lives">😺😺😺</span><span class="l">Lives</span></div>
       <div class="cat-sb"><span class="v" id="cat-fish">0</span><span class="l">Fish 🐟</span></div>
+      <div class="cat-sb"><span class="v" id="cat-charm">0</span><span class="l">Charm 💕</span></div>
     </div>
   </div>
 </div>
@@ -2399,6 +2401,7 @@ function initCatCanvas(){
 }
 
 let catCoins=0,catCombo=0,catComboTimer=0;
+const COMBO_TIMEOUT=90;
 let catMovingPlats=[],catSpikes=[],catStars=[],catPowerUp=null,catPowerTimer=0,catActivePower=null,catActivePowerTimer=0;
 let catMoonGate=null,catMilestoneMsg=null,catMilestoneTimer=0,catComet=null,catCometTimer=0;
 
@@ -2748,8 +2751,7 @@ function makeBubble(text,worldX,worldY){
   return{text,timer:100,wx:worldX,wy:worldY};
 }
 
-function COMBO_TIMEOUT_DEF(){return 90}
-const COMBO_TIMEOUT=90;
+
 
 function updateLevel(){
   catLevelTimer++;
