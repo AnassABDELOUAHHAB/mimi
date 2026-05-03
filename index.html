@@ -1753,7 +1753,7 @@ function drawBgFlower(ctx,col,col2,type){
 let bgFrame=0;
 (function animBg(){
   const _m=new Date().getMonth()+1,_d=new Date().getDate();
-  if(!(_m===6&&_d===8)){return;} // decorations only on birthday
+  //if(!(_m===6&&_d===8)){return;} // decorations only on birthday
   bgFrame++;
   bgX.clearRect(0,0,bgC.width,bgC.height);
   bgObjs.forEach(o=>{
