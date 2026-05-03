@@ -218,7 +218,7 @@ body{font-family:'Jost',sans-serif;background:var(--cream);color:var(--ink);min-
 /* ══════════════════════════════════════
    BACKGROUND
 ══════════════════════════════════════ */
-#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0.9;display:none}
+#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0.9;display:block}
 
 /* ══════════════════════════════════════
    HEADER
@@ -1136,10 +1136,8 @@ const msgEl=document.getElementById('msg-text');
 // Enter the site and stop the music
 function enterSite(){
   ovRunning=false;
-  
-  // FIX: This strictly stops the music when the button is clicked.
-  stopMusic(); 
-  
+  stopMusic();
+  document.getElementById('bg-canvas').style.display='block';
   const ov=document.getElementById('birthday-overlay');
   if (ov) ov.classList.add('out');
   
@@ -1752,8 +1750,6 @@ function drawBgFlower(ctx,col,col2,type){
 
 let bgFrame=0;
 (function animBg(){
-  const _m=new Date().getMonth()+1,_d=new Date().getDate();
-  //if(!(_m===6&&_d===8)){return;} // decorations only on birthday
   bgFrame++;
   bgX.clearRect(0,0,bgC.width,bgC.height);
   bgObjs.forEach(o=>{
