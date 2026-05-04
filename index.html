@@ -2267,7 +2267,8 @@ let colCtx,colCanvas;
 const COL_PAGES=[
   {id:'mimi',label:'Mimi 🐱'},{id:'dodo',label:'Dodo 🐱'},
   {id:'cats2',label:'Friends 🐾'},{id:'roses',label:'Roses 🌹'},{id:'daisies',label:'Daisies 🌼'},
-  {id:'cherry',label:'Cherry 🤍'},{id:'negra',label:'Negra 🖤'}
+  {id:'cherry',label:'Cherry 🤍'},{id:'negra',label:'Negra 🖤'},
+  {id:'lilies',label:'Lilies 🌸'},{id:'dog',label:'Cute Dog 🐶'}
 ];
 
 function initColoring(){
@@ -2341,7 +2342,7 @@ function floodFill(sx,sy,fillColor){
 function loadColPage(id){
   colCtx.clearRect(0,0,colCanvas.width,colCanvas.height);
   colCtx.fillStyle='#ffffff';colCtx.fillRect(0,0,colCanvas.width,colCanvas.height);
-  const fns={mimi:drawMimi,dodo:drawDodo,cats2:drawCatsFriends,roses:drawRosesPage,daisies:drawDaisiesPage,cherry:drawCherry,negra:drawNegra};
+  const fns={mimi:drawMimi,dodo:drawDodo,cats2:drawCatsFriends,roses:drawRosesPage,daisies:drawDaisiesPage,cherry:drawCherry,negra:drawNegra,lilies:drawLiliesPage,dog:drawCuteDog};
   if(fns[id])fns[id]();
 }
 
@@ -2670,6 +2671,224 @@ function drawNegra(){
   c.font='10px serif';c.fillStyle='#2c1a24';c.textAlign='center';c.fillText('🌙',300,279);
   c.font='bold 9px "Jost",sans-serif';c.fillStyle='#2c1a24';c.textAlign='center';c.fillText('Negra',300,310);
   c.strokeStyle='#2c1a24';c.lineWidth=1;c.strokeRect(18,55,564,448);c.strokeStyle='#8a7080';c.lineWidth=0.5;c.strokeRect(24,61,552,436);
+}
+
+// ── Lilies page ──
+function drawLiliesPage(){
+  const c=colCtx;cc(c);c.lineWidth=2;
+  c.font='bold italic 22px "Caveat",cursive';c.fillStyle='#c96a89';c.textAlign='center';
+  c.fillText('Lily garden 🌸',300,34);
+
+  // Draw 5 lilies at different positions
+  const lilyData=[
+    [148,210,1.0],[300,180,1.1],[452,215,0.95],[110,380,0.85],[490,370,0.9],[300,400,1.05]
+  ];
+  lilyData.forEach(([lx,ly,sc])=>drawBigLily(c,lx,ly,sc));
+
+  // Stems and leaves
+  const stemData=[
+    [148,258,148,490],[300,234,300,490],[452,262,452,490],[110,420,110,490],[490,412,490,490],[300,454,300,490]
+  ];
+  c.lineWidth=2.2;
+  stemData.forEach(([x1,y1,x2,y2])=>{
+    c.beginPath();c.moveTo(x1,y1);c.bezierCurveTo(x1-8,y1+60,x2+8,y2-60,x2,y2);c.stroke();
+  });
+
+  // Leaves along stems
+  function drawLeaf(lx,ly,angle,size){
+    c.save();c.translate(lx,ly);c.rotate(angle);
+    c.beginPath();c.moveTo(0,0);c.bezierCurveTo(-size*.4,-size*.5,-size*.3,-size*1.1,0,-size*1.3);
+    c.bezierCurveTo(size*.3,-size*1.1,size*.4,-size*.5,0,0);c.stroke();
+    c.lineWidth=0.9;c.beginPath();c.moveTo(0,0);c.lineTo(0,-size*1.3);c.stroke();
+    c.restore();
+  }
+  c.lineWidth=1.8;
+  [[132,340,-0.5,28],[164,310,0.55,24],[284,310,-0.45,26],[316,330,0.5,22],
+   [436,320,-0.5,26],[468,350,0.55,22],[94,450,-0.45,20],[126,435,0.5,18],
+   [474,440,-0.5,20],[506,452,0.5,18],[284,460,-0.4,22],[316,462,0.4,20]
+  ].forEach(([lx,ly,a,s])=>drawLeaf(lx,ly,a,s));
+
+  // Grass at bottom
+  c.lineWidth=1.5;
+  for(let i=0;i<28;i++){
+    const gx=18+i*20,gy=490;
+    c.beginPath();c.moveTo(gx,gy);c.quadraticCurveTo(gx+(i%3-1)*10,gy-28,gx+(i%2===0?-5:6),gy-48);c.stroke();
+  }
+
+  // Border
+  c.strokeStyle='#f0a8be';c.lineWidth=1;c.strokeRect(18,55,564,448);
+  c.strokeStyle='#8ec4a4';c.lineWidth=0.5;c.strokeRect(24,61,552,436);
+}
+
+function drawBigLily(c,cx,cy,scale){
+  c.save();c.translate(cx,cy);c.scale(scale,scale);
+  c.strokeStyle='#2c1a24';
+  // 6 petals — classic lily shape (long, reflexed/swept back tips)
+  for(let i=0;i<6;i++){
+    c.save();c.rotate(i*60*Math.PI/180);
+    // Outer petal — elongated with pointed tip
+    c.lineWidth=2/scale;
+    c.beginPath();
+    c.moveTo(0,0);
+    c.bezierCurveTo(-14,-28,-12,-56,0,-70);
+    c.bezierCurveTo(12,-56,14,-28,0,0);
+    c.stroke();
+    // Center vein on each petal
+    c.lineWidth=0.9/scale;
+    c.beginPath();c.moveTo(0,0);c.lineTo(0,-68);c.stroke();
+    c.restore();
+  }
+  // Stamens — 6 long stamens with anther tips (lily signature)
+  c.lineWidth=1.2/scale;
+  for(let i=0;i<6;i++){
+    const angle=i*60*Math.PI/180;
+    const sx=Math.sin(angle)*6;const sy=-Math.cos(angle)*6;
+    const ex=Math.sin(angle)*28;const ey=-Math.cos(angle)*28;
+    c.beginPath();c.moveTo(sx,sy);c.lineTo(ex,ey);c.stroke();
+    // Anther (oval tip)
+    c.beginPath();c.ellipse(ex+Math.sin(angle)*4,ey-Math.cos(angle)*4,3.5,2,angle,0,Math.PI*2);c.stroke();
+  }
+  // Center pistil
+  c.lineWidth=1.8/scale;
+  c.beginPath();c.moveTo(0,0);c.lineTo(0,-22);c.stroke();
+  c.beginPath();c.arc(0,-22,3.5,0,Math.PI*2);c.stroke();
+  // Spots on petals (lily's characteristic spots)
+  c.lineWidth=0.8/scale;
+  for(let i=0;i<6;i++){
+    c.save();c.rotate(i*60*Math.PI/180);
+    [[0,-22,2.5,1.8],[-5,-32,2,1.5],[5,-30,2,1.5],[0,-42,2,1.5]].forEach(([dx,dy,rx,ry])=>{
+      c.beginPath();c.ellipse(dx,dy,rx,ry,0.3,0,Math.PI*2);c.stroke();
+    });
+    c.restore();
+  }
+  c.restore();
+}
+
+// ── Cute Dog page ──
+function drawCuteDog(){
+  const c=colCtx;cc(c);c.lineWidth=2.5;
+  c.font='bold italic 22px "Caveat",cursive';c.fillStyle='#4aa8d8';c.textAlign='center';
+  c.fillText('Biscuit 🐶 (the goodest boy!)',300,34);
+
+  // Body — plump and fluffy, sitting
+  c.beginPath();c.ellipse(300,360,118,130,0,0,Math.PI*2);c.stroke();
+
+  // Fluffy chest tuft
+  c.lineWidth=1.6;
+  for(let i=0;i<7;i++){c.beginPath();c.arc(270+i*12,262,9,Math.PI,0);c.stroke()}
+  c.lineWidth=2.5;
+
+  // Head — big and round (cute puppy proportions)
+  c.beginPath();c.ellipse(300,180,105,95,0,0,Math.PI*2);c.stroke();
+
+  // Floppy ears — long, droopy (spaniel-like)
+  // Left ear
+  c.beginPath();c.moveTo(202,144);c.bezierCurveTo(158,120,138,190,162,260);c.bezierCurveTo(172,285,198,280,204,255);c.bezierCurveTo(196,220,190,162,210,148);c.closePath();c.stroke();
+  // Right ear
+  c.beginPath();c.moveTo(398,144);c.bezierCurveTo(442,120,462,190,438,260);c.bezierCurveTo(428,285,402,280,396,255);c.bezierCurveTo(404,220,410,162,390,148);c.closePath();c.stroke();
+  // Inner ear detail (crinkle)
+  c.lineWidth=1.3;
+  c.beginPath();c.moveTo(195,152);c.bezierCurveTo(176,180,170,220,178,255);c.stroke();
+  c.beginPath();c.moveTo(405,152);c.bezierCurveTo(424,180,430,220,422,255);c.stroke();
+  c.lineWidth=2.5;
+
+  // Eyes — big round puppy eyes with shine
+  c.beginPath();c.ellipse(268,174,26,28,0,0,Math.PI*2);c.stroke();
+  c.beginPath();c.ellipse(332,174,26,28,0,0,Math.PI*2);c.stroke();
+  // Pupils — large, soulful
+  c.fillStyle='#2c1a24';
+  c.beginPath();c.arc(268,176,16,0,Math.PI*2);c.fill();
+  c.beginPath();c.arc(332,176,16,0,Math.PI*2);c.fill();
+  // Eye shine — big sparkle
+  c.fillStyle='white';
+  c.beginPath();c.arc(260,167,6,0,Math.PI*2);c.fill();
+  c.beginPath();c.arc(324,167,6,0,Math.PI*2);c.fill();
+  c.beginPath();c.arc(274,183,3,0,Math.PI*2);c.fill();
+  c.beginPath();c.arc(338,183,3,0,Math.PI*2);c.fill();
+
+  // Brow ridges (expressive)
+  c.lineWidth=2.2;c.strokeStyle='#2c1a24';
+  c.beginPath();c.moveTo(246,148);c.quadraticCurveTo(268,140,288,150);c.stroke();
+  c.beginPath();c.moveTo(312,150);c.quadraticCurveTo(332,140,354,148);c.stroke();
+
+  // Big round nose — dog button nose
+  c.fillStyle='#2c1a24';
+  c.beginPath();c.ellipse(300,216,22,16,0,0,Math.PI*2);c.fill();
+  // Nose highlight
+  c.fillStyle='rgba(255,255,255,0.35)';
+  c.beginPath();c.ellipse(292,210,8,5,0.3,0,Math.PI*2);c.fill();
+  c.fillStyle='#2c1a24';
+
+  // Happy panting mouth — tongue out!
+  c.lineWidth=2.2;
+  c.beginPath();c.moveTo(278,232);c.quadraticCurveTo(300,250,322,232);c.stroke();
+  c.beginPath();c.moveTo(278,232);c.lineTo(272,238);c.stroke();
+  c.beginPath();c.moveTo(322,232);c.lineTo(328,238);c.stroke();
+  // Tongue
+  c.lineWidth=2.5;
+  c.beginPath();c.moveTo(288,250);c.bezierCurveTo(284,272,316,272,312,250);c.stroke();
+  c.beginPath();c.moveTo(300,250);c.lineTo(300,272);c.stroke();
+
+  // Whisker dots (not lines, dogs have dots)
+  c.fillStyle='#2c1a24';
+  [[256,228],[264,234],[256,240],[344,228],[336,234],[344,240]].forEach(([wx,wy])=>{
+    c.beginPath();c.arc(wx,wy,2.5,0,Math.PI*2);c.fill();
+  });
+
+  // Front paws — big cute paws
+  c.lineWidth=2.5;
+  c.beginPath();c.ellipse(228,466,52,30,0,0,Math.PI*2);c.stroke();
+  c.beginPath();c.ellipse(372,466,52,30,0,0,Math.PI*2);c.stroke();
+  // Toe beans — round pads
+  c.lineWidth=1.6;
+  [[213,460,8,6],[228,465,8,6],[244,460,8,6],[357,460,8,6],[372,465,8,6],[388,460,8,6]].forEach(([px,py,rx,ry])=>{
+    c.beginPath();c.ellipse(px,py,rx,ry,0,0,Math.PI*2);c.stroke();
+  });
+
+  // Tail — wagging up high (happy dog!)
+  c.lineWidth=4;
+  c.beginPath();c.moveTo(418,330);c.bezierCurveTo(468,280,508,248,498,210);c.stroke();
+  // Fluffy tail tip
+  c.lineWidth=1.4;c.setLineDash([2,3]);
+  c.beginPath();c.ellipse(494,202,16,12,0.6,0,Math.PI*2);c.stroke();
+  c.setLineDash([]);
+
+  // Collar with tag
+  c.lineWidth=3;
+  c.beginPath();c.ellipse(300,270,96,18,0,0,Math.PI*2);c.stroke();
+  c.lineWidth=2;c.beginPath();c.arc(300,286,10,0,Math.PI*2);c.stroke();
+  // Bone tag charm
+  c.lineWidth=1.5;
+  c.beginPath();c.arc(295,285,4,0,Math.PI*2);c.stroke();
+  c.beginPath();c.arc(305,285,4,0,Math.PI*2);c.stroke();
+  c.beginPath();c.moveTo(299,285);c.lineTo(301,285);c.stroke();
+  c.font='bold 9px "Jost",sans-serif';c.fillStyle='#2c1a24';c.textAlign='center';
+  c.fillText('Biscuit',300,318);
+
+  // Body fur texture
+  c.lineWidth=1;c.setLineDash([3,3]);
+  [[242,320,358,320],[238,346,362,346],[236,374,364,374]].forEach(([x1,y1,x2,y2])=>{
+    c.beginPath();c.moveTo(x1,y1);c.quadraticCurveTo((x1+x2)/2,y1-6,x2,y2);c.stroke();
+  });
+  c.setLineDash([]);
+
+  // Little heart above (loved pup)
+  c.lineWidth=1.8;
+  c.beginPath();c.moveTo(300,90);c.bezierCurveTo(300,86,294,82,294,88);c.bezierCurveTo(294,94,300,100,300,100);c.bezierCurveTo(300,100,306,94,306,88);c.bezierCurveTo(306,82,300,86,300,90);c.stroke();
+
+  // Stars / sparkles around (goodest boy energy)
+  c.lineWidth=1.2;
+  [[88,140],[510,145],[72,350],[526,330]].forEach(([sx,sy])=>{
+    for(let i=0;i<4;i++){
+      c.save();c.translate(sx,sy);c.rotate(i*45*Math.PI/180);
+      c.beginPath();c.moveTo(0,-10);c.lineTo(0,10);c.stroke();
+      c.restore();
+    }
+  });
+
+  // Border
+  c.strokeStyle='#4aa8d8';c.lineWidth=1;c.strokeRect(18,55,564,448);
+  c.strokeStyle='#f0a8be';c.lineWidth=0.5;c.strokeRect(24,61,552,436);
 }
 
 /* ══════════════════════════════════════════
@@ -3737,17 +3956,17 @@ function drawMimiSprite(c,x,y,facing,vx,vy,onGround,frame){
   // Stripe on tail
   c.strokeStyle='rgba(160,50,0,0.4)';c.lineWidth=2;
   c.beginPath();c.moveTo(-8,tailY);c.quadraticCurveTo(-22+tailSwing,tailY+12,tailEndX,tailEndY);c.stroke();
-  c.fillStyle='#b03808';c.beginPath();c.arc(tailEndX,tailEndY,4,0,Math.PI*2);c.fill();
+  c.fillStyle='#d4540a';c.beginPath();c.arc(tailEndX,tailEndY,4,0,Math.PI*2);c.fill();
 
   // ── HIND LEGS (behind body) ──
   c.save();c.scale(bodyScaleX,bodyScaleY);
   function drawLeg(lx,ly,paw,isHind){
     const kneeX=isHind?lx-paw.px*.3:lx+paw.px*.3;
     const kneeY=ly+(isHind?8:6);
-    c.strokeStyle='#f4855a';c.lineWidth=4;c.lineCap='round';
+    c.strokeStyle='#f0ece8';c.lineWidth=4;c.lineCap='round';
     c.beginPath();c.moveTo(lx,ly);c.quadraticCurveTo(kneeX,kneeY,lx+paw.px,ly+12+paw.py);c.stroke();
     // Paw
-    c.fillStyle=paw.swing?'#ffa07a':'#f4855a';
+    c.fillStyle=paw.swing?'#e8e4e0':'#f0ece8';
     c.beginPath();c.ellipse(lx+paw.px,ly+13+paw.py,4,3,paw.px*.05,0,Math.PI*2);c.fill();
   }
   drawLeg(-6,16,RH,true);
@@ -3756,10 +3975,10 @@ function drawMimiSprite(c,x,y,facing,vx,vy,onGround,frame){
 
   // ── BODY (stretched during gallop) ──
   c.save();c.scale(bodyScaleX,bodyScaleY);
-  c.fillStyle='#f4855a';
+  c.fillStyle='#f5f2ee';
   c.beginPath();c.ellipse(0,6,13,16,0,0,Math.PI*2);c.fill();
   // Tabby body stripes
-  c.strokeStyle='rgba(160,50,0,0.38)';c.lineWidth=2;
+  c.strokeStyle='rgba(180,160,140,0.25)';c.lineWidth=2;
   c.beginPath();c.moveTo(-10,1);c.quadraticCurveTo(0,-3,10,1);c.stroke();
   c.beginPath();c.moveTo(-11,7);c.quadraticCurveTo(0,4,11,7);c.stroke();
   c.beginPath();c.moveTo(-10,14);c.quadraticCurveTo(0,11,10,14);c.stroke();
@@ -3775,19 +3994,28 @@ function drawMimiSprite(c,x,y,facing,vx,vy,onGround,frame){
   const headTilt=running?0.18:0;
   const headX=running?4:2;
   c.save();c.translate(headX,-11);c.rotate(headTilt);
-  c.fillStyle='#f4855a';c.beginPath();c.ellipse(0,0,13,12,0,0,Math.PI*2);c.fill();
-  // Head stripes
-  c.strokeStyle='rgba(160,50,0,0.3)';c.lineWidth=1.4;
+  // White head base
+  c.fillStyle='#f5f2ee';c.beginPath();c.ellipse(0,0,13,12,0,0,Math.PI*2);c.fill();
+  // Orange patch on top-right of head
+  c.fillStyle='#f4855a';
+  c.beginPath();c.ellipse(4,-4,8,7,0.3,0,Math.PI*2);c.fill();
+  // Re-draw white base lower part to keep orange only on top
+  c.fillStyle='#f5f2ee';
+  c.beginPath();c.ellipse(0,3,13,9,0,0,Math.PI*2);c.fill();
+  // Head stripes (subtle on white)
+  c.strokeStyle='rgba(180,160,140,0.2)';c.lineWidth=1.4;
   c.beginPath();c.moveTo(-3,-9);c.lineTo(-3,-4);c.stroke();
   c.beginPath();c.moveTo(2,-10);c.lineTo(2,-5);c.stroke();
   c.beginPath();c.moveTo(7,-9);c.lineTo(6,-4);c.stroke();
   // Ears (flatten back when running fast)
   const earFlatten=(galloping&&speed>0.3)?0.55:1;
-  c.fillStyle='#f4855a';
+  // Left ear white, right ear orange (matching head patch)
   c.save();c.scale(1,earFlatten);
+  c.fillStyle='#f5f2ee';
   c.beginPath();c.moveTo(-8,-9);c.lineTo(-15,-22);c.lineTo(-2,-11);c.closePath();c.fill();
+  c.fillStyle='#f4855a';
   c.beginPath();c.moveTo(10,-9);c.lineTo(18,-22);c.lineTo(5,-11);c.closePath();c.fill();
-  c.fillStyle='rgba(255,155,120,0.72)';
+  c.fillStyle='rgba(255,200,180,0.72)';
   c.beginPath();c.moveTo(-8,-10);c.lineTo(-12,-19);c.lineTo(-4,-11);c.closePath();c.fill();
   c.beginPath();c.moveTo(10,-10);c.lineTo(15,-19);c.lineTo(6,-11);c.closePath();c.fill();
   c.restore();
