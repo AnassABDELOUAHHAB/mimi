@@ -4081,174 +4081,213 @@ function drawMimiSprite(c,x,y,facing,vx,vy,onGround,frame){
   const baseAlpha=(mimiInvincible>0&&Math.floor(catFrame/4)%2===0)?0.38:1;
   c.globalAlpha=baseAlpha;
 
-  // ── Gallop animation system ──
-  // Real cats gallop: body stretches forward then bunches up, all four paws
-  // cycle in a rotary sequence: RH→LF→LH→RF (Muybridge)
   const speed=Math.abs(vx);
-  const running=onGround&&speed>0.6;
-  const galloping=onGround&&speed>2.8;
-  // Gallop period: faster = shorter period
-  const gPeriod=galloping?Math.max(12,22-speed*2):18;
-  const gT=(frame%gPeriod)/gPeriod; // 0..1 one full cycle
-  // Body rock: vertical bounce at double frequency, lateral lean
-  const bodyBounce=(running&&speed>0.3)?Math.sin(gT*Math.PI*2)*(galloping?5:2.5):0;
-  const bodyLean=Math.max(-.32,Math.min(.32,vx*.05));
-  // Body stretch/scrunch: cats stretch out during suspension phase
-  const stretchPhase=galloping?Math.sin(gT*Math.PI*2)*.18:0;
-  const bodyScaleX=1+stretchPhase;
-  const bodyScaleY=1-stretchPhase*.5;
+  const running=onGround&&speed>0.5;
+  const airborne=!onGround;
 
-  c.translate(x+MIMI_W/2, y+MIMI_H/2+bodyBounce);
-  c.scale(facing,1);
-  c.rotate(bodyLean);
+  const period=Math.max(9, 22-speed*2.2);
+  const t=(frame%period)/period;
 
-  // Glow
-  const gl=c.createRadialGradient(0,0,0,0,0,28);
-  gl.addColorStop(0,'rgba(255,140,0,0.15)');gl.addColorStop(1,'transparent');
-  c.fillStyle=gl;c.beginPath();c.arc(0,0,30,0,Math.PI*2);c.fill();
+  const spineArc = running ? Math.sin(t*Math.PI*2)*0.22 : 0;
+  const bounce = running ? Math.abs(Math.sin(t*Math.PI*2))*4.5 : airborne ? Math.sin(frame*0.18)*1.5 : 0;
+  const lean = running ? 0.28 : airborne ? 0.12 : 0;
 
-  // ── Four-paw positions (rotary gallop: RH LF LH RF) ──
-  // Each paw has phase offset 0, 0.25, 0.5, 0.75 in the cycle
-  // When paw is in swing phase (up) it lifts; stance phase it's on ground
-  function pawPos(phaseOffset,isHind){
-    // When Mimi is idle (not running), freeze paws in natural standing position
-    if(!running) return {px:isHind?3:-2, py:0, swing:false};
-    const t=(gT+phaseOffset)%1;
-    const swing=t<0.5; // swing = lifted, stance = pushing
-    const liftH=galloping?14:7;
-    const forwardReach=galloping?10:5;
-    const px2=swing?(isHind?-4:6)+Math.sin(t*Math.PI)*forwardReach:(isHind?4:-2);
-    const py2=swing?-Math.sin(t*Math.PI)*liftH:0;
-    return{px:px2,py:py2,swing};
+  c.translate(x + MIMI_W/2, y + MIMI_H*0.62 + bounce);
+  c.scale(facing, 1);
+  c.rotate(lean);
+
+  function limb(x1,y1,x2,y2,w1,w2,col){
+    const dx=x2-x1, dy=y2-y1, len=Math.sqrt(dx*dx+dy*dy)||1;
+    const nx=-dy/len, ny=dx/len;
+    c.fillStyle=col;
+    c.beginPath();
+    c.moveTo(x1+nx*w1, y1+ny*w1);
+    c.lineTo(x2+nx*w2, y2+ny*w2);
+    c.lineTo(x2-nx*w2, y2-ny*w2);
+    c.lineTo(x1-nx*w1, y1-ny*w1);
+    c.closePath(); c.fill();
   }
-  const RF=pawPos(0,   false); // right front
-  const LH=pawPos(0.25,true);  // left hind
-  const LF=pawPos(0.5, false); // left front
-  const RH=pawPos(0.75,true);  // right hind
 
-  // ── TAIL (drawn first, behind body) ──
-  // Tail position depends on state: running=low+streaming, idle=high curl
-  const isMoving=speed>0.3&&onGround;
-  const tailSwing=isMoving?
-    Math.sin(frame*.28)*10+Math.cos(frame*.14)*5:   // stream behind when running
-    Math.sin(frame*.12)*14+Math.cos(frame*.08)*7;    // lazy curl when idle/airborne
-  const tailY=isMoving?22:14;
-  const tailEndX=isMoving?-20+tailSwing*.5:-16+tailSwing*1.3;
-  const tailEndY=isMoving?38:44;
-  c.strokeStyle='#f4855a';c.lineWidth=5;c.lineCap='round';
-  c.beginPath();c.moveTo(-8,tailY);c.quadraticCurveTo(-22+tailSwing,tailY+12,tailEndX,tailEndY);c.stroke();
-  // Stripe on tail
-  c.strokeStyle='rgba(160,50,0,0.4)';c.lineWidth=2;
-  c.beginPath();c.moveTo(-8,tailY);c.quadraticCurveTo(-22+tailSwing,tailY+12,tailEndX,tailEndY);c.stroke();
-  c.fillStyle='#d4540a';c.beginPath();c.arc(tailEndX,tailEndY,4,0,Math.PI*2);c.fill();
+  function legAngle(phaseShift, reach, liftPeak){
+    const lt=(t+phaseShift)%1;
+    const swing = lt<0.5
+      ? Math.sin(lt*Math.PI*2)*reach
+      : -Math.sin((lt-0.5)*Math.PI*2)*reach*0.6;
+    const lift = lt<0.5 ? Math.sin(lt*Math.PI)*liftPeak : 0;
+    return {swing, lift};
+  }
+
+  const RF = running ? legAngle(0,    0.55, 11) : {swing:0,lift:0};
+  const LF = running ? legAngle(0.5,  0.55, 11) : {swing:0,lift:0};
+  const RH = running ? legAngle(0.25, 0.65, 13) : {swing:0,lift:0};
+  const LH = running ? legAngle(0.75, 0.65, 13) : {swing:0,lift:0};
+
+  const airTuck = airborne ? 0.3 : 0;
+
+  const hipX=0, hipY=0;
+  const shlX=20, shlY=0;
+  const spineY = Math.sin(spineArc)*6;
+
+  // ── TAIL ──
+  const tailWag = running
+    ? Math.sin(t*Math.PI*4)*6
+    : Math.sin(frame*0.07)*14;
+  const tailRootX = hipX - 4;
+  const tailRootY = hipY - 2;
+  // Idle: tail curves up and over in a nice arc
+  // Running: streams behind, tip lifts
+  const tailMidX  = running ? tailRootX - 18 : tailRootX - 8;
+  const tailMidY  = running ? tailRootY - 10 : tailRootY - 24;
+  const tailTipX  = running ? tailRootX - 26 : tailRootX + tailWag * 0.25;
+  const tailTipY  = running ? tailRootY - 20 + tailWag * 0.5 : tailRootY - 40 + tailWag;
+  // Thick-to-thin tail using layered strokes
+  c.lineCap='round'; c.lineJoin='round';
+  c.strokeStyle='#f4855a'; c.lineWidth=7;
+  c.beginPath(); c.moveTo(tailRootX, tailRootY);
+  c.bezierCurveTo(tailMidX, tailMidY, tailTipX, tailTipY-6, tailTipX, tailTipY);
+  c.stroke();
+  c.strokeStyle='#f4855a'; c.lineWidth=4;
+  c.beginPath(); c.moveTo(tailRootX+2, tailRootY);
+  c.bezierCurveTo(tailMidX, tailMidY, tailTipX, tailTipY-4, tailTipX, tailTipY);
+  c.stroke();
+  c.strokeStyle='rgba(200,80,0,0.3)'; c.lineWidth=2;
+  c.beginPath(); c.moveTo(tailRootX+4, tailRootY);
+  c.bezierCurveTo(tailMidX, tailMidY, tailTipX, tailTipY-2, tailTipX, tailTipY);
+  c.stroke();
+  // Fluffy tip
+  c.fillStyle='#c84a08';
+  c.beginPath(); c.arc(tailTipX, tailTipY, 4.5, 0, Math.PI*2); c.fill();
+  c.fillStyle='#f4855a';
+  c.beginPath(); c.arc(tailTipX, tailTipY, 2.8, 0, Math.PI*2); c.fill();
 
   // ── HIND LEGS (behind body) ──
-  c.save();c.scale(bodyScaleX,bodyScaleY);
-  function drawLeg(lx,ly,paw,isHind){
-    const kneeX=isHind?lx-paw.px*.3:lx+paw.px*.3;
-    const kneeY=ly+(isHind?8:6);
-    c.strokeStyle='#f0ece8';c.lineWidth=4;c.lineCap='round';
-    c.beginPath();c.moveTo(lx,ly);c.quadraticCurveTo(kneeX,kneeY,lx+paw.px,ly+12+paw.py);c.stroke();
-    // Paw
-    c.fillStyle=paw.swing?'#e8e4e0':'#f0ece8';
-    c.beginPath();c.ellipse(lx+paw.px,ly+13+paw.py,4,3,paw.px*.05,0,Math.PI*2);c.fill();
+  function drawHindLeg(phase, side){
+    const {swing,lift}=phase;
+    const thighLen=12, shinLen=11;
+    // Idle: legs straight down. Running: swing forward/back
+    const thighAngle = swing + airTuck*0.5;
+    const kx = hipX + Math.sin(thighAngle)*thighLen * side;
+    const ky = hipY + Math.cos(thighAngle)*thighLen;
+    const shinAngle = thighAngle*0.4 + (running ? 0.45 : 0);
+    const px = kx + Math.sin(shinAngle)*shinLen * side;
+    const py = ky + Math.cos(shinAngle)*shinLen - lift;
+    limb(hipX, hipY, kx, ky, 4, 3.5, '#e8ddd4');
+    limb(kx, ky, px, py, 3.5, 2.5, '#ddd4c8');
+    c.fillStyle='#e8e0d8';
+    c.beginPath(); c.ellipse(px, py, 5, 3, 0, 0, Math.PI*2); c.fill();
   }
-  drawLeg(-6,16,RH,true);
-  drawLeg(4,16,LH,true);
-  c.restore();
+  drawHindLeg(RH,  1);
+  drawHindLeg(LH, -1);
 
-  // ── BODY (stretched during gallop) ──
-  c.save();c.scale(bodyScaleX,bodyScaleY);
+  // ── BODY ──
   c.fillStyle='#f5f2ee';
-  c.beginPath();c.ellipse(0,6,13,16,0,0,Math.PI*2);c.fill();
-  // Tabby body stripes
-  c.strokeStyle='rgba(180,160,140,0.25)';c.lineWidth=2;
-  c.beginPath();c.moveTo(-10,1);c.quadraticCurveTo(0,-3,10,1);c.stroke();
-  c.beginPath();c.moveTo(-11,7);c.quadraticCurveTo(0,4,11,7);c.stroke();
-  c.beginPath();c.moveTo(-10,14);c.quadraticCurveTo(0,11,10,14);c.stroke();
-  c.restore();
+  c.beginPath(); c.ellipse(hipX, hipY+spineY, 10, 13, spineArc*0.3, 0, Math.PI*2); c.fill();
+  c.beginPath(); c.ellipse((hipX+shlX)/2, (hipY+shlY)/2+spineY*0.5, 8, 11, 0, 0, Math.PI*2); c.fill();
+  c.fillStyle='#f0ece6';
+  c.beginPath(); c.ellipse(shlX, shlY, 9, 12, -spineArc*0.2, 0, Math.PI*2); c.fill();
+  c.strokeStyle='rgba(160,140,120,0.2)'; c.lineWidth=1.8;
+  [-2,4,10].forEach(bx=>{
+    c.beginPath(); c.moveTo(bx,-8+spineY*0.3); c.lineTo(bx+1,6+spineY*0.3); c.stroke();
+  });
 
-  // ── FRONT LEGS ──
-  c.save();c.scale(bodyScaleX,bodyScaleY);
-  drawLeg(-5,14,LF,false);
-  drawLeg(5,14,RF,false);
-  c.restore();
+  // ── FRONT LEGS — identical logic to hind, anchored at shoulder ──
+  function drawFrontLeg(phase, side){
+    const {swing,lift}=phase;
+    const thighLen=12, shinLen=11;
+    const thighAngle = swing + airTuck*0.5;
+    const kx = shlX + Math.sin(thighAngle)*thighLen * side;
+    const ky = shlY + Math.cos(thighAngle)*thighLen;
+    const shinAngle = thighAngle*0.4 + (running ? 0.45 : 0);
+    const px = kx + Math.sin(shinAngle)*shinLen * side;
+    const py = ky + Math.cos(shinAngle)*shinLen - lift;
+    limb(shlX, shlY, kx, ky, 4, 3.5, '#e8ddd4');
+    limb(kx, ky, px, py, 3.5, 2.5, '#ddd4c8');
+    c.fillStyle='#e8e0d8';
+    c.beginPath(); c.ellipse(px, py, 5, 3, 0, 0, Math.PI*2); c.fill();
+  }
+  drawFrontLeg(LF, -1);
+  drawFrontLeg(RF,  1);
 
-  // ── HEAD (tilts forward when running) ──
-  const headTilt=running?0.18:0;
-  const headX=running?4:2;
-  c.save();c.translate(headX,-11);c.rotate(headTilt);
-  // White head base
-  c.fillStyle='#f5f2ee';c.beginPath();c.ellipse(0,0,13,12,0,0,Math.PI*2);c.fill();
-  // Orange patch on top-right of head
+  // ── NECK + HEAD ──
+  const headTilt = running ? 0.25 : airborne ? 0.1 : 0;
+  const neckAngle = -(Math.PI/2) + headTilt*0.5;
+  const neckLen = 9;
+  const neckTipX = shlX + Math.cos(neckAngle)*neckLen;
+  const neckTipY = shlY + Math.sin(neckAngle)*neckLen;
+  limb(shlX, shlY, neckTipX, neckTipY, 5, 4.5, '#f0ece6');
+
+  c.save();
+  c.translate(neckTipX, neckTipY);
+  c.rotate(headTilt);
+
+  // White head
+  c.fillStyle='#f5f2ee';
+  c.beginPath(); c.ellipse(0, 0, 10, 9, 0, 0, Math.PI*2); c.fill();
+  // Orange patch
   c.fillStyle='#f4855a';
-  c.beginPath();c.ellipse(4,-4,8,7,0.3,0,Math.PI*2);c.fill();
-  // Re-draw white base lower part to keep orange only on top
+  c.beginPath(); c.ellipse(3,-3, 7, 6, 0.3, 0, Math.PI*2); c.fill();
+  // Re-whiten lower head
   c.fillStyle='#f5f2ee';
-  c.beginPath();c.ellipse(0,3,13,9,0,0,Math.PI*2);c.fill();
-  // Head stripes (subtle on white)
-  c.strokeStyle='rgba(180,160,140,0.2)';c.lineWidth=1.4;
-  c.beginPath();c.moveTo(-3,-9);c.lineTo(-3,-4);c.stroke();
-  c.beginPath();c.moveTo(2,-10);c.lineTo(2,-5);c.stroke();
-  c.beginPath();c.moveTo(7,-9);c.lineTo(6,-4);c.stroke();
-  // Ears (flatten back when running fast)
-  const earFlatten=(galloping&&speed>0.3)?0.55:1;
-  // Left ear white, right ear orange (matching head patch)
-  c.save();c.scale(1,earFlatten);
+  c.beginPath(); c.ellipse(0, 3, 10, 7, 0, 0, Math.PI*2); c.fill();
+
+  // Ears
+  const earH = (running&&speed>2.5) ? 0.62 : 1;
+  c.save(); c.scale(1, earH);
   c.fillStyle='#f5f2ee';
-  c.beginPath();c.moveTo(-8,-9);c.lineTo(-15,-22);c.lineTo(-2,-11);c.closePath();c.fill();
+  c.beginPath(); c.moveTo(-6,-7); c.lineTo(-12,-18); c.lineTo(-1,-9); c.closePath(); c.fill();
   c.fillStyle='#f4855a';
-  c.beginPath();c.moveTo(10,-9);c.lineTo(18,-22);c.lineTo(5,-11);c.closePath();c.fill();
-  c.fillStyle='rgba(255,200,180,0.72)';
-  c.beginPath();c.moveTo(-8,-10);c.lineTo(-12,-19);c.lineTo(-4,-11);c.closePath();c.fill();
-  c.beginPath();c.moveTo(10,-10);c.lineTo(15,-19);c.lineTo(6,-11);c.closePath();c.fill();
+  c.beginPath(); c.moveTo(7,-7); c.lineTo(14,-18); c.lineTo(3,-9); c.closePath(); c.fill();
+  c.fillStyle='rgba(255,190,170,0.7)';
+  c.beginPath(); c.moveTo(-6,-8); c.lineTo(-10,-16); c.lineTo(-2,-9); c.closePath(); c.fill();
+  c.beginPath(); c.moveTo(7,-8); c.lineTo(12,-16); c.lineTo(4,-9); c.closePath(); c.fill();
   c.restore();
-  // Eyes — narrow when galloping (focused)
-  const eyeH=galloping?3.5:5;
+
+  // Eyes
+  const blink=(frame%180<3);
   c.fillStyle='#0d0a06';
-  c.beginPath();c.ellipse(-4,-2,5,6,0,0,Math.PI*2);c.fill();
-  c.beginPath();c.ellipse(7,-2,5,6,0,0,Math.PI*2);c.fill();
-  c.fillStyle='rgba(80,215,55,0.88)';
-  c.beginPath();c.ellipse(-4,-2,4,eyeH,0,0,Math.PI*2);c.fill();
-  c.beginPath();c.ellipse(7,-2,4,eyeH,0,0,Math.PI*2);c.fill();
-  c.fillStyle='#060204';
-  c.beginPath();c.ellipse(-4,-2,1.8,eyeH,0,0,Math.PI*2);c.fill();
-  c.beginPath();c.ellipse(7,-2,1.8,eyeH,0,0,Math.PI*2);c.fill();
-  c.fillStyle='white';c.beginPath();c.arc(-6,-4,1.5,0,Math.PI*2);c.fill();c.beginPath();c.arc(5,-4,1.5,0,Math.PI*2);c.fill();
+  c.beginPath(); c.ellipse(-3,-1, 4, 5, 0, 0, Math.PI*2); c.fill();
+  c.beginPath(); c.ellipse( 5,-1, 4, 5, 0, 0, Math.PI*2); c.fill();
+  if(!blink){
+    const eyeH = running&&speed>2 ? 2.5 : 4;
+    c.fillStyle='rgba(70,200,50,0.9)';
+    c.beginPath(); c.ellipse(-3,-1, 3, eyeH, 0, 0, Math.PI*2); c.fill();
+    c.beginPath(); c.ellipse( 5,-1, 3, eyeH, 0, 0, Math.PI*2); c.fill();
+    c.fillStyle='#060204';
+    c.beginPath(); c.ellipse(-3,-1, 1.4, eyeH, 0, 0, Math.PI*2); c.fill();
+    c.beginPath(); c.ellipse( 5,-1, 1.4, eyeH, 0, 0, Math.PI*2); c.fill();
+    c.fillStyle='white';
+    c.beginPath(); c.arc(-5,-3, 1.3, 0, Math.PI*2); c.fill();
+    c.beginPath(); c.arc( 3,-3, 1.3, 0, Math.PI*2); c.fill();
+  }
+
   // Nose
-  c.fillStyle='#ffaaaa';c.beginPath();c.arc(2,3,2,0,Math.PI*2);c.fill();
-  // Whiskers (stream back when running)
-  const wAngle=running?-0.18:0;
-  c.strokeStyle='rgba(255,240,215,0.65)';c.lineWidth=1;
-  c.save();c.rotate(wAngle);
-  c.beginPath();c.moveTo(2,3);c.lineTo(18,1);c.stroke();
-  c.beginPath();c.moveTo(2,3);c.lineTo(18,5);c.stroke();
-  c.beginPath();c.moveTo(2,3);c.lineTo(-12,1);c.stroke();
-  c.beginPath();c.moveTo(2,3);c.lineTo(-12,5);c.stroke();
+  c.fillStyle='#ffaaaa';
+  c.beginPath(); c.arc(1, 3, 1.8, 0, Math.PI*2); c.fill();
+
+  // Whiskers
+  const wA = running ? -0.15 : 0;
+  c.strokeStyle='rgba(255,240,215,0.7)'; c.lineWidth=0.9;
+  c.save(); c.rotate(wA);
+  [[1,3,14,1],[1,3,14,5],[1,3,-10,1],[1,3,-10,5]].forEach(([x1,y1,x2,y2])=>{
+    c.beginPath(); c.moveTo(x1,y1); c.lineTo(x2,y2); c.stroke();
+  });
   c.restore();
-  c.restore(); // end head
+  c.restore(); // head
 
-  // Romance heart
+  // Extras
   if(mimiRomancing>0){
-    c.save();c.globalAlpha=baseAlpha;
-    c.font='15px serif';c.textAlign='center';c.fillText('💕',0,-38);
-    c.restore();
+    c.font='15px serif'; c.textAlign='center'; c.fillText('\u{1F495}',10,-32);
   }
-  // Fighting punch flash
   if(mimiPunching>0){
-    c.save();c.globalAlpha=baseAlpha*(mimiPunching/8);
-    c.fillStyle='#ff4400';c.font='bold 16px serif';c.textAlign='center';
-    c.fillText('⚡',18,-10);
-    c.restore();
+    c.save(); c.globalAlpha=baseAlpha*(mimiPunching/8);
+    c.fillStyle='#ff4400'; c.font='bold 16px serif'; c.textAlign='center';
+    c.fillText('\u26A1',22,-8); c.restore();
   }
-
-  // Speed lines when really hauling
-  if(speed>3.2){
-    c.strokeStyle='rgba(255,170,80,.35)';c.lineWidth=1.2;
-    const numLines=Math.floor(speed);
-    for(let i=0;i<Math.min(numLines,5);i++){
-      const ox=-20-i*7;
-      c.beginPath();c.moveTo(ox,-8+i*6);c.lineTo(ox-14+i*2,-8+i*6);c.stroke();
+  if(speed>3){
+    c.strokeStyle='rgba(255,170,80,.3)'; c.lineWidth=1.2;
+    for(let i=0;i<4;i++){
+      const ox=-18-i*7, oy=-8+i*6;
+      c.beginPath(); c.moveTo(ox,oy); c.lineTo(ox-12,oy); c.stroke();
     }
   }
 
