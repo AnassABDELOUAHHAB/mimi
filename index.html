@@ -748,7 +748,7 @@ footer{position:relative;z-index:10;text-align:center;padding:26px 20px;color:va
 <div id="panel-cats" class="game-panel">
   <div class="panel-wrap">
     <div class="panel-title">🐱 Mimi's Great Escape</div>
-    <p class="panel-desc">Mimi the orange tomcat is on the prowl — escape the house, charm the ladies & dodge the bullies! 😼</p>
+    <p class="panel-desc">Mimi is on the prowl, escape the house, charm the ladies!</p>
     <div id="cat-wrap">
       <canvas id="cat-canvas"></canvas>
       <div id="cat-screen">
@@ -3722,12 +3722,12 @@ function updateMimi(){
   // Lady cat romance — multi-step dialogue, slow & readable
   // Dialogue steps: each step has Mimi's line, lady's response, and duration (frames)
   const romanceScript=[
-    {mimi:"hey there... 😼",          lady:null,            dur:110},
-    {mimi:"i have no balls",          lady:"...excuse me?? 😳",dur:130},
-    {mimi:"don't worry about it 😏",  lady:null,            dur:110},
-    {mimi:"you look lovely tonight 🌙",lady:"oh you charmer 😅",dur:130},
-    {mimi:"wanna escape together?",   lady:"...maybe 😏",    dur:120},
-    {mimi:null,                       lady:"ok fine 😻 come here!",dur:100},
+    {mimi:"hey there... 😼",          lady:"OH WOW, Hi",            dur:110},
+    {mimi:"i have no balls",          lady:"...excuse me?? 😳",dur:200},
+    {mimi:"don't worry about it 😏",  lady:null,            dur:200},
+    {mimi:"you look lovely tonight 🌙",lady:"oh you charmer 😅",dur:200},
+    {mimi:"wanna escape together?",   lady:"...maybe 😏",    dur:200},
+    {mimi:null,                       lady:"ok fine 😻 come here!",dur:200},
   ];
   catLadyCats.forEach(lc=>{
     if(lc.charmed)return;
