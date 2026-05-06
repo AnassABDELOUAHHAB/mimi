@@ -2405,7 +2405,8 @@ const COL_PAGES=[
   {id:'cherry',label:'Cherry 🤍'},{id:'negra',label:'Negra 🖤'},
   {id:'linda',label:'Linda 🐱'},{id:'kitty',label:'Kitty 🐱'},{id:'blanca',label:'Blanca 🐱'},
   {id:'dog',label:'Biscuit 🐶'},
-  {id:'lilies',label:'Lilies 🌸'},{id:'roses',label:'Roses 🌹'},{id:'daisies',label:'Daisies 🌼'}
+  {id:'lilies',label:'Lilies 🌸'},{id:'roses',label:'Roses 🌹'},{id:'daisies',label:'Daisies 🌼'},
+  {id:'oranges',label:'Oranges 🍊'}
 ];
 
 function initColoring(){
@@ -2479,7 +2480,7 @@ function floodFill(sx,sy,fillColor){
 function loadColPage(id){
   colCtx.clearRect(0,0,colCanvas.width,colCanvas.height);
   colCtx.fillStyle='#ffffff';colCtx.fillRect(0,0,colCanvas.width,colCanvas.height);
-  const fns={mimi:drawMimi,dodo:drawDodo,cherry:drawCherry,negra:drawNegra,linda:drawLinda,kitty:drawKitty,blanca:drawBlanca,dog:drawCuteDog,lilies:drawLiliesPage,roses:drawRosesPage,daisies:drawDaisiesPage};
+  const fns={mimi:drawMimi,dodo:drawDodo,cherry:drawCherry,negra:drawNegra,linda:drawLinda,kitty:drawKitty,blanca:drawBlanca,dog:drawCuteDog,lilies:drawLiliesPage,roses:drawRosesPage,daisies:drawDaisiesPage,oranges:drawOrangesPage};
   if(fns[id])fns[id]();
 }
 
@@ -3208,6 +3209,194 @@ function drawBlanca(){
   });
   c.strokeStyle='#4aa8d8';c.lineWidth=1;c.strokeRect(18,55,564,448);
   c.strokeStyle='#8ec4a4';c.lineWidth=0.5;c.strokeRect(24,61,552,436);
+}
+
+// ── Oranges coloring page ──
+function drawOrangesPage(){
+  const c=colCtx;cc(c);
+  c.lineWidth=2;
+
+  // Title
+  c.font='bold italic 24px "Caveat",cursive';
+  c.fillStyle='#c85a00';c.textAlign='center';
+  c.fillText('Sweet Oranges \U0001f34a',300,36);
+
+  // ── Helper: draw a clean segment line from center outward ──
+  function segLines(cx,cy,r,n){
+    for(let i=0;i<n;i++){
+      const a=i*(Math.PI*2/n);
+      c.beginPath();c.moveTo(cx,cy);
+      c.lineTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r);
+      c.stroke();
+    }
+  }
+
+  // ── 1. Large whole orange — centre-left, pride of place ──
+  const o1x=188,o1y=230,o1r=88;
+  // Outer rind
+  c.lineWidth=2.8;
+  c.beginPath();c.arc(o1x,o1y,o1r,0,Math.PI*2);c.stroke();
+  // Inner rind band
+  c.lineWidth=1.2;
+  c.beginPath();c.arc(o1x,o1y,o1r-10,0,Math.PI*2);c.stroke();
+  // Navel dimple top
+  c.beginPath();c.ellipse(o1x,o1y-o1r+5,9,5,0,0,Math.PI*2);c.stroke();
+  // Peel texture dots (stipple — 18 dots scattered)
+  c.lineWidth=1;
+  const dotSeeds=[[22,-40],[45,-18],[60,10],[55,38],[38,62],[10,72],[-20,68],
+    [-50,55],[-70,28],[-72,-6],[-60,-36],[-40,-60],[-14,-76],[18,-74],[50,-52],
+    [72,-20],[74,16],[60,44]];
+  dotSeeds.forEach(([dx,dy])=>{
+    c.beginPath();c.arc(o1x+dx*0.85,o1y+dy*0.85,2.2,0,Math.PI*2);c.stroke();
+  });
+  // Stem
+  c.lineWidth=2.5;
+  c.beginPath();c.moveTo(o1x,o1y-o1r);c.bezierCurveTo(o1x+4,o1y-o1r-14,o1x+8,o1y-o1r-22,o1x+6,o1y-o1r-30);c.stroke();
+  // Big leaf 1
+  c.lineWidth=1.8;
+  c.beginPath();c.moveTo(o1x+6,o1y-o1r-22);
+  c.bezierCurveTo(o1x+38,o1y-o1r-38,o1x+52,o1y-o1r-16,o1x+32,o1y-o1r-10);
+  c.bezierCurveTo(o1x+16,o1y-o1r-6,o1x+6,o1y-o1r-16,o1x+6,o1y-o1r-22);
+  c.stroke();
+  // Leaf midrib
+  c.lineWidth=0.9;
+  c.beginPath();c.moveTo(o1x+6,o1y-o1r-22);c.lineTo(o1x+32,o1y-o1r-10);c.stroke();
+  // Leaf veins
+  [[0.3,0.55],[0.55,0.72],[0.75,0.85]].forEach(([t1,t2])=>{
+    const lx1=o1x+6+(32-6)*t1, ly1=o1y-o1r-22+((-10)-(-22))*t1;
+    const lx2=lx1+8,ly2=ly1-9;
+    c.beginPath();c.moveTo(lx1,ly1);c.lineTo(lx2,ly2);c.stroke();
+  });
+  // Big leaf 2 (other side)
+  c.lineWidth=1.8;
+  c.beginPath();c.moveTo(o1x+4,o1y-o1r-20);
+  c.bezierCurveTo(o1x-22,o1y-o1r-40,o1x-40,o1y-o1r-22,o1x-24,o1y-o1r-10);
+  c.bezierCurveTo(o1x-10,o1y-o1r-4,o1x+2,o1y-o1r-12,o1x+4,o1y-o1r-20);
+  c.stroke();
+  c.lineWidth=0.9;
+  c.beginPath();c.moveTo(o1x+4,o1y-o1r-20);c.lineTo(o1x-24,o1y-o1r-10);c.stroke();
+  [[0.3,0.55],[0.6,0.8]].forEach(([t1])=>{
+    const lx1=o1x+4+((-24)-4)*t1, ly1=o1y-o1r-20+((-10)-(-20))*t1;
+    c.beginPath();c.moveTo(lx1,ly1);c.lineTo(lx1-8,ly1-8);c.stroke();
+  });
+
+  // ── 2. Half orange (cut face) — upper right ──
+  const o2x=390,o2y=188,o2r=72;
+  c.lineWidth=2.8;
+  // Full circle outline (rind)
+  c.beginPath();c.arc(o2x,o2y,o2r,0,Math.PI*2);c.stroke();
+  // Inner flesh circle
+  c.lineWidth=1.4;
+  c.beginPath();c.arc(o2x,o2y,o2r-8,0,Math.PI*2);c.stroke();
+  // Center pip circle
+  c.beginPath();c.arc(o2x,o2y,10,0,Math.PI*2);c.stroke();
+  // 10 segments
+  c.lineWidth=1.2;
+  segLines(o2x,o2y,o2r-8,10);
+  // Segment arc curves (realistic membrane lines)
+  c.lineWidth=0.8;
+  for(let i=0;i<10;i++){
+    const a1=i*(Math.PI*2/10), a2=(i+1)*(Math.PI*2/10);
+    const mx=Math.cos((a1+a2)/2)*(o2r-8)*0.55;
+    const my=Math.sin((a1+a2)/2)*(o2r-8)*0.55;
+    c.beginPath();
+    c.moveTo(o2x+Math.cos(a1)*10,o2y+Math.sin(a1)*10);
+    c.quadraticCurveTo(o2x+mx,o2y+my,o2x+Math.cos(a1)*10,o2y+Math.sin(a1)*10);
+    c.stroke();
+  }
+  // Juice pip dots between segments
+  c.lineWidth=1;
+  for(let i=0;i<10;i++){
+    const a=(i+0.5)*(Math.PI*2/10), rd=o2r*0.55;
+    c.beginPath();c.arc(o2x+Math.cos(a)*rd,o2y+Math.sin(a)*rd,2.5,0,Math.PI*2);c.stroke();
+  }
+  // Small stem + leaf
+  c.lineWidth=2;
+  c.beginPath();c.moveTo(o2x,o2y-o2r);c.lineTo(o2x+3,o2y-o2r-18);c.stroke();
+  c.lineWidth=1.6;
+  c.beginPath();c.moveTo(o2x+3,o2y-o2r-12);
+  c.bezierCurveTo(o2x+22,o2y-o2r-26,o2x+34,o2y-o2r-14,o2x+18,o2y-o2r-8);
+  c.bezierCurveTo(o2x+10,o2y-o2r-4,o2x+3,o2y-o2r-8,o2x+3,o2y-o2r-12);
+  c.stroke();
+  c.lineWidth=0.8;c.beginPath();c.moveTo(o2x+3,o2y-o2r-12);c.lineTo(o2x+18,o2y-o2r-8);c.stroke();
+
+  // ── 3. Orange wedge/slice — lower right ──
+  const o3x=430,o3y=370;
+  const wedgeStart=-Math.PI*0.08, wedgeEnd=Math.PI*0.72, wedgeR=78;
+  c.lineWidth=2.5;
+  c.beginPath();c.moveTo(o3x,o3y);c.arc(o3x,o3y,wedgeR,wedgeStart,wedgeEnd);c.closePath();c.stroke();
+  // Inner flesh
+  c.lineWidth=1.2;
+  c.beginPath();c.moveTo(o3x,o3y);c.arc(o3x,o3y,wedgeR-9,wedgeStart,wedgeEnd);c.closePath();c.stroke();
+  // Segment lines (5 lines within the wedge)
+  const wedgeSpan=wedgeEnd-wedgeStart;
+  c.lineWidth=1;
+  for(let i=1;i<5;i++){
+    const a=wedgeStart+i*(wedgeSpan/5);
+    c.beginPath();c.moveTo(o3x,o3y);c.lineTo(o3x+Math.cos(a)*(wedgeR-9),o3y+Math.sin(a)*(wedgeR-9));c.stroke();
+  }
+  // Juice dots
+  c.lineWidth=0.9;
+  for(let i=0;i<5;i++){
+    const a=wedgeStart+(i+0.5)*(wedgeSpan/5), rd=(wedgeR-9)*0.58;
+    c.beginPath();c.arc(o3x+Math.cos(a)*rd,o3y+Math.sin(a)*rd,2.2,0,Math.PI*2);c.stroke();
+  }
+
+  // ── 4. Small whole orange — lower left, bouncy ──
+  const o4x=120,o4y=390,o4r=52;
+  c.lineWidth=2.2;
+  c.beginPath();c.arc(o4x,o4y,o4r,0,Math.PI*2);c.stroke();
+  c.lineWidth=1;
+  c.beginPath();c.arc(o4x,o4y,o4r-7,0,Math.PI*2);c.stroke();
+  // Peel dots (smaller)
+  [[18,-28],[34,-8],[36,14],[26,32],[4,40],[-20,34],[-36,14],[-36,-10],[-24,-30],[-4,-40],[18,-28]].forEach(([dx,dy])=>{
+    c.beginPath();c.arc(o4x+dx*0.85,o4y+dy*0.85,1.6,0,Math.PI*2);c.stroke();
+  });
+  c.lineWidth=2;
+  c.beginPath();c.moveTo(o4x,o4y-o4r);c.bezierCurveTo(o4x+3,o4y-o4r-10,o4x+5,o4y-o4r-16,o4x+4,o4y-o4r-22);c.stroke();
+  c.lineWidth=1.4;
+  c.beginPath();c.moveTo(o4x+4,o4y-o4r-16);
+  c.bezierCurveTo(o4x+20,o4y-o4r-28,o4x+30,o4y-o4r-14,o4x+18,o4y-o4r-8);
+  c.bezierCurveTo(o4x+8,o4y-o4r-4,o4x+3,o4y-o4r-10,o4x+4,o4y-o4r-16);
+  c.stroke();
+  c.lineWidth=0.8;c.beginPath();c.moveTo(o4x+4,o4y-o4r-16);c.lineTo(o4x+18,o4y-o4r-8);c.stroke();
+
+  // ── 5. Loose leaves scattered for composition ──
+  c.lineWidth=1.5;
+  // Leaf near top right corner
+  function smallLeaf(lx,ly,angle,size){
+    c.save();c.translate(lx,ly);c.rotate(angle);
+    c.beginPath();c.moveTo(0,0);
+    c.bezierCurveTo(-size*.3,-size*.6,-size*.2,-size*1.2,0,-size*1.4);
+    c.bezierCurveTo(size*.2,-size*1.2,size*.3,-size*.6,0,0);
+    c.stroke();
+    c.lineWidth=0.7;c.beginPath();c.moveTo(0,0);c.lineTo(0,-size*1.4);c.stroke();
+    c.restore();
+  }
+  c.lineWidth=1.4;
+  smallLeaf(500,120,-0.6,28);
+  smallLeaf(520,148, 0.4,22);
+  smallLeaf(70,170,-0.3,24);
+  smallLeaf(52,200, 0.5,18);
+  smallLeaf(320,430,-0.5,20);
+  smallLeaf(345,452, 0.4,16);
+
+  // ── Decorative blossom flowers (orange tree blooms) ──
+  function blossom(bx,by,r){
+    for(let i=0;i<5;i++){
+      const a=i*Math.PI*2/5;
+      c.beginPath();c.ellipse(bx+Math.cos(a)*r*1.2,by+Math.sin(a)*r*1.2,r,r*0.7,a,0,Math.PI*2);c.stroke();
+    }
+    c.beginPath();c.arc(bx,by,r*0.7,0,Math.PI*2);c.stroke();
+  }
+  c.lineWidth=1.2;
+  blossom(490,260,8);
+  blossom(68,288,7);
+  blossom(300,100,9);
+
+  // ── Border — warm double frame ──
+  c.strokeStyle='#c85a00';c.lineWidth=1.2;c.strokeRect(18,55,564,448);
+  c.strokeStyle='#f4a030';c.lineWidth=0.6;c.strokeRect(26,63,548,432);
 }
 
 /* ══════════════════════════════════════════
