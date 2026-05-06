@@ -1037,55 +1037,75 @@ const BIRTH_DAY   = 5;    // birth day
 
     const birth = new Date(BIRTH_YEAR, BIRTH_MONTH - 1, BIRTH_DAY, 0, 0, 0);
 
-    // Exact current age
-    let ageYears = now.getFullYear() - birth.getFullYear();
-    let ageMonths = now.getMonth() - birth.getMonth();
-    let ageDays = now.getDate() - birth.getDate();
-    let ageHours = now.getHours() - birth.getHours();
-    let ageMins = now.getMinutes() - birth.getMinutes();
+    // ── Helper: format a list of parts with & before last, skip zeros ──
+    function buildStr(parts){
+      if(parts.length === 0) return 'just now';
+      if(parts.length === 1) return parts[0];
+      return parts.slice(0,-1).join(', ') + ' & ' + parts[parts.length-1];
+    }
+    function unit(n, s){ return n + ' ' + s + (n === 1 ? '' : 's'); }
 
-    if(ageMins < 0){ ageMins += 60; ageHours--; }
-    if(ageHours < 0){ ageHours += 24; ageDays--; }
-    if(ageDays < 0){
+    // ── EXACT AGE using real calendar diff ──
+    // Work entirely in ms-level precision from birth to now
+    let ageYears  = now.getFullYear() - birth.getFullYear();
+    let ageMonths = now.getMonth()    - birth.getMonth();
+    let ageDays   = now.getDate()     - birth.getDate();
+    let ageHours  = now.getHours()    - birth.getHours();
+    let ageMins   = now.getMinutes()  - birth.getMinutes();
+
+    if(ageMins  < 0){ ageMins  += 60; ageHours--; }
+    if(ageHours < 0){ ageHours += 24; ageDays--;  }
+    if(ageDays  < 0){
+      // days in the previous month relative to now
       const prevMonth = new Date(now.getFullYear(), now.getMonth(), 0);
-      ageDays += prevMonth.getDate();
+      ageDays  += prevMonth.getDate();
       ageMonths--;
     }
     if(ageMonths < 0){ ageMonths += 12; ageYears--; }
 
-    // Next birthday
+    const ageParts = [];
+    if(ageYears  > 0) ageParts.push(unit(ageYears,  'year'));
+    if(ageMonths > 0) ageParts.push(unit(ageMonths, 'month'));
+    if(ageDays   > 0) ageParts.push(unit(ageDays,   'day'));
+    if(ageHours  > 0) ageParts.push(unit(ageHours,  'hour'));
+    if(ageMins   > 0) ageParts.push(unit(ageMins,   'minute'));
+    const ageStr = ageParts.length ? buildStr(ageParts) : 'just born!!';
+
+    // ── NEXT BIRTHDAY using real calendar months ──
+    // Next birthday is the first future May 5 at 00:00:00
     let nextBday = new Date(now.getFullYear(), BIRTH_MONTH - 1, BIRTH_DAY, 0, 0, 0);
-    if(now >= nextBday) nextBday = new Date(now.getFullYear()+1, BIRTH_MONTH - 1, BIRTH_DAY, 0, 0, 0);
+    if(now >= nextBday) nextBday = new Date(now.getFullYear() + 1, BIRTH_MONTH - 1, BIRTH_DAY, 0, 0, 0);
     const nextAge = nextBday.getFullYear() - BIRTH_YEAR;
 
-    // ── Age string: skip zero units, natural "and" before last ──
-    const ageParts = [];
-    if(ageYears  > 0) ageParts.push(ageYears  + (ageYears  === 1 ? ' year'   : ' years'));
-    if(ageMonths > 0) ageParts.push(ageMonths + (ageMonths === 1 ? ' month'  : ' months'));
-    if(ageDays   > 0) ageParts.push(ageDays   + (ageDays   === 1 ? ' day'    : ' days'));
-    if(ageMins   > 0) ageParts.push(ageMins   + (ageMins   === 1 ? ' minute' : ' minutes'));
-    let ageStr;
-    if(ageParts.length === 0) ageStr = 'just born!!';
-    else if(ageParts.length === 1) ageStr = ageParts[0];
-    else ageStr = ageParts.slice(0,-1).join(', ') + ', and ' + ageParts[ageParts.length-1];
+    // ── COUNTDOWN using real calendar diff (same algorithm as age, reversed) ──
+    let untilYears  = nextBday.getFullYear() - now.getFullYear();
+    let untilMonths = nextBday.getMonth()    - now.getMonth();
+    let untilDays   = nextBday.getDate()     - now.getDate();
+    let untilHours  = nextBday.getHours()    - now.getHours();
+    let untilMins   = nextBday.getMinutes()  - now.getMinutes();
 
-    // ── Countdown remaining: months + days + hours + mins ──
-    const msLeft = nextBday - now;
-    const untilTotalDays = Math.floor(msLeft / (1000*60*60*24));
-    const untilMonths = Math.floor(untilTotalDays / 30);
-    const untilDays   = untilTotalDays - untilMonths * 30;
-    const untilHours  = Math.floor((msLeft % (1000*60*60*24)) / (1000*60*60));
-    const untilMins   = Math.floor((msLeft % (1000*60*60)) / (1000*60));
+    if(untilMins  < 0){ untilMins  += 60; untilHours--; }
+    if(untilHours < 0){ untilHours += 24; untilDays--;  }
+    if(untilDays  < 0){
+      // days remaining in the current month
+      const daysInCurrentMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+      untilDays  += daysInCurrentMonth;
+      untilMonths--;
+    }
+    if(untilMonths < 0){ untilMonths += 12; untilYears--; }
+    // untilYears will always be 0 or 1 (next birthday), fold into months if needed
+    untilMonths += untilYears * 12;
 
     const untilParts = [];
-    if(untilMonths > 0) untilParts.push(untilMonths + (untilMonths === 1 ? ' month'  : ' months'));
-    if(untilDays   > 0) untilParts.push(untilDays   + (untilDays   === 1 ? ' day'    : ' days'));
-    if(untilHours  > 0) untilParts.push(untilHours  + (untilHours  === 1 ? ' hour'   : ' hours'));
-    if(untilMins   > 0) untilParts.push(untilMins   + (untilMins   === 1 ? ' minute' : ' minutes'));
-    let untilStr;
-    if(untilParts.length === 0) untilStr = 'right now!! 🎉';
-    else if(untilParts.length === 1) untilStr = untilParts[0];
-    else untilStr = untilParts.slice(0,-1).join(', ') + ' & ' + untilParts[untilParts.length-1];
+    if(untilMonths > 0) untilParts.push(unit(untilMonths, 'month'));
+    if(untilDays   > 0) untilParts.push(unit(untilDays,   'day'));
+    if(untilHours  > 0) untilParts.push(unit(untilHours,  'hour'));
+    if(untilMins   > 0) untilParts.push(unit(untilMins,   'minute'));
+    const untilStr = untilParts.length ? buildStr(untilParts) : 'right now!! 🎉';
+
+    // Total days left for chart center display
+    const msLeft = nextBday - now;
+    const untilTotalDays = Math.floor(msLeft / (1000*60*60*24));
 
     const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
     const bdayMonthName = MONTH_NAMES[BIRTH_MONTH - 1];
