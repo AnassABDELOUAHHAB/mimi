@@ -978,7 +978,7 @@ let ovRunning=true;
 ══════════════════════════════════════════ */
 const BIRTH_YEAR  = 2003; // year of birth
 const BIRTH_MONTH = 5;    // birth month  (1 = Jan … 12 = Dec)
-const BIRTH_DAY   = 5;    // birth day
+const BIRTH_DAY   = 8;    // birth day
 
 /* ══════════════════════════════════════════
    OVERLAY: BIRTHDAY CHECK vs COUNTDOWN
@@ -1110,8 +1110,8 @@ const BIRTH_DAY   = 5;    // birth day
     const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
     const bdayMonthName = MONTH_NAMES[BIRTH_MONTH - 1];
 
-    document.getElementById('age-title').textContent = `Hi cutie pie! you are ${ageStr} old`;
-    document.getElementById('age-sub').textContent = `and more beautiful every second 🌸`;
+    document.getElementById('age-title').textContent = `Hi cutie pie! Do you know that you have been making this world prettier for exactly ${ageStr} ?`;
+    document.getElementById('age-sub').textContent = `I will be counting every second until I get to say happy birthday to you again 🌸`;
 
     // ── Chart center: number + label, hide "days left" when showing hours/mins ──
     const daysLeftEl   = document.getElementById('days-left');
